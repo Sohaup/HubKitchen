@@ -5,7 +5,7 @@ namespace PostApi\shared\app\http\proxies;
 use PostApi\shared\app\http\middlewares\Middleware;
 use PostApi\shared\app\http\requests\Request;
 
-class ProxyMiddleware
+class ProxyMiddleware implements Proxy
 {
     public array $middlewares = [];
     public function addMiddleware(Middleware $middleware)

@@ -1,13 +1,18 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # 1. Redirect the root (empty path) to the public folder
+    # 1. Capture the Authorization header and set it as an environment variable
+    # This is the "Gatekeeper" fix for PHP
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # 2. Redirect the root (empty path) to the public folder
     RewriteRule ^$ src/public/index.php [L]
 
-    # 2. If the request isn't for a real file or directory...
+    # 3. If the request isn't for a real file or directory...
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
 
-    # 3. ...send it to public/index.php
+    # 4. ...send it to public/index.php
     RewriteRule ^(.*)$ src/public/index.php [QSA,L]
 </IfModule>
