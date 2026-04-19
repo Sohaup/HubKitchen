@@ -3,6 +3,7 @@
 use PostApi\modules\auth\app\controllers\AuthController;
 use PostApi\modules\auth\app\controllers\RolesPermissionController;
 use PostApi\modules\auth\app\http\middlewares\GateMiddleware;
+use PostApi\modules\auth\helpers\types\RoleTypes;
 use PostApi\shared\app\http\proxies\ProxyMiddlewareForRoute;
 use PostApi\shared\app\http\routes\Route\Route;
 use PostApi\shared\app\http\routes\Route\RouteCollection;
@@ -16,7 +17,7 @@ require_once __DIR__ . "/permissionRoutes.php";
 require_once __DIR__ . "/tokenRoutes.php";
 
 
-$gateMiddleWare = new GateMiddleware(['Manager' , 'Security']);
+$gateMiddleWare = new GateMiddleware([RoleTypes::MANAGER->value , RoleTypes::USER->value]);
 
 
 $grantPermissionOnRoleRoute = new Route(Urls::transformRouteUrl("/grant/:id") , HttpMethodsType::POST , RolesPermissionController::class , 'grant');

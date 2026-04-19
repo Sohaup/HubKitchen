@@ -2,6 +2,7 @@
 use PostApi\modules\auth\app\controllers\PermissionController;
 use PostApi\modules\auth\app\http\middlewares\GateMiddleware;
 use PostApi\modules\auth\app\http\middlewares\GuardMiddleware;
+use PostApi\modules\auth\helpers\types\RoleTypes;
 use PostApi\shared\app\http\proxies\ProxyMiddlewareForRoute;
 use PostApi\shared\app\http\routes\Route\Route;
 use PostApi\shared\app\http\routes\Route\RouteCollection;
@@ -11,7 +12,7 @@ use PostApi\shared\helpers\fecade\Urls;
 require_once __DIR__ . "/../../../../../shared/templates/routes.php";
 
 $guardMiddleware = new GuardMiddleware();
-$gateMiddleware = new GateMiddleware(['Manager' , 'Security']);
+$gateMiddleware = new GateMiddleware([RoleTypes::MANAGER->value , RoleTypes::USER->value]);
 
 
 $getPermissionsRoute = new Route(Urls::transformRouteUrl("/permissions/") , HttpMethodsType::GET , PermissionController::class , 'index');
