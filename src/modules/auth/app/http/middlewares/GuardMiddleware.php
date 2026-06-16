@@ -21,8 +21,7 @@ class GuardMiddleware implements Middleware
             echo ViewError::viewProplem("authorization error", "access denid", 1, "token required", 401);
             exit;
         }
-        $authHeader = $headers['Authorization'];
-       
+        $authHeader = $headers['Authorization'];       
         if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
             $token = $matches[1];            
             try {

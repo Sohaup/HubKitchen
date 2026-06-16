@@ -19,7 +19,7 @@ class Router
     }
     public function resolve(string $url, string $method)
     {
-        $pattern = '/postApi/[a-z]*/(?P<id>[a-f0-9\-]+)$';
+        $pattern = '/postApi/[a-zA-Z\-]*/(?P<id>[a-f0-9\-]+)$';
         $path = Urls::transformUrl(parse_url($url, PHP_URL_PATH));           
         foreach ($this->routes as $route) {            
             if ($route->path == $path && $route->httpMethod->value == $method) {

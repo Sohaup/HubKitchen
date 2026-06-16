@@ -1,0 +1,20 @@
+<?php
+
+namespace PostApi\modules\HR\domain\services\salery;
+
+use Error;
+use PostApi\modules\HR\app\DB\repositories\SaleryRepository;
+use PostApi\shared\helpers\fecade\SerializeToSerin;
+
+class GetSaleryItemAction
+{
+    public static function execute(int $id)
+    {
+        $repo = new SaleryRepository();
+        $entity = $repo->findOne($id);
+        if (!$entity) {
+            throw new Error('not found');
+        }
+        return SerializeToSerin::serialize($entity);
+    }
+}

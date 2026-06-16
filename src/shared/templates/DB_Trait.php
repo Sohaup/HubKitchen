@@ -4,6 +4,7 @@ namespace PostApi\shared\templates;
 
 require_once __DIR__ . "/main.php";
 
+use PDO;
 use PostApi\shared\config\DB\Conf;
 use PostApi\shared\config\DB\DBCommand;
 use PostApi\shared\config\Env;
@@ -11,9 +12,10 @@ use PostApi\shared\helpers\queryBuilder\builder\QueryBuilder;
 
 trait DB_Trait
 {
-    public $postgre;
-    public $dataBase;
-    public $queryBuilder;
+    public DBCommand $postgre;
+    public PDO $dataBase;
+    public QueryBuilder $queryBuilder;
+    
     public function initialize()
     {
         Env::configureEnv();

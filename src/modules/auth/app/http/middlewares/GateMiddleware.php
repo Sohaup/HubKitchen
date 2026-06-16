@@ -21,7 +21,7 @@ class GateMiddleware implements Middleware
             $user = $decodedToken->user;
             $role = $user->role;
             foreach ($this->roles as $acceptrole) {
-                if ($role == $acceptrole) {
+                if ($role == $acceptrole->value) {
                     return $next($request);
                 }
             }

@@ -8,8 +8,8 @@ use PostApi\shared\app\http\responses\success\serin\propeties\Propety;
 
 class Entity
 {   
-    public $propeties;
-    public $links;
+    public array $propeties;
+    public array $links;
     public function __construct(public array $class, public array $rel, Propeties $propeties ,  Links $links) {
         $this->propeties = $propeties->propeties;
         $this->links = $links->links;

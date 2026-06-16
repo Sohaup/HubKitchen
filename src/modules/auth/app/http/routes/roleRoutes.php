@@ -4,9 +4,7 @@ use PostApi\modules\auth\app\controllers\RoleController;
 use PostApi\modules\auth\app\http\middlewares\GateMiddleware;
 use PostApi\modules\auth\app\http\middlewares\GuardMiddleware;
 use PostApi\modules\auth\helpers\types\RoleTypes;
-use PostApi\shared\app\http\proxies\ProxyMiddlewareForRoute;
 use PostApi\shared\app\http\routes\Route\Route;
-use PostApi\shared\app\http\routes\Route\RouteCollection;
 use PostApi\shared\app\http\types\HttpMethodsType;
 use PostApi\shared\helpers\fecade\Urls;
 
@@ -41,6 +39,6 @@ $deleteRoleRoute->addMiddleware($guardMiddleware)->addMiddleware($gateMiddleware
 $router->addRoute($deleteRoleRoute);
 $middlewareRoutes->addRoute($deleteRoleRoute);
 
-// $proxyMiddleware = new ProxyMiddlewareForRoute($middlewareRoutes);
+
 
 
