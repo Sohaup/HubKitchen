@@ -38,7 +38,4 @@ $router->addRoute($loginRoute);
 $loginWithGoogleRoute = new Route(Urls::transformRouteUrl("/login/google") , HttpMethodsType::GET , AuthController::class , 'loginWithGoogle');
 $router->addRoute($loginWithGoogleRoute);
 
-$proxyMiddleware = new ProxyMiddlewareForRoute($middlewareRoutes);
-$proxyMiddleware->execute($request);
-
 

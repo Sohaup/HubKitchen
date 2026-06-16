@@ -4,7 +4,6 @@ namespace PostApi\modules\HR\app\DB\models;
 
 use PDO;
 use PostApi\modules\auth\app\DB\models\UserMapper;
-use PostApi\modules\HR\domain\entities\Addresse;
 use PostApi\modules\HR\domain\entities\Employee;
 
 class EmployeeMapper
@@ -16,10 +15,10 @@ class EmployeeMapper
     private JobDescriptionMapper $jobDescriptionMapper;
     public function __construct(private PDO $db)
     {
-        $this->addresseMapper = new AddresseMapper($this->db);
-        $this->departmentMapper = new DepartmentMapper($this->db);
-        $this->userMapper = new UserMapper($this->db);
-        $this->jobDescriptionMapper = new JobDescriptionMapper($this->db);
+        $this->addresseMapper = new AddresseMapper($db);
+        $this->departmentMapper = new DepartmentMapper($db);
+        $this->userMapper = new UserMapper($db);
+        $this->jobDescriptionMapper = new JobDescriptionMapper($db);
     }
     public function findOne(string $id)
     {
@@ -46,14 +45,15 @@ class EmployeeMapper
             $employee->setEmployeeStatus($employeeRawdata['employee_status']);
             $employee->setMartialStatus($employeeRawdata['martial_status']);
             $this->identityMap[$id] = $employee;
+            return $employee;
         }
-        return $this->identityMap[$id];
+        
     }
     public function findAll()
     {
         $getEmployeesQuery = $this->db->prepare("SELECT * FROM HR.employees ");
         $getEmployeesQuery->execute([]);
-        $employeesRawdata = $getEmployeesQuery->fetch(PDO::FETCH_ASSOC);
+        $employeesRawdata = $getEmployeesQuery->fetchAll(PDO::FETCH_ASSOC);       
         foreach ($employeesRawdata as $employeeRawdata) {
             if (!isset($this->identityMap[$employeeRawdata['id']])) {
                 $employee = new Employee();
@@ -73,13 +73,14 @@ class EmployeeMapper
                 $employee->setMartialStatus($employeeRawdata['martial_status']);
                 $this->identityMap[$employee->getId()] = $employee;
             }
-            return $this->identityMap;
-        }
+            
+        }        
+        return $this->identityMap;
     }
     public function create(Employee $employee)
     {
-        $createEmployeeQuery = $this->db->prepare("INSERT INTO HR.employees(martial_status , employee_status , user_id , manager_id , department_id , addresse_id ) VALUES(? , ? , ? , ? , ? , ?) RETURNING id ");
-        $createEmployeeQuery->execute([$employee->getMartialStatus(), $employee->getEmployeeStatus(), $employee->getUser()->getId(), $employee->getManager()->getId(), $employee->getDepartment()->getId(), $employee->getAddress()->getId()]);
+        $createEmployeeQuery = $this->db->prepare("INSERT INTO HR.employees(martial_status , employee_status , user_id , jd_id , manager_id , department_id , addresse_id ) VALUES(? ,?, ? , ? , ? , ? , ?) RETURNING id ");
+        $createEmployeeQuery->execute([$employee->getMartialStatus(), $employee->getEmployeeStatus(), $employee->getUser()->getId(), $employee->getJob()->getId(), $employee->getManager()->getId(), $employee->getDepartment()->getId(), $employee->getAddress()->getId()]);
         $employeeId = $createEmployeeQuery->fetch(PDO::FETCH_ASSOC)['id'];
         $employee->setId($employeeId);
         $this->identityMap[$employeeId] = $employee;
@@ -92,11 +93,12 @@ class EmployeeMapper
             $this->identityMap[$employee->getId()] = $employee;
         }
     }
-    public function delete(string $id) {
+    public function delete(string $id)
+    {
         if (isset($this->identityMap[$id])) {
             $deleteEmployeeQuery = $this->db->prepare("DELETE FROM HR.employees WHERE id = ?");
             $deleteEmployeeQuery->execute([$id]);
             unset($this->identityMap[$id]);
-        }
+        }        
     }
 }

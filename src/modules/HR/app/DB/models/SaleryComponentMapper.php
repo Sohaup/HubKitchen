@@ -32,7 +32,7 @@ class SaleryComponentMapper
         $getSelariesComponentQuery->execute([]);
         $selariesComponentRawData = $getSelariesComponentQuery->fetchAll(PDO::FETCH_ASSOC);
         foreach ($selariesComponentRawData as $saleryComponentRawData) {
-            $saleryComponent = new SaleryComponent(id: $saleryComponentRawData['id'], name: $saleryComponentRawData['name'], type: $saleryComponentRawData['type'], calcType: $selariesComponentRawData['calc_type']);
+            $saleryComponent = new SaleryComponent(id: $saleryComponentRawData['id'], name: $saleryComponentRawData['name'], type: $saleryComponentRawData['type'], calcType: $saleryComponentRawData['calc_type']);
             if (!isset($this->identityMap[$saleryComponent->getId()])) {
                 $this->identityMap[$saleryComponent->getId()] = $saleryComponent;
             }
@@ -42,7 +42,7 @@ class SaleryComponentMapper
 
     public function create(SaleryComponent $saleryComponent)
     {
-        $createSaleryComponentQuery = $this->db->prepare("INSERT INTO HR.selary_components(name , type , calc_type) VALUES(? , ? , ? ) RETURNNG id");
+        $createSaleryComponentQuery = $this->db->prepare("INSERT INTO HR.selary_components(name , type , calc_type) VALUES(? , ? , ? ) RETURNING id");
         $createSaleryComponentQuery->execute([$saleryComponent->getName(), $saleryComponent->getType(), $saleryComponent->getCalcType()]);
         $saleryComponentId = $createSaleryComponentQuery->fetch(PDO::FETCH_ASSOC)['id'];
         if ($saleryComponentId) {
@@ -55,7 +55,7 @@ class SaleryComponentMapper
     {
         if (isset($this->identityMap[$saleryComponent->getId()])) {
             $updateSaleryQuery = $this->db->prepare("UPDATE HR.selary_components SET name =? , type = ? , calc_type = ? WHERE id = ?");
-            $updateSaleryQuery->execute([$saleryComponent->getId(), $saleryComponent->getType(), $saleryComponent->getCalcType()]);
+            $updateSaleryQuery->execute([$saleryComponent->getName(), $saleryComponent->getType(), $saleryComponent->getCalcType() , $saleryComponent->getId()]);
             $this->identityMap[$saleryComponent->getId()] = $saleryComponent;
         }
     }

@@ -9,14 +9,15 @@ use PostApi\modules\HR\helpers\types\MartialStatusType;
 class Employee
 {
     private ?string $id = "";
-    private EmployeeStatusType $employeeStatus;
-    private MartialStatusType $martialStatus;
+    private string $employeeStatus;
+    private string $martialStatus;
     private User $user;
     private JobDescription $job;
     private User $manager;
     private string $employeedAt;
     private Department $department;
     private Addresse $addresse;
+
     public function setId(string $id)
     {
         $this->id = $id;
@@ -25,17 +26,27 @@ class Employee
     {
         return $this->id;
     }
-    public function setEmployeeStatus(EmployeeStatusType $employeeStatus)
+    public function setEmployeeStatus(string $employeeStatus)
     {
-        $this->employeeStatus = $employeeStatus;
+        foreach (EmployeeStatusType::cases() as $employeeStatusType) {
+            if ($employeeStatusType->value === $employeeStatus) {
+                $this->employeeStatus = $employeeStatus;
+                return;
+            }
+        }
     }
     public function getEmployeeStatus()
     {
         return $this->employeeStatus;
     }
-    public function setMartialStatus(MartialStatusType $martialStatus)
+    public function setMartialStatus(string $martialStatus)
     {
-        $this->martialStatus = $martialStatus;
+        foreach (MartialStatusType::cases() as $martialStatusType) {
+            if ($martialStatusType->value === $martialStatus) {
+                $this->martialStatus = $martialStatus;
+                return;
+            }
+        }
     }
     public function getMartialStatus()
     {

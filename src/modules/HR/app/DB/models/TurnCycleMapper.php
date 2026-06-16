@@ -3,12 +3,16 @@
 namespace PostApi\modules\HR\app\DB\models;
 
 use PDO;
+use PostApi\modules\auth\app\DB\models\UserMapper;
+use PostApi\modules\auth\domain\Entities\User;
 use PostApi\modules\HR\domain\entities\TurnCycle;
 
 class TurnCycleMapper
 {
     private array $identityMap = [];
     private EmployeeMapper $employeeMapper;
+
+
     public function __construct(private PDO $db)
     {
         $this->employeeMapper = new EmployeeMapper($this->db);
@@ -35,10 +39,11 @@ class TurnCycleMapper
         $getTurnCycleQuery->execute([]);
         $turnCycleRawData = $getTurnCycleQuery->fetchAll(PDO::FETCH_ASSOC);
         foreach ($turnCycleRawData as $turnCycleRawData) {
-            $employee = $this->employeeMapper->findOne($turnCycleRawData['employee_id']);
-            $turnCycle = new TurnCycle(id: $turnCycleRawData['id'], start_at: $turnCycleRawData['start_at'], leave_at: $turnCycleRawData['leave_at'], employee: $employee);
-            $this->identityMap[$turnCycleRawData['employee_id']] = $turnCycle;
-            $this->identityMap[$turnCycleRawData['id']] = $turnCycle;
+            if (!isset($this->identityMap[$turnCycleRawData['id']])) {
+                $employee = $this->employeeMapper->findOne($turnCycleRawData['employee_id']);
+                $turnCycle = new TurnCycle(id: $turnCycleRawData['id'], start_at: $turnCycleRawData['start_at'], leave_at: $turnCycleRawData['leave_at'], employee: $employee);               
+                $this->identityMap[$turnCycleRawData['id']] = $turnCycle;
+            }
         }
         return $this->identityMap;
     }

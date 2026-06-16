@@ -64,19 +64,15 @@ class AppraiselResultMapper
 
     public function update(AppraiselResult $appriaselReslut)
     {
-        if (isset($this->identityMap[$appriaselReslut->getId()])) {
-            $updateAppriaselReslutQuery = $this->db->prepare("UPDATE HR.appraisal_results SET name = ? , starts_at = ? , ends_at = ? , status = ?  WHERE id = ?");
-            $updateAppriaselReslutQuery->execute([$appriaselReslut->getCycle()->getId(), $appriaselReslut->getEmployee()->getId(), $appriaselReslut->getCritiria()->getId(), $appriaselReslut->getScore(), $appriaselReslut->getManagerComments(), $appriaselReslut->getId()]);
-            $this->identityMap[$appriaselReslut->getId()] = $appriaselReslut;
-        }
+        $updateAppriaselReslutQuery = $this->db->prepare("UPDATE HR.appraisal_results SET cycle_id= ? , employee_id = ? , critiria_id = ? , score = ?  , manager_comment = ? WHERE id = ?");
+        $updateAppriaselReslutQuery->execute([$appriaselReslut->getCycle()->getId(), $appriaselReslut->getEmployee()->getId(), $appriaselReslut->getCritiria()->getId(), $appriaselReslut->getScore(), $appriaselReslut->getManagerComments() , $appriaselReslut->getId()]);
+        $this->identityMap[$appriaselReslut->getId()] = $appriaselReslut;
     }
 
     public function delete(int $id)
     {
-        if (isset($this->identityMap[$id])) {
-            $deleteAppriaselReslutQuery = $this->db->prepare("DELETE FROM HR.appraisal_results WHERE id = ?");
-            $deleteAppriaselReslutQuery->execute([$id]);
-            unset($this->identityMap[$id]);
-        }
+        $deleteAppriaselReslutQuery = $this->db->prepare("DELETE FROM HR.appraisal_results WHERE id = ?");
+        $deleteAppriaselReslutQuery->execute([$id]);
+        unset($this->identityMap[$id]);
     }
 }

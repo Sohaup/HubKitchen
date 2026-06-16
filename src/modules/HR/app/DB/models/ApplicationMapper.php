@@ -25,7 +25,6 @@ class ApplicationMapper
             $application->setEmail($applicationRawData['email']);
             $application->setPhone($applicationRawData['phone']);
             $application->setCv($applicationRawData['cv']);
-            $application->setSkills($applicationRawData['skills']);
             $this->identityMap[$applicationRawData['id']];
             return $application;
         }
@@ -43,7 +42,6 @@ class ApplicationMapper
             $application->setEmail($applicationRawData['email']);
             $application->setPhone($applicationRawData['phone']);
             $application->setCv($applicationRawData['cv']);
-            $application->setSkills($applicationRawData['skills']);
             if (!isset($this->identityMap[$applicationRawData['id']])) {
                 $this->identityMap[$applicationRawData['id']] = $application;
             }
@@ -53,8 +51,8 @@ class ApplicationMapper
 
     public function create(Application $application)
     {
-        $createApplicationQuery = $this->db->prepare("INSERT INTO HR.applications(name , email , phone , cv , skills) VALUES(? , ? , ? , ? , ?) RETURNING id ");
-        $createApplicationQuery->execute([$application->getName() , $application->getEmail() , $application->getPhone() , $application->getCv() , $application->getSkills()]);
+        $createApplicationQuery = $this->db->prepare("INSERT INTO HR.applications(name , email , phone , cv ) VALUES(? , ? , ? , ? ) RETURNING id ");
+        $createApplicationQuery->execute([$application->getName(), $application->getEmail(), $application->getPhone(), $application->getCv()]);
         $applicationId = $createApplicationQuery->fetch(PDO::FETCH_ASSOC)['id'];
         $application->setId($applicationId);
         $this->identityMap[$application->getId()] = $application;
@@ -62,19 +60,17 @@ class ApplicationMapper
 
     public function update(Application $application)
     {
-        if (isset($this->identityMap[$application->getId()])) {
-            $updateApplicationQuery = $this->db->prepare("UPDATE HR.applications SET name = ? , email = ? , phone = ? , cv = ? , skills = ? WHERE id = ?");
-            $updateApplicationQuery->execute([$application->getName(), $application->getEmail() , $application->getPhone() , $application->getCv() , $application->getSkills(), $application->getId()]);
-            $this->identityMap[$application->getId()] = $application;
-        }
+
+        $updateApplicationQuery = $this->db->prepare("UPDATE HR.applications SET name = ? , email = ? , phone = ? , cv = ? WHERE id = ?");
+        $updateApplicationQuery->execute([$application->getName(), $application->getEmail(), $application->getPhone(), $application->getCv(), $application->getId()]);
+        $this->identityMap[$application->getId()] = $application;
     }
 
     public function delete(int $id)
     {
-        if (isset($this->identityMap[$id])) {
-            $deleteApplicationQuery = $this->db->prepare("DELETE FROM HR.applications WHERE id = ?");
-            $deleteApplicationQuery->execute([$id]);
-            unset($this->identityMap[$id]);
-        }
+
+        $deleteApplicationQuery = $this->db->prepare("DELETE FROM HR.applications WHERE id = ?");
+        $deleteApplicationQuery->execute([$id]);
+        unset($this->identityMap[$id]);
     }
 }

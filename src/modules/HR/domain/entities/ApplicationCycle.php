@@ -10,8 +10,8 @@ class ApplicationCycle
     private string $name;
     private string $starts_at;
     private string $ends_at;
-    private AppraisalStatusType $status;
-    public function __construct(?int $id = null, string $name, string $starts_at, string $ends_at, AppraisalStatusType $status)
+    private string $status;
+    public function __construct(?int $id = null, string $name, string $starts_at, string $ends_at, string $status)
     {
         $this->id = $id ?? 0;
         $this->name = $name;
@@ -56,9 +56,13 @@ class ApplicationCycle
         return $this->ends_at;
     }
 
-    public function setStatus(AppraisalStatusType $status)
+    public function setStatus(string $status)
     {
-        $this->status = $status;
+        foreach(AppraisalStatusType::cases() as $appraiselStatusType) {
+            if ($status == $appraiselStatusType->value) {
+                $this->status = $status;
+            }
+        }        
     }
     public function getStatus()
     {

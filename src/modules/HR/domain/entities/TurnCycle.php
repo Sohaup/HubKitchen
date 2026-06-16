@@ -3,15 +3,15 @@ namespace PostApi\modules\HR\domain\entities;
 
 class TurnCycle {
     private ?int $id;
-    private string $start_at;
-    private string $leave_at;
+    private ?string $start_at;
+    private ?string $leave_at;
     private Employee $employee;
-    public function __construct(?int $id = null,string $start_at , string $leave_at , Employee $employee )
+    public function __construct(?int $id = null, ?string $start_at, ?string $leave_at, Employee $employee)
     {
         $this->id = $id ?? 0;
-        $this->start_at = $start_at;
-        $this->leave_at = $leave_at;
-        $this->$employee = $employee;
+        $this->start_at = $start_at ?? null;
+        $this->leave_at = $leave_at ?? null;
+        $this->employee = $employee;
     }
 
     public function setId(int $id) {

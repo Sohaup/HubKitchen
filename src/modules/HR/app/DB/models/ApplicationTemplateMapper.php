@@ -20,14 +20,14 @@ class ApplicationTemplateMapper
         $applicationTemplateRawData = $getApplicationTemplateQuery->fetch(PDO::FETCH_ASSOC);
         if ($applicationTemplateRawData) {
             $applicationTemplate = new ApplicationTemplate($applicationTemplateRawData['id'], $applicationTemplateRawData['title'], $applicationTemplateRawData['description']);
-            $this->identityMap[$applicationTemplateRawData['id']];
+            $this->identityMap[$applicationTemplateRawData['id']] = $applicationTemplate;
             return $applicationTemplate;
         }
     }
 
     public function findAll()
     {
-        $getApplicationsTemplateQuery = $this->db->prepare("SELECT * FROM HR.applications ");
+        $getApplicationsTemplateQuery = $this->db->prepare("SELECT * FROM HR.appraisal_template");
         $getApplicationsTemplateQuery->execute([]);
         $applicationsTemplateRawData = $getApplicationsTemplateQuery->fetchAll(PDO::FETCH_ASSOC);
         foreach ($applicationsTemplateRawData as $applicationTemplateRawData) {

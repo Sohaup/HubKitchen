@@ -14,7 +14,7 @@ class ProxyMiddlewareForRoute extends ProxyDecorator
 
         foreach ($this->routes as $route) {
             $routePattern = '/:id$';
-            $pattern = '/postApi/[a-z]*/(?P<id>[a-f0-9\-]+)$';
+            $pattern = '/postApi/[a-zA-Z\-]*/(?P<id>[a-f0-9\-]+)$';
             $path = Urls::transformUrl(parse_url($route->path, PHP_URL_PATH));            
             if ($request->path == $path && $route->httpMethod->value == $request->method) {               
                 return $this->executeLogic($request, $route);

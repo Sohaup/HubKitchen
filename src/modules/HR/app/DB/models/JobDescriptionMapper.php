@@ -10,9 +10,11 @@ class JobDescriptionMapper
 {
     private array $identityMap = [];
     private ShiftMapper $shiftMapper;
+    private SkillMapper $skillMapper;
     public function __construct(private PDO $db)
     {
         $this->shiftMapper = new ShiftMapper($db);
+        $this->skillMapper = new SkillMapper($db);
     }
     public function findOne(int $id)
     {
@@ -28,6 +30,16 @@ class JobDescriptionMapper
             $jobDescription->setName($jobDescriptionRawData['name']);
             $shift = $this->shiftMapper->findOne($jobDescriptionRawData['shift_id']);
             $jobDescription->setShift($shift);
+            $skillsGetQuery = $this->db->prepare("SELECT * FROM HR.job_skill WHERE jd_id = ?");
+            $skillsGetQuery->execute([$id]);
+            $skillIds = $skillsGetQuery->fetchAll(PDO::FETCH_ASSOC);
+            if (!empty($skillIds)) {
+                foreach ($skillIds as $skillId) {
+                    $skill = $this->skillMapper->findOne($skillId['skill_id']);
+                    $jobDescription->addSkill($skill);
+                }
+            }
+
             $this->identityMap[$id] = $jobDescription;
         }
         return $this->identityMap[$id];
@@ -45,6 +57,15 @@ class JobDescriptionMapper
                     $jobDescription->setName($jobDescriptionRawData['name']);
                     $shift = $this->shiftMapper->findOne($jobDescriptionRawData['shift_id']);
                     $jobDescription->setShift($shift);
+                    $skillsGetQuery = $this->db->prepare("SELECT * FROM HR.job_skill WHERE jd_id = ?");
+                    $skillsGetQuery->execute([$jobDescriptionRawData['id']]);
+                    $skillIds = $skillsGetQuery->fetchAll(PDO::FETCH_ASSOC);
+                    if (!empty($skillIds)) {
+                        foreach ($skillIds as $skillId) {
+                            $skill = $this->skillMapper->findOne($skillId['skill_id']);
+                            $jobDescription->addSkill($skill);
+                        }
+                    }
                     $this->identityMap[$jobDescriptionRawData['id']] = $jobDescription;
                 }
             }
@@ -54,14 +75,16 @@ class JobDescriptionMapper
     public function create(JobDescription $jobDescription)
     {
         $createJobDescriptionQuery = $this->db->prepare("INSERT INTO HR.jobs_description(name , shift_id) VALUES(? , ?) RETURNING id ");
-        $createJobDescriptionQuery->execute([$jobDescription->getId() , $jobDescription->getShift()->getId()]);
+        $createJobDescriptionQuery->execute([$jobDescription->getName(), $jobDescription->getShift()->getId()]);
+        $jobDescriptionId = $createJobDescriptionQuery->fetch(PDO::FETCH_ASSOC)['id'];
+        $jobDescription->setId($jobDescriptionId);
         $this->identityMap[$jobDescription->getId()] = $jobDescription;
     }
     public function update(JobDescription $jobDescription)
     {
         if (isset($this->identityMap[$jobDescription->getId()])) {
             $updateJobDescriptionQuery = $this->db->prepare("UPDATE HR.jobs_description SET name = ? , shift_id  = ?  WHERE id = ? ");
-            $updateJobDescriptionQuery->execute([$jobDescription->getName() , $jobDescription->getShift()->getId(), $jobDescription->getId()]);
+            $updateJobDescriptionQuery->execute([$jobDescription->getName(), $jobDescription->getShift()->getId(), $jobDescription->getId()]);
             $this->identityMap[$jobDescription->getId()] = $jobDescription;
         }
     }

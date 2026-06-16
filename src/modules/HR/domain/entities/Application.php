@@ -8,8 +8,7 @@ class Application
     private string $name = "";
     private string $email = "";
     private string $phone = "";
-    private string $cv = "";
-    private string $skills = "";
+    private string $cv = "";   
 
     public function setId(int $id)
     {
@@ -51,12 +50,5 @@ class Application
     {
         return $this->cv;
     }
-    public function setSkills(string $skills)
-    {
-        $this->skills = $skills;
-    }
-    public function getSkills()
-    {
-        return $this->skills;
-    }
+   
 }

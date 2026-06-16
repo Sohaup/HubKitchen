@@ -5,19 +5,19 @@ namespace PostApi\modules\HR\domain\entities;
 use PostApi\modules\HR\helpers\types\CalcType;
 use PostApi\modules\HR\helpers\types\PayElementsType;
 
-class SaleryComponent
+class SaleryComponent 
 {
-    private int $id;
-    private string $name;
-    private PayElementsType $type;
-    private CalcType $calcType;
+    private int $id = 0;
+    private string $name = "";
+    private string $type = "";
+    private string $calcType = "";
 
-    public function __construct(?int $id = null, string $name, PayElementsType $type, CalcType $calcType)
+    public function __construct(?int $id = null, string $name, string $type, string $calcType)
     {
         $this->id = $id ?? 0;
         $this->name = $name;
-        $this->type = $type;
-        $this->calcType = $calcType;
+        $this->setType($type);
+        $this->setCalcType($calcType);
     }
 
     public function setId(int $id)
@@ -36,20 +36,31 @@ class SaleryComponent
     {
         return $this->name;
     }
-    public function setType(PayElementsType $type)
+    public function setType(string $type)
     {
+        foreach (PayElementsType::cases() as $case) {
+            if ($case->value === $type) {
+                $this->type = $case->value;
+                break;
+            }
+        }
         $this->type = $type;
     }
     public function getType()
     {
         return $this->type;
     }
-    public function setCalcType(CalcType $calcType)
+    public function setCalcType(string $calcType)
     {
-        $this->calcType = $calcType;
+        foreach (CalcType::cases() as $case) {
+            if ($case->value === $calcType) {
+                $this->calcType = $case->value;
+                break;
+            }
+        }
     }
     public function getCalcType()
     {
         return $this->calcType;
-    }
+    }  
 }

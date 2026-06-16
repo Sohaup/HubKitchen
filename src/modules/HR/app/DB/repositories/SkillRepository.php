@@ -1,17 +1,17 @@
 <?php
 namespace PostApi\modules\HR\app\DB\repositories;
 
-use PostApi\modules\HR\app\DB\models\skillMapper;
+use PostApi\modules\HR\app\DB\models\SkillMapper;
 use PostApi\modules\HR\domain\entities\Skill;
 use PostApi\shared\templates\DB_Trait;
 
 class SkillRepository {
-    private skillMapper $skillMapper;
+    private SkillMapper $skillMapper;
     use DB_Trait;
     public function __construct()
     {
         $this->initialize();
-        $this->skillMapper = new skillMapper($this->postgre->pdo);
+        $this->skillMapper = new SkillMapper($this->postgre->pdo);
     }
     public function findOne(int $id) {
         return $this->skillMapper->findOne($id);

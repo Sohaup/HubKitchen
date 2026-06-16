@@ -22,7 +22,7 @@ class DepartmentMapper
             $department = new Department();
             $department->setId($departmentRawData['id']);
             $department->setName($departmentRawData['name']);
-            $this->identityMap[$departmentRawData['id']];
+            $this->identityMap[$departmentRawData['id']] = $department;
             return $department;
         }
     }
@@ -40,6 +40,7 @@ class DepartmentMapper
                 $this->identityMap[$departmentRawData['id']] = $department;
             }
         }
+
         return $this->identityMap;
     }
 
@@ -54,14 +55,13 @@ class DepartmentMapper
 
     public function update(Department $department)
     {
-        if (isset($this->identityMap[$department->getId()])) {
-            $updateDepartmentQuery = $this->db->prepare("UPDATE HR.departments SET name = ? WHERE id = ?");
-            $updateDepartmentQuery->execute([$department->getName(), $department->getId()]);
-            $this->identityMap[$department->getId()] = $department;            
-        }
+        $updateDepartmentQuery = $this->db->prepare("UPDATE HR.departments SET name = ? WHERE id = ?");
+        $updateDepartmentQuery->execute([$department->getName(), $department->getId()]);
+        $this->identityMap[$department->getId()] = $department;
     }
 
-    public function delete(int $id) {
+    public function delete(int $id)
+    {        
         if (isset($this->identityMap[$id])) {
             $deleteDepartmentQuery = $this->db->prepare("DELETE FROM HR.departments WHERE id = ?");
             $deleteDepartmentQuery->execute([$id]);

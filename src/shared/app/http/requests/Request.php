@@ -10,6 +10,7 @@ class Request
     public string $method = "";
     public array $params = [];
     public array $body = [];
+    public array $files = [];
     public array $headers = [];
     private ?string $token = null;
     public function __construct()
@@ -22,7 +23,20 @@ class Request
         }
         $jsonParamters = file_get_contents("php://input");
         if ($jsonParamters) {
-            $this->body = json_decode($jsonParamters, true);
+            $decoded = json_decode($jsonParamters, true);
+            if (is_array($decoded)) {
+                $this->body = $decoded;
+            } else {                
+                $this->body = $params;
+            }
+        } else {           
+            $this->body = $params;
+        }
+        
+        if (!empty($_FILES)) {
+            foreach ($_FILES as $key => $file) {
+                $this->files[$key] = $file;
+            }
         }
         $this->headers = $this->getAllHeaders();
     }

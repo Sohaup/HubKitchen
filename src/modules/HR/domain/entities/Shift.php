@@ -2,18 +2,17 @@
 
 namespace PostApi\modules\HR\domain\entities;
 
-use DateTime;
 
 class Shift
 {
     private ?int $id;
-    private string $shiftName;
-    private DateTime $startTime;
-    private DateTime $endTime;
-    private int $breakDuration;
-    private bool $isOverNight;
-    private bool $isActive;   
-    private string $createdAt;
+    private string $shiftName = "";
+    private string $startTime = "";
+    private string $endTime = "";
+    private int $breakDuration = 0;
+    private bool $isOverNight = false;
+    private bool $isActive = true;   
+    private string $createdAt = "";
 
     public function setId(int $id)
     {
@@ -31,15 +30,15 @@ class Shift
     {
         return $this->shiftName;
     }
-    public function setStartTime(DateTime $startTime)
+    public function setStartTime(string $startTime)
     {
-        $this->startTime = $startTime;
+        $this->startTime = $startTime;        
     }
     public function getStartTime()
     {
         return $this->startTime;
     }
-    public function setEndTime(DateTime $endTime)
+    public function setEndTime(string $endTime)
     {
         $this->endTime = $endTime;
     }

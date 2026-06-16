@@ -24,8 +24,10 @@ class ShiftMapper
         if ($shiftRawData) {
             $shift = new Shift();
             $shift->setId($shiftRawData['id']);
-            $shift->setStartTime(new DateTime($shiftRawData['start_time']));
-            $shift->setEndTime(new DateTime($shiftRawData['end_time']));
+            $shift->setShiftName($shiftRawData['shift_name']);
+            $shift->setStartTime($shiftRawData['start_time']);
+            $shift->setEndTime($shiftRawData['end_time']);
+            $shift->setBreakDuration($shiftRawData['break_duration_minutes']);
             $shift->setIsOverNight($shiftRawData['is_overnight']);
             $shift->setIsActive($shiftRawData['is_active']);
             $shift->setCreatedAt($shiftRawData['created_at']);
@@ -42,8 +44,10 @@ class ShiftMapper
         foreach ($shiftsRawData as $shiftRawData) {
             $shift = new Shift();
             $shift->setId($shiftRawData['id']);
-            $shift->setStartTime(new DateTime($shiftRawData['start_time']));
-            $shift->setEndTime(new DateTime($shiftRawData['end_time']));
+            $shift->setShiftName($shiftRawData['shift_name']);
+            $shift->setStartTime($shiftRawData['start_time']);
+            $shift->setEndTime($shiftRawData['end_time']);
+            $shift->setBreakDuration($shiftRawData['break_duration_minutes']);
             $shift->setIsOverNight($shiftRawData['is_overnight']);
             $shift->setIsActive($shiftRawData['is_active']);
             $shift->setCreatedAt($shiftRawData['created_at']);
@@ -54,8 +58,8 @@ class ShiftMapper
 
     public function create(Shift $shift)
     {
-        $createShiftQuery = $this->db->prepare("INSERT INTO HR.shifts(start_time , end_time , is_overnight , is_active) VALUES(? , ? , ?, ? ) RETURNNG id");
-        $createShiftQuery->execute([$shift->getStartTime(), $shift->getEndTime(), $shift->getIsOverNight(), $shift->getIsActive()]);
+        $createShiftQuery = $this->db->prepare("INSERT INTO HR.shifts(shift_name ,start_time , end_time , break_duration_minutes , is_overnight , is_active) VALUES(? , ? , ?, ? , ? , ?) RETURNING id");
+        $createShiftQuery->execute([$shift->getShiftName(), $shift->getStartTime(), $shift->getEndTime(), $shift->getBreakDuration(), $shift->getIsOverNight() ? 1 : 0, $shift->getIsActive() ? 1 : 0]);
         $shiftId = $createShiftQuery->fetch(PDO::FETCH_ASSOC)['id'];
         if ($shiftId) {
             $shift->setId($shiftId);
@@ -66,8 +70,8 @@ class ShiftMapper
     public function update(Shift $shift)
     {
         if (isset($this->identityMap[$shift->getId()])) {
-            $updateShiftQuery = $this->db->prepare("UPDATE HR.shifts SET start_time = ? ,  end_time = ? ,  is_overnight = ? , is_active = ?  WHERE id = ?");
-            $updateShiftQuery->execute([$shift->getStartTime(), $shift->getEndTime(), $shift->getIsOverNight(), $shift->getIsActive(), $shift->getId()]);
+            $updateShiftQuery = $this->db->prepare("UPDATE HR.shifts SET shift_name = ? , start_time = ? ,  end_time = ? , break_duration_minutes = ?,  is_overnight = ? , is_active = ?  WHERE id = ?");
+            $updateShiftQuery->execute([$shift->getShiftName(), $shift->getStartTime(), $shift->getEndTime(), $shift->getBreakDuration(), $shift->getIsOverNight() ? 1 : 0, $shift->getIsActive() ? 1 : 0, $shift->getId()]);
             $this->identityMap[$shift->getId()] = $shift;
         }
     }

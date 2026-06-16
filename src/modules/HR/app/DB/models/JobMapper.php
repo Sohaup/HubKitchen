@@ -22,8 +22,18 @@ class JobMapper
                 $job->setId($JobRawData['id']);
                 $job->setTitle($JobRawData['title']);
                 $deparmentMapper = new DepartmentMapper($this->db);
-                $department = $deparmentMapper->findOne($JobRawData['department_id']);
-                $job->setDepartment($department);
+                if (isset($JobRawData['department_id']) && !is_null($JobRawData['department_id'])) {
+                    $department = $deparmentMapper->findOne($JobRawData['department_id']);
+                    $job->setDepartment($department);
+                }
+                $applicationsGetQuery = $this->db->prepare("SELECT * FROM HR.job_application WHERE job_id = ?");
+                $applicationsGetQuery->execute([$id]);
+                $applicationIds = $applicationsGetQuery->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($applicationIds as $applicationId) {
+                    $applicationMapper = new ApplicationMapper($this->db);
+                    $application = $applicationMapper->findOne($applicationId['application_id']);
+                    $job->addApllication($application);
+                }
                 $this->identityMap[$id] = $job;
             }
         }
@@ -40,8 +50,18 @@ class JobMapper
                 $job->setId($JobRawData['id']);
                 $job->setTitle($JobRawData['title']);
                 $deparmentMapper = new DepartmentMapper($this->db);
-                $department = $deparmentMapper->findOne($jobsRawData['department_id']);
-                $job->setDepartment($department);
+                if (isset($JobRawData['department_id']) && !is_null($JobRawData['department_id'])) {
+                    $department = $deparmentMapper->findOne($JobRawData['department_id']);
+                    $job->setDepartment($department);
+                }
+                $applicationsGetQuery = $this->db->prepare("SELECT * FROM HR.job_application WHERE job_id = ?");
+                $applicationsGetQuery->execute([$JobRawData['id']]);
+                $applicationIds = $applicationsGetQuery->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($applicationIds as $applicationId) {
+                    $applicationMapper = new ApplicationMapper($this->db);
+                    $application = $applicationMapper->findOne($applicationId['application_id']);
+                    $job->addApllication($application);
+                }
                 $this->identityMap[$JobRawData['id']] = $job;
             }
         }
@@ -74,7 +94,7 @@ class JobMapper
     public function assignApplicationToJob(Application $application, Job $job)
     {
         $assignApplicationToJobQuery = $this->db->prepare("INSERT INTO HR.job_application(application_id , job_id , status) VALUES(? , ? , ? ) ");
-        $assignApplicationToJobQuery->execute([$application->getId(), $job->getId(), ApplicationStatusType::APPLIED]);
+        $assignApplicationToJobQuery->execute([$application->getId(), $job->getId(), ApplicationStatusType::APPLIED->value]);
         $job->addApllication($application);
         return $job;
     }

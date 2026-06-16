@@ -60,19 +60,17 @@ class AddresseMapper
 
     public function update(Addresse $addresse)
     {
-        if (isset($this->identityMap[$addresse->getId()])) {
-            $updateAddresseQuery = $this->db->prepare("UPDATE HR.addresses SET country = ? , city = ? , street = ? , flat = ?  WHERE id = ?");
-            $updateAddresseQuery->execute([$addresse->getCountry(), $addresse->getCity(), $addresse->getStreet(), $addresse->getFlat(), $addresse->getId()]);
-            $this->identityMap[$addresse->getId()] = $addresse;
-        }
+
+        $updateAddresseQuery = $this->db->prepare("UPDATE HR.addresses SET country = ? , city = ? , street = ? , flat = ?  WHERE id = ?");
+        $updateAddresseQuery->execute([$addresse->getCountry(), $addresse->getCity(), $addresse->getStreet(), $addresse->getFlat(), $addresse->getId()]);
+        $this->identityMap[$addresse->getId()] = $addresse;
     }
 
     public function delete(int $id)
     {
-        if (isset($this->identityMap[$id])) {
-            $deleteAddreseQuery = $this->db->prepare("DELETE FROM HR.addresses WHERE id = ?");
-            $deleteAddreseQuery->execute([$id]);
-            unset($this->identityMap[$id]);
-        }
+
+        $deleteAddreseQuery = $this->db->prepare("DELETE FROM HR.addresses WHERE id = ?");
+        $deleteAddreseQuery->execute([$id]);
+        unset($this->identityMap[$id]);
     }
 }

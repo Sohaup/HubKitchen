@@ -55,19 +55,15 @@ class EvolutionCritiriaMapper
 
     public function update(EvolutionCritiria $evolutionCritiria)
     {
-        if (isset($this->identityMap[$evolutionCritiria->getId()])) {
-            $updateEvolutionCritiriaQuery = $this->db->prepare("UPDATE HR.evolution_critiria SET template_id = ? , critiria = ? , weight = ? WHERE id = ?");
-            $updateEvolutionCritiriaQuery->execute([$evolutionCritiria->getTemplate()->getId(), $evolutionCritiria->getCritiria(), $evolutionCritiria->getWeight(), $evolutionCritiria->getId()]);
-            $this->identityMap[$evolutionCritiria->getId()] = $evolutionCritiria;
-        }
+        $updateEvolutionCritiriaQuery = $this->db->prepare("UPDATE HR.evolution_critiria SET template_id = ? , critiria = ? , weight = ? WHERE id = ?");
+        $updateEvolutionCritiriaQuery->execute([$evolutionCritiria->getTemplate()->getId(), $evolutionCritiria->getCritiria(), $evolutionCritiria->getWeight(), $evolutionCritiria->getId()]);
+        $this->identityMap[$evolutionCritiria->getId()] = $evolutionCritiria;
     }
 
     public function delete(int $id)
     {
-        if (isset($this->identityMap[$id])) {
-            $deleteApplicationQuery = $this->db->prepare("DELETE FROM HR.evolution_critiria WHERE id = ?");
-            $deleteApplicationQuery->execute([$id]);
-            unset($this->identityMap[$id]);
-        }
+        $deleteApplicationQuery = $this->db->prepare("DELETE FROM HR.evolution_critiria WHERE id = ?");
+        $deleteApplicationQuery->execute([$id]);
+        unset($this->identityMap[$id]);
     }
 }

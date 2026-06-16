@@ -42,7 +42,7 @@ class ApplicationCycleMapper
     public function create(ApplicationCycle $applicationCycle)
     {
         $createApplicationCycleQuery = $this->db->prepare("INSERT INTO HR.appraisal_cycles(name , starts_at , ends_at , status ) VALUES(? , ? , ? , ?) RETURNING id ");
-        $createApplicationCycleQuery->execute([$applicationCycle->getName() , $applicationCycle->getStartsAt() , $applicationCycle->getEndsAt() , $applicationCycle->getStatus()]);
+        $createApplicationCycleQuery->execute([$applicationCycle->getName(), $applicationCycle->getStartsAt(), $applicationCycle->getEndsAt(), $applicationCycle->getStatus()]);
         $applicationCycleId = $createApplicationCycleQuery->fetch(PDO::FETCH_ASSOC)['id'];
         $applicationCycle->setId($applicationCycleId);
         $this->identityMap[$applicationCycle->getId()] = $applicationCycle;
@@ -50,19 +50,16 @@ class ApplicationCycleMapper
 
     public function update(ApplicationCycle $applicationCycle)
     {
-        if (isset($this->identityMap[$applicationCycle->getId()])) {
-            $updateApplicationCycleQuery = $this->db->prepare("UPDATE HR.appraisal_cycles SET name = ? , starts_at = ? , ends_at = ? , status = ?  WHERE id = ?");
-            $updateApplicationCycleQuery->execute([$applicationCycle->getName() , $applicationCycle->getStartsAt() , $applicationCycle->getEndsAt() , $applicationCycle->getStatus() , $applicationCycle->getId()]);
-            $this->identityMap[$applicationCycle->getId()] = $applicationCycle;
-        }
+
+        $updateApplicationCycleQuery = $this->db->prepare("UPDATE HR.appraisal_cycles SET name = ? , starts_at = ? , ends_at = ? , status = ?  WHERE id = ?");
+        $updateApplicationCycleQuery->execute([$applicationCycle->getName(), $applicationCycle->getStartsAt(), $applicationCycle->getEndsAt(), $applicationCycle->getStatus(), $applicationCycle->getId()]);
+        $this->identityMap[$applicationCycle->getId()] = $applicationCycle;
     }
 
     public function delete(int $id)
     {
-        if (isset($this->identityMap[$id])) {
-            $deleteApplicationCycleQuery = $this->db->prepare("DELETE FROM HR.appraisal_cycles WHERE id = ?");
-            $deleteApplicationCycleQuery->execute([$id]);
-            unset($this->identityMap[$id]);
-        }
+        $deleteApplicationCycleQuery = $this->db->prepare("DELETE FROM HR.appraisal_cycles WHERE id = ?");
+        $deleteApplicationCycleQuery->execute([$id]);
+        unset($this->identityMap[$id]);
     }
 }

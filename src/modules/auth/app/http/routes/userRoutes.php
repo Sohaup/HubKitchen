@@ -26,9 +26,9 @@ $router->addRoute($getUserRoute);
 $middlewareRoutes->addRoute($getUserRoute);
 
 $createUserRoute = new Route(Urls::transformRouteUrl("/users/create") , HttpMethodsType::POST , UserController::class , 'create');
-$createUserRoute->addMiddleware($guardMiddleware)->addMiddleware($gateMiddleWare);
+// $createUserRoute->addMiddleware($guardMiddleware)->addMiddleware($gateMiddleWare);
 $router->addRoute($createUserRoute);
-$middlewareRoutes->addRoute($createUserRoute);
+// $middlewareRoutes->addRoute($createUserRoute);
 
 $gateMiddleWareForCrud = new GateMiddleware([RoleTypes::MANAGER->value , RoleTypes::USER->value ,RoleTypes::CS->value]);
 

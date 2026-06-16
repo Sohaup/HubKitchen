@@ -45,7 +45,7 @@ class SaleryMapper
 
     public function create(Salery $salery)
     {
-        $createShiftQuery = $this->db->prepare("INSERT INTO HR.selaries(employee_id , selary) VALUES(? , ? ) RETURNNG id");
+        $createShiftQuery = $this->db->prepare("INSERT INTO HR.selaries(employee_id , selary) VALUES(? , ? ) RETURNING id");
         $createShiftQuery->execute([$salery->getEmployee()->getId() , $salery->getSalery() ]);
         $saleryId = $createShiftQuery->fetch(PDO::FETCH_ASSOC)['id'];
         if ($saleryId) {
@@ -57,7 +57,7 @@ class SaleryMapper
     public function update(Salery $salery)
     {
         if (isset($this->identityMap[$salery->getId()])) {
-            $updateSaleryQuery = $this->db->prepare("UPDATE HR.selaries SET employee_id =? , salery = ? WHERE id = ?");
+            $updateSaleryQuery = $this->db->prepare("UPDATE HR.selaries SET employee_id =? , selary = ? WHERE id = ?");
             $updateSaleryQuery->execute([$salery->getEmployee()->getId() , $salery->getSalery() , $salery->getId()]);
             $this->identityMap[$salery->getId()] = $salery;
         }

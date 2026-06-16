@@ -24,10 +24,10 @@ class PayrollJournalMapper
         $getPayrollQuery = $this->db->prepare("SELECT * FROM HR.payroll_journal WHERE id = ?");
         $getPayrollQuery->execute([$id]);
         $PayrollRawData = $getPayrollQuery->fetch(PDO::FETCH_ASSOC);
-        if ($PayrollRawData) {
+        if ($PayrollRawData) {            
             $employee = $this->employeeMapper->findOne($PayrollRawData['employee_id']);
-            $saleryComponent = $this->saleryComponentMapper->findOne($PayrollRawData['employee_id']);
-            $payroll = new PayrollJournal(id:$PayrollRawData['id'] , employee:$employee , saleryComponent:$saleryComponent , amount:$PayrollRawData['amount'] , date:$PayrollRawData['date']);
+            $saleryComponent = $this->saleryComponentMapper->findOne($PayrollRawData['selary_component_id']);
+            $payroll = new PayrollJournal(id: $PayrollRawData['id'], employee: $employee, saleryComponent: $saleryComponent, amount: $PayrollRawData['amount'], date: $PayrollRawData['date']);
             $this->identityMap[$id] = $payroll;
         }
         return $this->identityMap[$id];
@@ -40,8 +40,8 @@ class PayrollJournalMapper
         $payrollsRawData = $getPayrollQuery->fetchAll(PDO::FETCH_ASSOC);
         foreach ($payrollsRawData as $payrollRawData) {
             $employee = $this->employeeMapper->findOne($payrollRawData['employee_id']);
-            $saleryComponent = $this->saleryComponentMapper->findOne($payrollRawData['employee_id']);
-            $payroll = new PayrollJournal(id:$payrollRawData['id'] , employee:$employee , saleryComponent:$saleryComponent , amount:$payrollRawData['amount'] , date:$payrollRawData['date']);
+            $saleryComponent = $this->saleryComponentMapper->findOne($payrollRawData['selary_component_id']);
+            $payroll = new PayrollJournal(id: $payrollRawData['id'], employee: $employee, saleryComponent: $saleryComponent, amount: $payrollRawData['amount'], date: $payrollRawData['date']);
             if (!isset($this->identityMap[$payroll->getId()])) {
             $this->identityMap[$payroll->getId()] = $payroll;
             }
@@ -51,8 +51,8 @@ class PayrollJournalMapper
 
     public function create(PayrollJournal $payroll)
     {
-        $createPayrollQuery = $this->db->prepare("INSERT INTO HR.payroll_journal(employee_id , saleryComponent_id , amount) VALUES(? , ? , ? ) RETURNNG id");
-        $createPayrollQuery->execute([$payroll->getEmployee()->getId() , $payroll->getSaleeyComponent()->getId() , $payroll->getAmount()]);
+        $createPayrollQuery = $this->db->prepare("INSERT INTO HR.payroll_journal(employee_id, selary_component_id, amount) VALUES(? , ? , ? ) RETURNING id");
+        $createPayrollQuery->execute([$payroll->getEmployee()->getId(), $payroll->getSaleryComponent()->getId(), $payroll->getAmount()]);
         $PayrollId = $createPayrollQuery->fetch(PDO::FETCH_ASSOC)['id'];
         if ($PayrollId) {
             $payroll->setId($PayrollId);
@@ -62,11 +62,11 @@ class PayrollJournalMapper
 
     public function update(PayrollJournal $payroll)
     {
-        if (isset($this->identityMap[$payroll->getId()])) {
-            $updateSaleryQuery = $this->db->prepare("UPDATE HR.payroll_journal SET employee_id =? , saleryComponent_id = ? , amount = ? WHERE id = ?");
-            $updateSaleryQuery->execute([$payroll->getEmployee()->getId() , $payroll->getSaleeyComponent()->getId() , $payroll->getAmount() , $payroll->getId()]);
+        // if (isset($this->identityMap[$payroll->getId()])) {
+            $updateSaleryQuery = $this->db->prepare("UPDATE HR.payroll_journal SET employee_id = ?, selary_component_id = ?, amount = ? WHERE id = ?");
+            $updateSaleryQuery->execute([$payroll->getEmployee()->getId(), $payroll->getSaleryComponent()->getId(), $payroll->getAmount(), $payroll->getId()]);
             $this->identityMap[$payroll->getId()] = $payroll;
-        }
+        // }
     }
 
     public function delete(int $id)

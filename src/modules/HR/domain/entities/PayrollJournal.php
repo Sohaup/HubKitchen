@@ -16,7 +16,7 @@ class PayrollJournal
         $this->employee = $employee;
         $this->saleryComponent = $saleryComponent;
         $this->amount = $amount;
-        $this->date;
+        $this->date = $date;
     }
 
     public function setId(int $id)
@@ -41,7 +41,7 @@ class PayrollJournal
     {
         $this->saleryComponent = $saleryComponent;
     }
-    public function getSaleeyComponent()
+    public function getSaleryComponent()
     {
         return $this->saleryComponent;
     }
