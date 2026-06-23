@@ -4,11 +4,11 @@ namespace PostApi\modules\HR\domain\entities;
 
 class Addresse
 {
-    private ?int $id;
-    private string $country;
-    private string $city;
-    private string $street;
-    private string $flat;
+    private ?int $id = 0;
+    private string $country = "";
+    private string $city = "";
+    private string $street = "";
+    private string $flat = "";
 
     public function setId(int $id)
     {

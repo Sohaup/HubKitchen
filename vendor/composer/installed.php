@@ -3,7 +3,7 @@
         'name' => 'sohaib/post-api',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => 'a79d92ab91948302f376f8b613e51cc5f5aaf9e4',
+        'reference' => '4b0ddccefd7101349b14d4c5d6525ca3d634360c',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -252,6 +252,15 @@
             'install_path' => __DIR__ . '/../phpdocumentor/type-resolver',
             'aliases' => array(),
             'dev_requirement' => true,
+        ),
+        'phpmailer/phpmailer' => array(
+            'pretty_version' => 'v7.1.1',
+            'version' => '7.1.1.0',
+            'reference' => '1bc1716a507a65e039d4ac9d9adebbbd0d346e15',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../phpmailer/phpmailer',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'phpoption/phpoption' => array(
             'pretty_version' => '1.9.5',
@@ -532,7 +541,7 @@
         'sohaib/post-api' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => 'a79d92ab91948302f376f8b613e51cc5f5aaf9e4',
+            'reference' => '4b0ddccefd7101349b14d4c5d6525ca3d634360c',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

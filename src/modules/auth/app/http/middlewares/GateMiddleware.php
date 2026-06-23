@@ -19,7 +19,7 @@ class GateMiddleware implements Middleware
             $token = $matches[1];
             $decodedToken = JWT::decode($token);
             $user = $decodedToken->user;
-            $role = $user->role;
+            $role = $user->role;            
             foreach ($this->roles as $acceptrole) {
                 if ($role == $acceptrole->value) {
                     return $next($request);
