@@ -5,7 +5,7 @@ namespace PostApi\modules\HR\domain\entities;
 
 class Shift
 {
-    private ?int $id;
+    private ?int $id = 0;
     private string $shiftName = "";
     private string $startTime = "";
     private string $endTime = "";

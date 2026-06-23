@@ -13,6 +13,7 @@ class JobDescription
     public function __construct()
     {
         $this->skills = new Skills();
+        $this->shift = new Shift();
     }
     public function setId(int $id)
     {

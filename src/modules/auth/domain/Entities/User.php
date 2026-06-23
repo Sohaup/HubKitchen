@@ -11,7 +11,7 @@ class User {
     private ?string $googleId = null;
     public function __construct()
     {
-        $this->role = new Role();
+        $this->role = new Role();        
     }
     public function setId(string $id) {
         $this->id = $id;

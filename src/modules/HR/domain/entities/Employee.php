@@ -9,14 +9,23 @@ use PostApi\modules\HR\helpers\types\MartialStatusType;
 class Employee
 {
     private ?string $id = "";
-    private string $employeeStatus;
-    private string $martialStatus;
+    private string $employeeStatus = "";
+    private string $martialStatus = "";
     private User $user;
     private JobDescription $job;
     private User $manager;
-    private string $employeedAt;
+    private string $employeedAt = "";
     private Department $department;
     private Addresse $addresse;
+
+    public function __construct()
+    {
+        $this->user = new User();
+        $this->job = new JobDescription();
+        $this->manager = new User();
+        $this->department = new Department();
+        $this->addresse = new Addresse();
+    }
 
     public function setId(string $id)
     {
