@@ -5,6 +5,7 @@ namespace PostApi\modules\HR\domain\entities;
 use PostApi\modules\auth\domain\Entities\User;
 use PostApi\modules\HR\helpers\types\EmployeeStatusType;
 use PostApi\modules\HR\helpers\types\MartialStatusType;
+use PostApi\modules\manegers\domain\entities\Maneger;
 
 class Employee
 {
@@ -13,7 +14,7 @@ class Employee
     private string $martialStatus = "";
     private User $user;
     private JobDescription $job;
-    private User $manager;
+    private Maneger $manager;
     private string $employeedAt = "";
     private Department $department;
     private Addresse $addresse;
@@ -22,7 +23,7 @@ class Employee
     {
         $this->user = new User();
         $this->job = new JobDescription();
-        $this->manager = new User();
+        $this->manager = new Maneger();
         $this->department = new Department();
         $this->addresse = new Addresse();
     }
@@ -77,7 +78,7 @@ class Employee
     {
         return $this->user;
     }
-    public function setManager(User $manager)
+    public function setManager(Maneger $manager)
     {
         $this->manager = $manager;
     }

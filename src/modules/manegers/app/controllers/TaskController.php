@@ -1,0 +1,84 @@
+<?php
+
+namespace PostApi\modules\manegers\app\controllers;
+
+use Error;
+use Exception;
+
+use PostApi\modules\manegers\domain\services\task\CreateTaskAction;
+use PostApi\modules\manegers\domain\services\task\UpdateTaskAction;
+use PostApi\modules\manegers\domain\services\task\DeleteTaskAction;
+use PostApi\modules\manegers\domain\services\task\GetTaskCollectionAction;
+use PostApi\modules\manegers\domain\services\task\GetTaskItemAction;
+use PostApi\shared\app\http\requests\Request;
+use PostApi\shared\app\http\responses\success\json\Json;
+use PostApi\shared\helpers\fecade\Chache;
+use PostApi\shared\helpers\fecade\ViewError;
+
+class TaskController
+{
+    public function index()
+    {
+        try {
+            $serin = GetTaskCollectionAction::execute();
+            return Chache::checkCache($serin);
+        } catch (Exception $error) {
+            return ViewError::viewProplem('fetch error', 'internal error', 1, $error->getMessage(), 500);
+        }
+    }
+
+    public function create()
+    {
+        $request = new Request();
+        $body = $request->body;
+        if (!isset($body['name'], $body['description'], $body['maneger_id'], $body['department_id'])) {
+            return ViewError::viewProplem('create task error', 'missing required paramters', 1, 'missing required paramters name, description, maneger_id, department_id', 400);
+        }
+        try {
+            $task = CreateTaskAction::execute();
+            $serin = GetTaskItemAction::execute($task->getId());
+            http_response_code(201);
+            return Json::toJson($serin);
+        } catch (Exception $error) {
+            return ViewError::viewProplem('create error', 'internal error', 1, $error->getMessage(), 500);
+        }
+    }
+
+    public function get(string $id)
+    {
+        try {
+            $serin = GetTaskItemAction::execute($id);
+            http_response_code(200);
+            return Json::toJson($serin);
+        } catch (Error $error) {
+            return ViewError::viewProplem('fetch error', 'internal error', 1, "no task for this id", 400);
+        }
+    }
+
+    public function update(string $id)
+    {
+        $request = new Request();
+        $body = $request->body;
+        if (!isset($body['name'], $body['description'], $body['maneger_id'], $body['department_id'])) {
+            return ViewError::viewProplem('update task error', 'missing required paramters', 1, 'missing required paramters name, description, maneger_id, department_id', 400);
+        }
+        try {
+            UpdateTaskAction::execute($id);
+            http_response_code(200);
+            return Json::toJson(['message' => 'task updated successfuly']);
+        } catch (Error $error) {
+            return ViewError::viewProplem('update error', 'internal error', 1, "no task for this id", 400);
+        }
+    }
+
+    public function delete(string $id)
+    {
+        try {
+            DeleteTaskAction::execute($id);
+            http_response_code(200);
+            return Json::toJson(['message' => 'task deleted']);
+        } catch (Error $error) {
+            return ViewError::viewProplem('delete error', 'internal error', 1, "no task for this id", 400);
+        }
+    }
+}
