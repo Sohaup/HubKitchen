@@ -7,6 +7,7 @@ use PostApi\modules\HR\app\DB\repositories\AddreseRepository;
 use PostApi\modules\HR\app\DB\repositories\DepartmentRepository;
 use PostApi\modules\HR\app\DB\repositories\EmployeeRepository;
 use PostApi\modules\HR\app\DB\repositories\JobDescriptionRepository;
+use PostApi\modules\manegers\app\DB\repositories\ManegerRepository;
 use PostApi\shared\app\http\requests\Request;
 
 class UpdateEmployeeAction
@@ -17,6 +18,7 @@ class UpdateEmployeeAction
         $params = $request->body;
         $repo = new EmployeeRepository();
         $userRepo = new UserRepository();
+        $manegerRepo = new ManegerRepository();
         $departmentRepo = new DepartmentRepository();
         $addreseRepo = new AddreseRepository();
         $jobDescriptionRepo = new JobDescriptionRepository();
@@ -27,7 +29,7 @@ class UpdateEmployeeAction
         $entity->setUser($user);
         $job = $jobDescriptionRepo->findOne($params['job_id']);
         $entity->setJob($job);
-        $manager = $userRepo->findOne($params['manager_id']);
+        $manager = $manegerRepo->findOne($params['manager_id']);
         $entity->setManager($manager);
         $department = $departmentRepo->findOne($params['department_id']);
         $entity->setDepartment($department);

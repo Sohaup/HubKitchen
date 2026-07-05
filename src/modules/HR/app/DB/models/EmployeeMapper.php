@@ -5,6 +5,7 @@ namespace PostApi\modules\HR\app\DB\models;
 use PDO;
 use PostApi\modules\auth\app\DB\models\UserMapper;
 use PostApi\modules\HR\domain\entities\Employee;
+use PostApi\modules\manegers\app\DB\models\ManegerMapper;
 
 class EmployeeMapper
 {
@@ -13,12 +14,14 @@ class EmployeeMapper
     private DepartmentMapper $departmentMapper;
     private UserMapper $userMapper;
     private JobDescriptionMapper $jobDescriptionMapper;
+    private ManegerMapper $manegerMapper;
     public function __construct(private PDO $db)
     {
         $this->addresseMapper = new AddresseMapper($db);
         $this->departmentMapper = new DepartmentMapper($db);
         $this->userMapper = new UserMapper($db);
         $this->jobDescriptionMapper = new JobDescriptionMapper($db);
+        $this->manegerMapper = new ManegerMapper($db);
     }
     public function findOne(string $id)
     {
@@ -37,7 +40,7 @@ class EmployeeMapper
             $employee->setDepartment($department);
             $job = $this->jobDescriptionMapper->findOne($employeeRawdata['jd_id']);
             $employee->setJob($job);
-            $manager = $this->userMapper->findOne($employeeRawdata['manager_id']);
+            $manager = $this->manegerMapper->findOne($employeeRawdata['manager_id']);
             $employee->setManager($manager);
             $user = $this->userMapper->findOne($employeeRawdata['user_id']);
             $employee->setUser($user);
@@ -64,7 +67,7 @@ class EmployeeMapper
                 $employee->setDepartment($department);
                 $job = $this->jobDescriptionMapper->findOne($employeeRawdata['jd_id']);
                 $employee->setJob($job);
-                $manager = $this->userMapper->findOne($employeeRawdata['manager_id']);
+                $manager = $this->manegerMapper->findOne($employeeRawdata['manager_id']);
                 $employee->setManager($manager);
                 $user = $this->userMapper->findOne($employeeRawdata['user_id']);
                 $employee->setUser($user);

@@ -10,6 +10,8 @@ use PostApi\modules\HR\app\DB\repositories\EmployeeRepository;
 use PostApi\modules\HR\app\DB\repositories\JobDescriptionRepository;
 use PostApi\modules\HR\domain\entities\Employee;
 use PostApi\modules\HR\domain\EntityListeners\CreateEmployeeListener;
+use PostApi\modules\HR\domain\EntityListeners\CreateEmployeeRoleListener;
+use PostApi\modules\manegers\app\DB\repositories\ManegerRepository;
 use PostApi\shared\app\http\requests\Request;
 use SplObjectStorage;
 use SplObserver;
@@ -25,6 +27,7 @@ class CreateEmployeeAction implements SplSubject
     {
         $this->observers = new SplObjectStorage();
         $this->attach(new CreateEmployeeListener());
+        $this->attach(new CreateEmployeeRoleListener());
     }
 
     public function execute()
@@ -33,6 +36,7 @@ class CreateEmployeeAction implements SplSubject
         $params = $request->body;
         $repo = new EmployeeRepository();
         $userRepo = new UserRepository();
+        $managerRepo = new ManegerRepository();
         $departmentRepo = new DepartmentRepository();
         $addreseRepo = new AddreseRepository();
         $jobDescriptionRepo = new JobDescriptionRepository();
@@ -43,7 +47,7 @@ class CreateEmployeeAction implements SplSubject
         $entity->setUser($user);
         $job = $jobDescriptionRepo->findOne($params['job_id']);
         $entity->setJob($job);
-        $manager = $userRepo->findOne($params['manager_id']);
+        $manager = $managerRepo->findOne($params['manager_id']);
         $entity->setManager($manager);
         $department = $departmentRepo->findOne($params['department_id']);
         $entity->setDepartment($department);
