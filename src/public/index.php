@@ -9,6 +9,7 @@ require_once __DIR__ . "/../shared/templates/routes.php";
 require_once __DIR__ . "/../modules/auth/app/http/routes/authRoutes.php";
 require_once __DIR__ . "/../modules/HR/app/http/routes/HrRoutes.php";
 require_once __DIR__ . "/../modules/CS/app/http/routes/CsRoutes.php";
+require_once __DIR__ . "/../modules/inovice/app/http/routes/InoviceRoutes.php";
 require_once __DIR__ . "/../modules/manegers/app/http/routes/manegersRoutes.php";
 
 error_reporting(E_ALL & ~E_WARNING & ~E_NOTICE & ~E_DEPRECATED);
