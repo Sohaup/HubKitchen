@@ -3,87 +3,67 @@
 namespace PostApi\modules\HR\app\DB\models;
 
 use PDO;
-use PostApi\modules\auth\app\DB\models\UserMapper;
+use PostApi\modules\HR\domain\entities\Addresse;
+use PostApi\modules\HR\domain\entities\Department;
 use PostApi\modules\HR\domain\entities\Employee;
-use PostApi\modules\manegers\app\DB\models\ManegerMapper;
+use PostApi\modules\HR\domain\entities\JobDescription;
+use PostApi\modules\HR\domain\entities\Shift;
+
 
 class EmployeeMapper
 {
     private array $identityMap = [];
-    private AddresseMapper $addresseMapper;
-    private DepartmentMapper $departmentMapper;
-    private UserMapper $userMapper;
-    private JobDescriptionMapper $jobDescriptionMapper;
-    private ManegerMapper $manegerMapper;
-    public function __construct(private PDO $db)
-    {
-        $this->addresseMapper = new AddresseMapper($db);
-        $this->departmentMapper = new DepartmentMapper($db);
-        $this->userMapper = new UserMapper($db);
-        $this->jobDescriptionMapper = new JobDescriptionMapper($db);
-        $this->manegerMapper = new ManegerMapper($db);
-    }
+
+    public function __construct(private PDO $db) {}
     public function findOne(string $id)
     {
         if (isset($this->identityMap[$id])) {
             return $this->identityMap[$id];
         }
-        $getEmployeeQuery = $this->db->prepare("SELECT * FROM HR.employees WHERE id = ?");
+        $getEmployeeQuery = $this->db->prepare("SELECT * FROM HR.employees_view WHERE id = ?");
         $getEmployeeQuery->execute([$id]);
         $employeeRawdata = $getEmployeeQuery->fetch(PDO::FETCH_ASSOC);
         if ($employeeRawdata) {
             $employee = new Employee();
-            $employee->setId($employeeRawdata['id']);
-            $addresse = $this->addresseMapper->findOne($employeeRawdata['addresse_id']);
-            $employee->setAddress($addresse);
-            $department = $this->departmentMapper->findOne($employeeRawdata['department_id']);
-            $employee->setDepartment($department);
-            $job = $this->jobDescriptionMapper->findOne($employeeRawdata['jd_id']);
-            $employee->setJob($job);
-            $manager = $this->manegerMapper->findOne($employeeRawdata['manager_id']);
-            $employee->setManager($manager);
-            $user = $this->userMapper->findOne($employeeRawdata['user_id']);
-            $employee->setUser($user);
-            $employee->setEmployeedAt($employeeRawdata['employeed_at']);
-            $employee->setEmployeeStatus($employeeRawdata['employee_status']);
-            $employee->setMartialStatus($employeeRawdata['martial_status']);
+            $job = new JobDescription();
+            $shift = new Shift();
+            $shift->create(id: $employeeRawdata['shift_id'], shiftName: $employeeRawdata['shift_name'], startTime: $employeeRawdata['shift_start_time'], endTime: $employeeRawdata['shift_end_time'], breakDuration: $employeeRawdata['shift_break_duration_by_minutes'], isOverNight: $employeeRawdata['shift_is_overnight'], isActive: $employeeRawdata['shift_is_active'], createdAt: $employeeRawdata['shift_created_at']);
+            $job->create($employeeRawdata['jd_id'], $employeeRawdata['jd_name'], $shift);
+            $department = new Department();
+            $department->create($employeeRawdata['department_id'], $employeeRawdata['department_name']);
+            $addresse = new Addresse();
+            $addresse->create($employeeRawdata['addresse_id'], $employeeRawdata['country'], $employeeRawdata['city'], $employeeRawdata['street'], $employeeRawdata['flat']);
+            $employee->create($employeeRawdata['id'], $employeeRawdata['employee_status'], $employeeRawdata['martial_status'], $employeeRawdata['user_id'], $job, $employeeRawdata['manager_id'], $employeeRawdata['employeed_at'], $department, $addresse);
             $this->identityMap[$id] = $employee;
             return $employee;
         }
-        
     }
     public function findAll()
     {
-        $getEmployeesQuery = $this->db->prepare("SELECT * FROM HR.employees ");
+        $getEmployeesQuery = $this->db->prepare("SELECT * FROM HR.employees_view");
         $getEmployeesQuery->execute([]);
-        $employeesRawdata = $getEmployeesQuery->fetchAll(PDO::FETCH_ASSOC);       
-        foreach ($employeesRawdata as $employeeRawdata) {
+        $employeeRawdata = $getEmployeesQuery->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($employeeRawdata as $employeeRawdata) {
             if (!isset($this->identityMap[$employeeRawdata['id']])) {
                 $employee = new Employee();
-                $employee->setId($employeeRawdata['id']);
-                $addresse = $this->addresseMapper->findOne($employeeRawdata['addresse_id']);
-                $employee->setAddress($addresse);
-                $department = $this->departmentMapper->findOne($employeeRawdata['department_id']);
-                $employee->setDepartment($department);
-                $job = $this->jobDescriptionMapper->findOne($employeeRawdata['jd_id']);
-                $employee->setJob($job);
-                $manager = $this->manegerMapper->findOne($employeeRawdata['manager_id']);
-                $employee->setManager($manager);
-                $user = $this->userMapper->findOne($employeeRawdata['user_id']);
-                $employee->setUser($user);
-                $employee->setEmployeedAt($employeeRawdata['employeed_at']);
-                $employee->setEmployeeStatus($employeeRawdata['employee_status']);
-                $employee->setMartialStatus($employeeRawdata['martial_status']);
+                $job = new JobDescription();
+                $shift = new Shift();
+                $shift->create(id: $employeeRawdata['shift_id'], shiftName: $employeeRawdata['shift_name'], startTime: $employeeRawdata['shift_start_time'], endTime: $employeeRawdata['shift_end_time'], breakDuration: $employeeRawdata['shift_break_duration_by_minutes'], isOverNight: $employeeRawdata['shift_is_overnight'], isActive: $employeeRawdata['shift_is_active'], createdAt: $employeeRawdata['shift_created_at']);
+                $job->create($employeeRawdata['jd_id'], $employeeRawdata['jd_name'], $shift);
+                $department = new Department();
+                $department->create($employeeRawdata['department_id'], $employeeRawdata['department_name']);
+                $addresse = new Addresse();
+                $addresse->create($employeeRawdata['addresse_id'], $employeeRawdata['country'], $employeeRawdata['city'], $employeeRawdata['street'], $employeeRawdata['flat']);
+                $employee->create($employeeRawdata['id'], $employeeRawdata['employee_status'], $employeeRawdata['martial_status'], $employeeRawdata['user_id'], $job, $employeeRawdata['manager_id'], $employeeRawdata['employeed_at'], $department, $addresse);
                 $this->identityMap[$employee->getId()] = $employee;
             }
-            
-        }        
+        }
         return $this->identityMap;
     }
     public function create(Employee $employee)
     {
         $createEmployeeQuery = $this->db->prepare("INSERT INTO HR.employees(martial_status , employee_status , user_id , jd_id , manager_id , department_id , addresse_id ) VALUES(? ,?, ? , ? , ? , ? , ?) RETURNING id ");
-        $createEmployeeQuery->execute([$employee->getMartialStatus(), $employee->getEmployeeStatus(), $employee->getUser()->getId(), $employee->getJob()->getId(), $employee->getManager()->getId(), $employee->getDepartment()->getId(), $employee->getAddress()->getId()]);
+        $createEmployeeQuery->execute([$employee->getMartialStatus(), $employee->getEmployeeStatus(), $employee->getUserId(), $employee->getJob()->getId(), $employee->getManagerId(), $employee->getDepartment()->getId(), $employee->getAddress()->getId()]);
         $employeeId = $createEmployeeQuery->fetch(PDO::FETCH_ASSOC)['id'];
         $employee->setId($employeeId);
         $this->identityMap[$employeeId] = $employee;
@@ -92,7 +72,7 @@ class EmployeeMapper
     {
         if (isset($this->identityMap[$employee->getId()])) {
             $updateEmployeeQuery = $this->db->prepare("UPDATE HR.employees SET  martial_status = ? , employee_status = ? , user_id  = ? , manager_id = ?  , department_id = ? , addresse_id = ? WHERE id = ?");
-            $updateEmployeeQuery->execute([$employee->getMartialStatus(), $employee->getEmployeeStatus(), $employee->getUser()->getId(), $employee->getManager()->getId(), $employee->getDepartment()->getId(), $employee->getAddress()->getId(), $employee->getId()]);
+            $updateEmployeeQuery->execute([$employee->getMartialStatus(), $employee->getEmployeeStatus(), $employee->getUserId(), $employee->getManagerId(), $employee->getDepartment()->getId(), $employee->getAddress()->getId(), $employee->getId()]);
             $this->identityMap[$employee->getId()] = $employee;
         }
     }
@@ -102,6 +82,6 @@ class EmployeeMapper
             $deleteEmployeeQuery = $this->db->prepare("DELETE FROM HR.employees WHERE id = ?");
             $deleteEmployeeQuery->execute([$id]);
             unset($this->identityMap[$id]);
-        }        
+        }
     }
 }

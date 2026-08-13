@@ -15,7 +15,7 @@ use PostApi\shared\helpers\fecade\ViewError;
 
 class TokenController implements ApiControllerContract
 {
-    public function index()
+    public function index(Request $request)
     {
         $tokensSerin = GetTokensCollectionAction::execute();
         return Json::toJson($tokensSerin);
@@ -30,9 +30,8 @@ class TokenController implements ApiControllerContract
             return ViewError::viewProplem("get token error", "unvalid paramter error", 1, "there is no corrosponding token for this id", 400);
         }
     }
-    public function create()
-    {
-        $request = new Request();
+    public function create(Request $request)
+    {        
         $params = $request->body;
         print_r($params); 
         if (!isset($params['user_id'])) {
@@ -47,9 +46,8 @@ class TokenController implements ApiControllerContract
             return ViewError::viewProplem("create token error", $error->getMessage(), 1, $error->getMessage(), 500);
         }
     }
-    public function update(string $id)
-    {
-        $request = new Request();
+    public function update(Request $request , string $id)
+    {       
         $params = $request->body;
         if (!isset($params['is_revoked'])) {
             return ViewError::viewProplem("upadte token error", "missing required paramters error", 1, "missing required paramter is_revoked ", 400);

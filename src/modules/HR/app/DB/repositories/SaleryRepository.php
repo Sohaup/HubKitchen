@@ -13,7 +13,7 @@ class SaleryRepository
     public function __construct()
     {
         $this->initialize();
-        $this->saleryMapper = new SaleryMapper($this->postgre->pdo);
+        $this->saleryMapper = new SaleryMapper($this->dataBase);
     }
     public function findOne(int $id)
     {

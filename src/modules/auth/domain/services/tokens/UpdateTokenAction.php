@@ -14,7 +14,7 @@ class UpdateTokenAction
         $userRepository = new UserRepository();
         $token = $tokenRepository->findOne($tokenId);  
          
-        $user  = $userRepository->findOne($token->getUser()->getId());
+        $user = $userRepository->findOne($token->getUser()->getId());
         $token->setRevoked($is_revoked);
         $payload = [
             'user'=> [

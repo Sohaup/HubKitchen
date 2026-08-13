@@ -12,7 +12,10 @@ class JobDescriptionUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private JobDescriptionMapper $jobDescriptionMapper, private PDO $db) {}
+    private JobDescriptionMapper $jobDescriptionMapper;
+    public function __construct(private PDO $db) {
+        $this->jobDescriptionMapper = new JobDescriptionMapper($db);
+    }
     public function registerNew(JobDescription &$jobDescription)
     {
         if (!in_array($jobDescription, $this->newObjects, true)) {

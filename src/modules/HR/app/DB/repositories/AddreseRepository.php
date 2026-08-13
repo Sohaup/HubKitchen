@@ -11,7 +11,7 @@ class AddreseRepository {
     public function __construct()
     {
         $this->initialize();
-        $this->addresseMapper = new AddresseMapper($this->postgre->pdo);
+        $this->addresseMapper = new AddresseMapper($this->dataBase);
     }
 
     public function findOne(int $id)

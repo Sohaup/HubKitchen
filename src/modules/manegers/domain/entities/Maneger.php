@@ -2,13 +2,12 @@
 
 namespace PostApi\modules\manegers\domain\entities;
 
-use PostApi\modules\auth\domain\Entities\User;
 
 class Maneger
 {
     private ?string $id = "";
     private int $rank = 0;
-    private User $user;
+    private string $userId = "";
     private Department $department;
 
     public function setId(string $id)
@@ -25,11 +24,11 @@ class Maneger
     public function getRank() {
         return $this->rank;
     }
-    public function setUser(User $user) {
-        $this->user = $user;
+    public function setUserId(string $userId) {
+        $this->userId = $userId;
     }
-    public function getUser() {
-        return $this->user;
+    public function getUserId() {
+        return $this->userId;
     }
     public function setDepartment(Department $department) {
         $this->department = $department;

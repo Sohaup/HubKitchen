@@ -4,16 +4,12 @@ namespace PostApi\modules\HR\domain\services\applicationCycle;
 
 use PostApi\modules\HR\app\DB\repositories\ApplicationCycleRepository;
 use PostApi\modules\HR\domain\entities\ApplicationCycle;
-use PostApi\modules\HR\app\DB\repositories\ApplicationCycleRepository as Repo;
 use PostApi\modules\HR\helpers\types\AppraisalStatusType;
-use PostApi\shared\app\http\requests\Request;
 
 class CreateApplicationCycleAction
 {
-    public static function execute()
-    {
-        $request = new Request();
-        $body = $request->body;
+    public static function execute(array $body)
+    {        
         $name = $body['name'] ?? '';
         $starts = $body['starts_at'] ?? '';
         $ends = $body['ends_at'] ?? '';

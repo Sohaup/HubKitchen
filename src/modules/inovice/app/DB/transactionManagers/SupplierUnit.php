@@ -12,7 +12,10 @@ class SupplierUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private SupplierMapper $supplierMapper, private PDO $db) {}
+    private SupplierMapper $supplierMapper;
+    public function __construct(private PDO $db) {
+        $this->supplierMapper = new SupplierMapper($db);
+    }
     public function registerNew(Supplier &$supplier)
     {
         if (!in_array($supplier, $this->newObjects, true)) {

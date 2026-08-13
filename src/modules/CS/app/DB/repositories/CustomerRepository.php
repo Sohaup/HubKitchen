@@ -12,7 +12,7 @@ class CustomerRepository
     public function __construct()
     {
         $this->initialize();
-        $this->customerMapper = new CustomerMapper($this->postgre->pdo);
+        $this->customerMapper = new CustomerMapper($this->dataBase);
     }
 
     public function findOne(string $id) {

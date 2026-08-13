@@ -11,8 +11,20 @@ class Shift
     private string $endTime = "";
     private int $breakDuration = 0;
     private bool $isOverNight = false;
-    private bool $isActive = true;   
+    private bool $isActive = true;
     private string $createdAt = "";
+
+    public function create(?int $id, string $shiftName, string $startTime, string $endTime, string $breakDuration, bool $isOverNight, bool $isActive, string $createdAt)
+    {
+        $this->id = $id;
+        $this->shiftName = $shiftName;
+        $this->startTime = $startTime;
+        $this->endTime = $endTime;
+        $this->breakDuration = $breakDuration;
+        $this->isOverNight = $isOverNight;
+        $this->isActive = $isActive;
+        $this->createdAt = $createdAt;
+    }
 
     public function setId(int $id)
     {
@@ -32,7 +44,7 @@ class Shift
     }
     public function setStartTime(string $startTime)
     {
-        $this->startTime = $startTime;        
+        $this->startTime = $startTime;
     }
     public function getStartTime()
     {
@@ -69,7 +81,7 @@ class Shift
     public function getIsActive()
     {
         return $this->isActive;
-    }   
+    }
     public function setCreatedAt(string $createdAt)
     {
         $this->createdAt = $createdAt;

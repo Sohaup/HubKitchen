@@ -10,14 +10,15 @@ use PostApi\modules\manegers\domain\services\plan\UpdatePlanAction;
 use PostApi\modules\manegers\domain\services\plan\DeletePlanAction;
 use PostApi\modules\manegers\domain\services\plan\GetPlanCollectionAction;
 use PostApi\modules\manegers\domain\services\plan\GetPlanItemAction;
+use PostApi\shared\app\controllers\api\ApiControllerContract;
 use PostApi\shared\app\http\requests\Request;
 use PostApi\shared\app\http\responses\success\json\Json;
 use PostApi\shared\helpers\fecade\Chache;
 use PostApi\shared\helpers\fecade\ViewError;
 
-class PlanController
+class PlanController implements ApiControllerContract
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
             $serin = GetPlanCollectionAction::execute();
@@ -27,15 +28,14 @@ class PlanController
         }
     }
 
-    public function create()
-    {
-        $request = new Request();
+    public function create(Request $request)
+    {        
         $body = $request->body;
         if (!isset($body['type'], $body['name'], $body['description'], $body['maneger_id'])) {
             return ViewError::viewProplem('create plan error', 'missing required paramters', 1, 'missing required paramters type, name, description, maneger_id', 400);
         }
         try {
-            $plan = CreatePlanAction::execute();            
+            $plan = CreatePlanAction::execute($body);            
             $serin = GetPlanItemAction::execute($plan->getId());
             http_response_code(201);
             return Json::toJson($serin);
@@ -55,15 +55,14 @@ class PlanController
         }
     }
 
-    public function update(string $id)
-    {
-        $request = new Request();
+    public function update(Request $request,string $id)
+    {        
         $body = $request->body;
         if (!isset($body['type'], $body['name'], $body['description'], $body['maneger_id'])) {
             return ViewError::viewProplem('update plan error', 'missing required paramters', 1, 'missing required paramters type, name, description, maneger_id', 400);
         }
         try {
-            UpdatePlanAction::execute($id);
+            UpdatePlanAction::execute($id , $body);
             http_response_code(200);
             return Json::toJson(['message' => 'plan updated successfuly']);
         } catch (Error $error) {

@@ -12,8 +12,10 @@ class PermissionUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-
-    public function __construct(private PermissionMapper $permissionMapper, private PDO $db) {}
+    private PermissionMapper $permissionMapper;
+    public function __construct( private PDO $db) {
+        $this->permissionMapper = new PermissionMapper($db);
+    }
     public function registerNew(Permission &$permission)
     {
         if (!isset($this->newObjects[$permission->getId()])) {

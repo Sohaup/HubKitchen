@@ -2,7 +2,6 @@
 
 namespace PostApi\modules\auth\domain\services\tokens;
 
-use Error;
 use Exception;
 use PostApi\modules\auth\app\DB\repositories\RoleRepository;
 use PostApi\modules\auth\app\DB\repositories\TokenRepository;

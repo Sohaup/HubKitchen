@@ -8,7 +8,6 @@ use PDO;
 use PostApi\modules\auth\app\DB\repositories\UserRepository;
 use PostApi\modules\auth\domain\Entities\User;
 use PostApi\modules\auth\helpers\templates\LogInTemplate;
-use PostApi\shared\app\http\requests\Request;
 use PostApi\shared\helpers\queryBuilder\builder\QueryBuilder;
 use PostApi\shared\helpers\queryBuilder\Interepter\Columns\QueryColumns;
 use PostApi\shared\helpers\queryBuilder\Interepter\Conditions\BasicCondition;
@@ -19,15 +18,13 @@ use PostApi\shared\helpers\queryBuilder\Interepter\Table\QueryTable;
 
 class LogInWithCredentialsAction extends LogInTemplate
 {
-  public function handleLogIn(): User
-  {
-    $request = new Request();
-    $params = $request->body;
+  public function handleLogIn(array $params): User
+  {    
     $email = $params['email'];
     $password = $params['password'];
     $userRepository = new UserRepository();
     $db = $userRepository->getDbInstance();
-    $queryBuilder = new QueryBuilder($db->pdo);
+    $queryBuilder = new QueryBuilder($db);
     $table = new QueryTable("auth.users");
     $condition = new Condition("email", ConditionOperators::EQUAL, $email);
     $conditionQuery = new BasicCondition($condition);

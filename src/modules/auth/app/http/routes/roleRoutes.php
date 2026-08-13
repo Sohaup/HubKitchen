@@ -11,7 +11,7 @@ use PostApi\shared\helpers\fecade\Urls;
 require_once __DIR__ . "/../../../../../shared/templates/routes.php";
 
 $guardMiddleWare = new GuardMiddleware();
-$gateMiddleware = new GateMiddleware([RoleTypes::MANAGER->value , RoleTypes::HR->value , RoleTypes::SECURITY->value]);
+$gateMiddleware = new GateMiddleware([RoleTypes::MANAGER , RoleTypes::HR , RoleTypes::SECURITY]);
 
 
 $getRolesRoute = new Route(Urls::transformRouteUrl("/roles/") , HttpMethodsType::GET , RoleController::class , 'index');

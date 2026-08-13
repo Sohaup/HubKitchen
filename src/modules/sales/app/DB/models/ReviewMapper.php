@@ -1,0 +1,111 @@
+<?php
+
+namespace PostApi\modules\sales\app\DB\models;
+
+use PDO;
+use PostApi\modules\sales\domain\entities\Customer;
+use PostApi\modules\sales\domain\entities\Product;
+use PostApi\modules\sales\domain\entities\Review;
+
+class ReviewMapper
+{
+    private array $identityMap = [];
+
+    public function __construct(private PDO $db) {}
+
+    public function findOne(int $id): ?Review
+    {
+        if (isset($this->identityMap[$id])) {
+            return $this->identityMap[$id];
+        }
+
+        $getReviewQuery = $this->db->prepare("SELECT * FROM sales.review_view WHERE id = ?");
+        $getReviewQuery->execute([$id]);
+        $reviewRawData = $getReviewQuery->fetch(PDO::FETCH_ASSOC);
+
+        if ($reviewRawData) {
+            $customer = new Customer();
+            $customer->setId($reviewRawData['customer_id']);
+            $customer->setUserId($reviewRawData['user_id']);
+            $customer->setStripeId($reviewRawData['customer_stripe_id']);
+
+            $product = new Product();
+            $product->setId($reviewRawData['product_id']);
+            $product->setName($reviewRawData['name']);
+            $product->setPrice($reviewRawData['price']);
+            $product->setStripeId($reviewRawData['product_stripe_id']);
+            $product->setImage($reviewRawData['image']);
+            $product->setCreatedAt($reviewRawData['created_at']);
+
+            $review = new Review();
+            $review->setId($reviewRawData['id']);
+            $review->setReview($reviewRawData['review']);
+            $review->setCustomer($customer);
+            $review->setProduct($product);
+
+            $this->identityMap[$id] = $review;
+            return $review;
+        }
+
+        return null;
+    }
+
+    public function findAll(): array
+    {
+        $getReviewsQuery = $this->db->prepare("SELECT * FROM sales.review_view ");
+        $getReviewsQuery->execute([]);
+        $reviewsRawData = $getReviewsQuery->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($reviewsRawData as $reviewRawData) {
+            if (!isset($this->identityMap[$reviewRawData['id']])) {
+                $customer = new Customer();
+                $customer->setId($reviewRawData['customer_id']);
+                $customer->setUserId($reviewRawData['user_id']);
+                $customer->setStripeId($reviewRawData['customer_stripe_id']);
+
+                $product = new Product();
+                $product->setId($reviewRawData['product_id']);
+                $product->setName($reviewRawData['name']);
+                $product->setPrice($reviewRawData['price']);
+                $product->setStripeId($reviewRawData['product_stripe_id']);
+                $product->setImage($reviewRawData['image']);
+                $product->setCreatedAt($reviewRawData['created_at']);
+
+                $review = new Review();
+                $review->setId($reviewRawData['id']);
+                $review->setReview($reviewRawData['review']);
+                $review->setCustomer($customer);
+                $review->setProduct($product);
+
+                $this->identityMap[$reviewRawData['id']] = $review;
+            }
+        }
+
+        return array_values($this->identityMap);
+    }
+    
+    public function create(Review $review)
+    {
+        $createReviewQuery = $this->db->prepare("INSERT INTO sales.reviews(review, customer_id, product_id) VALUES(?, ?, ?) RETURNING id");
+        $createReviewQuery->execute([$review->getReview(), $review->getCustomer()->getId(), $review->getProduct()->getId()]);
+        $reviewId = $createReviewQuery->fetch(PDO::FETCH_ASSOC)['id'];
+        $review->setId($reviewId);
+        $this->identityMap[$review->getId()] = $review;
+    }
+
+    public function update(Review $review)
+    {
+        $updateReviewQuery = $this->db->prepare("UPDATE sales.reviews SET review = ?, customer_id = ?, product_id = ? WHERE id = ?");
+        $updateReviewQuery->execute([$review->getReview(), $review->getCustomer()->getId(), $review->getProduct()->getId(), $review->getId()]);
+        $this->identityMap[$review->getId()] = $review;
+    }
+
+    public function delete(int $id)
+    {
+        if (isset($this->identityMap[$id])) {
+            $deleteReviewQuery = $this->db->prepare("DELETE FROM sales.reviews WHERE id = ?");
+            $deleteReviewQuery->execute([$id]);
+            unset($this->identityMap[$id]);
+        }
+    }
+}

@@ -15,7 +15,7 @@ use PostApi\shared\helpers\fecade\ViewError;
 
 class PermissionController implements ApiControllerContract
 {
-    public function index()
+    public function index(Request $request)
     {
         $permissionRepository = new PermissionRepository();
         $permissions = $permissionRepository->findAll();
@@ -35,10 +35,9 @@ class PermissionController implements ApiControllerContract
             return ViewError::viewProplem("display permission error", "paramter error", 1, "there is no corosponding permission for this id", 400);
         }
     }
-    public function create()
+    public function create(Request $request)
     {
-        header("Content-Type:application/json");
-        $request = new Request();
+        header("Content-Type:application/json");        
         $params = $request->body;
         if (!isset($params['name'])) {
             return  ViewError::viewProplem("creating permission error", "missing required paramters error", 1, "missing required paramter name ", 400);
@@ -50,11 +49,10 @@ class PermissionController implements ApiControllerContract
         http_response_code(201);
         return Json::toJson($serin);
     }
-    public function update(string $id)
+    public function update(Request $request,string $id)
     {
         header("Content-Type:application/json");
-        $permissionRepository = new PermissionRepository();
-        $request = new Request();
+        $permissionRepository = new PermissionRepository();        
         $params = $request->body;
         try {
             if (!isset($params['name'])) {

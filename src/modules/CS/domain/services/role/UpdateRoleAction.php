@@ -3,14 +3,11 @@
 namespace PostApi\modules\CS\domain\services\role;
 
 use PostApi\modules\CS\app\DB\repositories\RoleRepository;
-use PostApi\shared\app\http\requests\Request;
 
 class UpdateRoleAction
 {
-    public static function execute(int $id)
-    {
-        $request = new Request();
-        $params = $request->body;
+    public static function execute(int $id , array $params)
+    {       
         $repo = new RoleRepository();
         $role = $repo->findOne($id);
         if (!$role) throw new \Exception('role not found');

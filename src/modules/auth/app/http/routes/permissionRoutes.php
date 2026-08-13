@@ -3,17 +3,14 @@ use PostApi\modules\auth\app\controllers\PermissionController;
 use PostApi\modules\auth\app\http\middlewares\GateMiddleware;
 use PostApi\modules\auth\app\http\middlewares\GuardMiddleware;
 use PostApi\modules\auth\helpers\types\RoleTypes;
-use PostApi\shared\app\http\proxies\ProxyMiddlewareForRoute;
 use PostApi\shared\app\http\routes\Route\Route;
-use PostApi\shared\app\http\routes\Route\RouteCollection;
 use PostApi\shared\app\http\types\HttpMethodsType;
 use PostApi\shared\helpers\fecade\Urls;
 
 require_once __DIR__ . "/../../../../../shared/templates/routes.php";
 
 $guardMiddleware = new GuardMiddleware();
-$gateMiddleware = new GateMiddleware([RoleTypes::MANAGER->value , RoleTypes::USER->value]);
-
+$gateMiddleware = new GateMiddleware([RoleTypes::MANAGER , RoleTypes::USER]);
 
 $getPermissionsRoute = new Route(Urls::transformRouteUrl("/permissions/") , HttpMethodsType::GET , PermissionController::class , 'index');
 $getPermissionsRoute->addMiddleware($guardMiddleware)->addMiddleware($gateMiddleware);
@@ -40,4 +37,4 @@ $deletePermissionRoute->addMiddleware($guardMiddleware)->addMiddleware($gateMidd
 $router->addRoute($deletePermissionRoute);
 $middlewareRoutes->addRoute($deletePermissionRoute);
 
-// $proxyMiddlewre = new ProxyMiddlewareForRoute($middlewareRoutes);
+

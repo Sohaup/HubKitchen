@@ -12,30 +12,34 @@ class UserUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private UserMapper $userMapper, private PDO $db) {}
+    private UserMapper $userMapper;
+    public function __construct(private PDO $db)
+    {
+        $this->userMapper = new UserMapper($db);
+    }
     public function registerNew(User &$user)
     {
-        if (!in_array($user, $this->newObjects , true)) {
+        if (!in_array($user, $this->newObjects, true)) {
             $this->newObjects[] = $user;
-        }
+        }      
     }
     public function registerDirty(User &$user)
     {
-        if (!in_array($user, $this->dirtyObjects , true)) {
+        if (!in_array($user, $this->dirtyObjects, true)) {
             $this->dirtyObjects[] = $user;
         }
     }
     public function registerDeleted(User &$user)
     {
-        if (!in_array($user, $this->deletedObjects , true)) {
+        if (!in_array($user, $this->deletedObjects, true)) {
             $this->deletedObjects[] = $user;
         }
     }
     public function commit()
     {
-        $this->db->beginTransaction();
+        $this->db->beginTransaction();        
         try {
-            foreach ($this->newObjects as $entity) {
+            foreach ($this->newObjects as $entity) {                
                 $this->userMapper->insert($entity);
             }
             foreach ($this->dirtyObjects as $entity) {

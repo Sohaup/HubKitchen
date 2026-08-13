@@ -12,7 +12,10 @@ class EmployeeUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private PDO $db, private EmployeeMapper $employeeMapper) {}
+    private EmployeeMapper $employeeMapper;
+    public function __construct(private PDO $db) {
+        $this->employeeMapper = new EmployeeMapper($db);
+    }
 
     public function registerNew(Employee &$employee)
     {

@@ -12,8 +12,10 @@ class ApplicationUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-
-    public function __construct(private ApplicationMapper $applicationMapper, private PDO $db) {}
+    private ApplicationMapper $applicationMapper;
+    public function __construct( private PDO $db) {
+        $this->applicationMapper = new ApplicationMapper($db);
+    }
 
     public function registerNew(Application &$application)
     {

@@ -19,7 +19,7 @@ class SaleryComponent
         $this->setType($type);
         $this->setCalcType($calcType);
     }
-
+  
     public function setId(int $id)
     {
         $this->id = $id;

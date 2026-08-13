@@ -12,7 +12,10 @@ class SkillUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private SkillMapper $skillMapper, private PDO $db) {}
+    private SkillMapper $skillMapper;
+    public function __construct(private PDO $db) {
+        $this->skillMapper = new SkillMapper($db);
+    }
     public function registerNew(Skill &$skill)
     {
         if (!in_array($skill, $this->newObjects, true)) {

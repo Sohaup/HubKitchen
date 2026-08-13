@@ -18,7 +18,7 @@ use PostApi\shared\helpers\fecade\ViewError;
 class ApplicationTemplateController implements ApiControllerContract
 {
     #[Override]
-    public function index()
+    public function index(Request $request)
     {
         $serin = GetApplicationTemplateCollectionAction::execute();
         return Chache::checkCache($serin);
@@ -37,15 +37,14 @@ class ApplicationTemplateController implements ApiControllerContract
     }
 
     #[Override]
-    public function create()
-    {
-        $request = new Request();
+    public function create(Request $request)
+    {       
         $body = $request->body;
         if (!isset($body['title'] , $body['description'])) {
             return ViewError::viewProplem("creating departments error", "missing required paramters error", 1, "missing required paramters name", 400);
         }
         try {
-            $entity = CreateApplicationTemplateAction::execute();
+            $entity = CreateApplicationTemplateAction::execute($body);
             $serin = GetApplicationTemplateItemAction::execute((int)$entity->getId());
             http_response_code(201);
             return Json::toJson($serin);
@@ -55,15 +54,14 @@ class ApplicationTemplateController implements ApiControllerContract
     }
 
     #[Override]
-    public function update(string $id)
-    {
-        $request = new Request();
+    public function update(Request $request,string $id)
+    {        
         $body = $request->body;
         if (!isset($body['title'] , $body['description'])) {
             return ViewError::viewProplem("updating departments error", "missing required paramters error", 1, "missing required paramters name", 400);
         }
         try {
-            UpdateApplicationTemplateAction::execute((int)$id);
+            UpdateApplicationTemplateAction::execute((int)$id , $body); 
             http_response_code(200);
             return Json::toJson(['message' => "update application template successfuly"]);
         } catch (Error $error) {

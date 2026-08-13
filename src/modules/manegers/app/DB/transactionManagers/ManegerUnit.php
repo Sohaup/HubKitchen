@@ -12,7 +12,10 @@ class ManegerUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private ManegerMapper $manegerMapper, private PDO $db) {}
+    private ManegerMapper $manegerMapper;
+    public function __construct(private PDO $db) {
+        $this->manegerMapper = new ManegerMapper($db);
+    }
     public function registerNew(Maneger &$maneger)
     {
         if (!in_array($maneger, $this->newObjects, true)) {

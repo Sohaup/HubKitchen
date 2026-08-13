@@ -13,7 +13,7 @@ use PostApi\shared\helpers\fecade\Urls;
 require_once __DIR__ . "/../../../../../shared/templates/routes.php";
 
 $guardMiddleware = new GuardMiddleware();
-$gateMiddleware = new GateMiddleware([RoleTypes::MANAGER->value , RoleTypes::SECURITY->value , RoleTypes::USER->value ]);
+$gateMiddleware = new GateMiddleware([RoleTypes::MANAGER , RoleTypes::SECURITY , RoleTypes::USER]);
 $permissionsGateMiddleware = new GateForPermissionsMiddleware(['display products']);
 
 $getTokenRoute = new Route(Urls::transformRouteUrl("/tokens/:id") , HttpMethodsType::GET , TokenController::class , 'get');

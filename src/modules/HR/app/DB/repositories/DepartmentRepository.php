@@ -11,7 +11,7 @@ class DepartmentRepository {
     public function __construct()
     {
         $this->initialize();
-        $this->departmentMapper = new DepartmentMapper($this->postgre->pdo);
+        $this->departmentMapper = new DepartmentMapper($this->dataBase);
     } 
 
     public function findOne(int $id) {

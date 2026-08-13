@@ -4,14 +4,11 @@ namespace PostApi\modules\HR\domain\services\addresse;
 
 use PostApi\modules\HR\app\DB\repositories\AddreseRepository;
 use PostApi\modules\HR\domain\entities\Addresse;
-use PostApi\shared\app\http\requests\Request;
 
 class CreateAddresseAction
 {
-    public static function execute()
-    {
-        $request = new Request();
-        $params = $request->body;
+    public static function execute(array $params)
+    {        
         $repo = new AddreseRepository();
         $entity = new Addresse();
         foreach ($params as $key => $value) {

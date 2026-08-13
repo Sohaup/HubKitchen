@@ -3,7 +3,6 @@ namespace PostApi\modules\HR\domain\services\departments;
 
 use PostApi\modules\HR\app\DB\repositories\DepartmentRepository;
 use PostApi\modules\HR\domain\entities\Department;
-use PostApi\shared\app\http\requests\Request;
 use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class CreateDepartmentAction {

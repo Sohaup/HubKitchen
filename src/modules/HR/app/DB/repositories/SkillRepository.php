@@ -11,7 +11,7 @@ class SkillRepository {
     public function __construct()
     {
         $this->initialize();
-        $this->skillMapper = new SkillMapper($this->postgre->pdo);
+        $this->skillMapper = new SkillMapper($this->dataBase);
     }
     public function findOne(int $id) {
         return $this->skillMapper->findOne($id);

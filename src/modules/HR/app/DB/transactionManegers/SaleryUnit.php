@@ -12,7 +12,10 @@ class SaleryUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private PDO $db, private SaleryMapper $saleryMapper) {}
+     private SaleryMapper $saleryMapper;
+    public function __construct(private PDO $db) {
+        $this->saleryMapper = new SaleryMapper($db);
+    }
     public function registerNew(Salery $salery)
     {
         if (!in_array($salery, $this->newObjects, true)) {

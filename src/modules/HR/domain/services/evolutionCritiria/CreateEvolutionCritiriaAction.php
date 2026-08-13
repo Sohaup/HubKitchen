@@ -5,15 +5,11 @@ namespace PostApi\modules\HR\domain\services\evolutionCritiria;
 use PostApi\modules\HR\app\DB\repositories\EvolutionCritiriaRepository;
 use PostApi\modules\HR\app\DB\repositories\ApplicationTemplateRepository;
 use PostApi\modules\HR\domain\entities\EvolutionCritiria;
-use PostApi\shared\app\http\requests\Request;
 
 class CreateEvolutionCritiriaAction
 {
-    public static function execute()
-    {
-        $request = new Request();
-        $body = $request->body;
-
+    public static function execute(array $body)
+    {        
         $critiria = $body['critiria'] ?? '';
         $weight = isset($body['weight']) ? (int)$body['weight'] : 0;
         $templateId = $body['template_id'] ?? null;

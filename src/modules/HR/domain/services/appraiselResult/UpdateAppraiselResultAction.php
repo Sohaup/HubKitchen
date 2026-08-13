@@ -11,17 +11,13 @@ use PostApi\shared\app\http\requests\Request;
 
 class UpdateAppraiselResultAction
 {
-    public static function execute(int $id)
+    public static function execute(int $id , array $body)
     {
         $repo = new AppraiselResultRepository();
         $entity = $repo->findOne($id);
         if (!$entity) {
             throw new Error('not found');
-        }
-
-        $request = new Request();
-        $body = $request->body;
-
+        }      
         if (isset($body['cycle_id'])) {
             $cycleRepo = new ApplicationCycleRepository();
             $entity->setCycle($cycleRepo->findOne((int)$body['cycle_id']));

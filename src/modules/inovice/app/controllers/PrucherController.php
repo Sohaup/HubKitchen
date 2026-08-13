@@ -9,14 +9,15 @@ use PostApi\modules\inovice\domain\services\prucher\DeletePrucherAction;
 use PostApi\modules\inovice\domain\services\prucher\GetPrucherCollectionAction;
 use PostApi\modules\inovice\domain\services\prucher\GetPrucherItemAction;
 use PostApi\modules\inovice\domain\services\prucher\UpdatePrucherAction;
+use PostApi\shared\app\controllers\api\ApiControllerContract;
 use PostApi\shared\app\http\requests\Request;
 use PostApi\shared\app\http\responses\success\json\Json;
 use PostApi\shared\helpers\fecade\Chache;
 use PostApi\shared\helpers\fecade\ViewError;
 
-class PrucherController
+class PrucherController implements ApiControllerContract
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
             $serin = GetPrucherCollectionAction::execute();
@@ -26,15 +27,14 @@ class PrucherController
         }
     }
 
-    public function create()
-    {
-        $request = new Request();
+    public function create(Request $request)
+    {        
         $body = $request->body;
-        if (!isset($body['quantity'], $body['supplier_id'], $body['product_id'])) {
-            return ViewError::viewProplem('create prucher error', 'missing required paramters', 1, 'missing required paramters quantity , supplier_id , product_id', 400);
+        if (!isset($body['quantity'], $body['product_id'])) {
+            return ViewError::viewProplem('create prucher error', 'missing required paramters', 1, 'missing required paramters quantity, product_id', 400);
         }
         try {
-            $prucher = CreatePrucherAction::execute();
+            $prucher = CreatePrucherAction::execute($body);
             $serin = GetPrucherItemAction::execute($prucher->getId());
             http_response_code(201);
             return Json::toJson($serin);
@@ -54,15 +54,11 @@ class PrucherController
         }
     }
 
-    public function update(string $id)
-    {
-        $request = new Request();
+    public function update(Request $request,string $id)
+    {      
         $body = $request->body;
-        if (!isset($body['quantity'], $body['supplier_id'], $body['product_id'])) {
-            return ViewError::viewProplem('update prucher error', 'missing required paramters', 1, 'missing required paramters quantity , supplier_id , product_id', 400);
-        }
         try {
-            UpdatePrucherAction::execute($id);
+            UpdatePrucherAction::execute($id , $body);
             http_response_code(200);
             return Json::toJson(['message' => 'prucher updated successfuly']);
         } catch (Error $error) {

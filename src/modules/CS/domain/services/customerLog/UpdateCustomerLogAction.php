@@ -3,14 +3,11 @@
 namespace PostApi\modules\CS\domain\services\customerLog;
 
 use PostApi\modules\CS\app\DB\repositories\CustomerLogRepository;
-use PostApi\shared\app\http\requests\Request;
 
 class UpdateCustomerLogAction
 {
-    public static function execute(int $id)
-    {
-        $request = new Request();
-        $params = $request->body;
+    public static function execute(int $id , array $params)
+    {        
         $repo = new CustomerLogRepository();
         $log = $repo->findOne($id);
         if (!$log) throw new \Exception('log not found');

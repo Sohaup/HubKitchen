@@ -12,7 +12,10 @@ class PrucherUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private PrucherMapper $prucherMapper, private PDO $db) {}
+    private PrucherMapper $prucherMapper;
+    public function __construct(private PDO $db) {
+        $this->prucherMapper = new PrucherMapper($db);
+    }
     public function registerNew(Prucher &$prucher)
     {
         if (!in_array($prucher, $this->newObjects, true)) {

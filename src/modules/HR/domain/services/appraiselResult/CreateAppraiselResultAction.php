@@ -7,15 +7,11 @@ use PostApi\modules\HR\app\DB\repositories\ApplicationCycleRepository;
 use PostApi\modules\HR\app\DB\repositories\EvolutionCritiriaRepository;
 use PostApi\modules\HR\app\DB\repositories\EmployeeRepository;
 use PostApi\modules\HR\domain\entities\AppraiselResult;
-use PostApi\shared\app\http\requests\Request;
 
 class CreateAppraiselResultAction
 {
-    public static function execute()
-    {
-        $request = new Request();
-        $body = $request->body;
-
+    public static function execute(array $body)
+    {        
         $cycleId = $body['cycle_id'] ?? null;
         $critiriaId = $body['critiria_id'] ?? null;
         $employeeId = $body['employee_id'] ?? null;

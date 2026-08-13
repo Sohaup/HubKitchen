@@ -12,7 +12,10 @@ class CustomerLogUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private CustomerLogMapper $mapper, private PDO $db) {}
+    private CustomerLogMapper $mapper;
+    public function __construct(private PDO $db) {
+        $this->mapper = new CustomerLogMapper($db);
+    }
     public function registerNew(CustomerLog &$obj)
     {
         if (!in_array($obj, $this->newObjects, true)) $this->newObjects[] = $obj;

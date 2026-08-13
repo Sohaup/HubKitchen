@@ -8,14 +8,15 @@ use PostApi\modules\CS\domain\services\ticket\DeleteTicketAction;
 use PostApi\modules\CS\domain\services\ticket\GetTicketCollectionAction;
 use PostApi\modules\CS\domain\services\ticket\GetTicketItemAction;
 use PostApi\modules\CS\domain\services\ticket\UpdateTicketAction;
+use PostApi\shared\app\controllers\api\ApiControllerContract;
 use PostApi\shared\app\http\requests\Request;
 use PostApi\shared\app\http\responses\success\json\Json;
 use PostApi\shared\helpers\fecade\Chache;
 use PostApi\shared\helpers\fecade\ViewError;
 
-class TicketController
+class TicketController implements ApiControllerContract
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
             $serin = GetTicketCollectionAction::execute();
@@ -25,15 +26,14 @@ class TicketController
         }
     }
 
-    public function create()
-    {
-        $request = new Request();
+    public function create(Request $request)
+    {        
         $body = $request->body;
         if (!isset($body['type'])) {
             return ViewError::viewProplem('create ticket error', 'missing required paramters', 1, 'missing required paramter type', 400);
         }
         try {
-            $item = CreateTicketAction::execute();
+            $item = CreateTicketAction::execute($body);
             $serin = GetTicketItemAction::execute($item->getId());
             http_response_code(201);
             return Json::toJson($serin);
@@ -53,15 +53,14 @@ class TicketController
         }
     }
 
-    public function update(string $id)
-    {
-        $request = new Request();
+    public function update(Request $request,string $id)
+    {        
         $body = $request->body;
         if (!isset($body['type'])) {
             return ViewError::viewProplem('update ticket error', 'missing required paramters', 1, 'missing required paramter type', 400);
         }
         try {
-            UpdateTicketAction::execute($id);
+            UpdateTicketAction::execute($id,$body);
             http_response_code(200);
             return Json::toJson(['message' => 'updated']);
         } catch (Error $error) {

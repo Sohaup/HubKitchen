@@ -12,7 +12,7 @@ class TokenRepository {
     public function __construct()
     {
        $this->initialize();
-       $this->tokenMapper = new TokenMapper($this->postgre->pdo);
+       $this->tokenMapper = new TokenMapper($this->dataBase);
     }
     public function findOne(int $id) {
         try {

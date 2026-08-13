@@ -12,7 +12,11 @@ class TurnCycleUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private TurnCycleMapper $turnCycleMapper, private PDO $db) {}
+    private TurnCycleMapper $turnCycleMapper;
+    public function __construct(private PDO $db)
+    {
+        $this->turnCycleMapper = new TurnCycleMapper($db);
+    }
     public function registerNew(TurnCycle &$turnCycle)
     {
         if (!in_array($turnCycle, $this->newObjects, true)) {

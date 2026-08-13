@@ -12,7 +12,7 @@ class ActionRepository
     public function __construct()
     {
         $this->initialize();
-        $this->actionMapper = new ActionMapper($this->postgre->pdo);
+        $this->actionMapper = new ActionMapper($this->dataBase);
     }
 
     public function findOne(string $id) {

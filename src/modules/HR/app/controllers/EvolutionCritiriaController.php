@@ -16,7 +16,7 @@ use PostApi\shared\helpers\fecade\ViewError;
 
 class EvolutionCritiriaController implements ApiControllerContract
 {
-    public function index()
+    public function index(Request $request)
     {
         $serin = GetEvolutionCritiriaCollectionAction::execute();
         return Chache::checkCache($serin);
@@ -33,15 +33,14 @@ class EvolutionCritiriaController implements ApiControllerContract
         }
     }
 
-    public function create()
-    {
-        $request = new Request();
+    public function create(Request $request)
+    {        
         $params = $request->body;
         if (!isset($params['template_id'], $params['critiria'], $params['weight'])) {
             return ViewError::viewProplem("creating evouluotion critiria error", "missing required paramters error", 1, "missing required paramters template, critiria, weight ", 400);
         }
         try {
-            $entity = CreateEvolutionCritiriaAction::execute();
+            $entity = CreateEvolutionCritiriaAction::execute($params);
             $serin = GetEvolutionCritiriaItemAction::execute((int)$entity->getId());
             http_response_code(201);
             return Json::toJson($serin);
@@ -50,15 +49,14 @@ class EvolutionCritiriaController implements ApiControllerContract
         }
     }
 
-    public function update(string $id)
-    {
-        $request = new Request();
+    public function update(Request $request,string $id)
+    {        
         $params = $request->body;
         if (!isset($params['template_id'], $params['critiria'], $params['weight'])) {
             return ViewError::viewProplem("creating evouluotion critiria error", "missing required paramters error", 1, "missing required paramters template, critiria, weight ", 400);
         }
         try {
-            UpdateEvolutionCritiriaAction::execute((int)$id);
+            UpdateEvolutionCritiriaAction::execute((int)$id , $params);
             http_response_code(200);
             return Json::toJson(['message' => 'update evolution critiria successfuly']);
         } catch (Error $error) {

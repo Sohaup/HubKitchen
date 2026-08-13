@@ -10,8 +10,10 @@ class ApplicationTemplateUnit {
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-
-    public function __construct(private ApplicationTemplateMapper $applicationTemplateMapper, private PDO $db) {}
+    private ApplicationTemplateMapper $applicationTemplateMapper;
+    public function __construct(private PDO $db) {
+        $this->applicationTemplateMapper = new ApplicationTemplateMapper($db);
+    }
 
     public function registerNew(ApplicationTemplate &$applicationTemplate)
     {

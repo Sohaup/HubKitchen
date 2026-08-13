@@ -12,7 +12,7 @@ class PlanRepository
     public function __construct()
     {
         $this->initialize();
-        $this->planMapper = new PlanMapper($this->postgre->pdo);
+        $this->planMapper = new PlanMapper($this->dataBase);
     }
 
     public function findOne(int $id) {

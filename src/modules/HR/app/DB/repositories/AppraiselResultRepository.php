@@ -11,7 +11,7 @@ class AppraiselResultRepository {
     public function __construct()
     {
         $this->initialize();
-        $this->appraiselResultMapper = new AppraiselResultMapper($this->postgre->pdo);
+        $this->appraiselResultMapper = new AppraiselResultMapper($this->dataBase);
     }
 
     public function findOne(int $id)

@@ -12,7 +12,10 @@ class RoleUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private RoleMapper $roleMapper, private PDO $db) {}
+    private RoleMapper $roleMapper; 
+    public function __construct(private PDO $db) {
+        $this->roleMapper = new RoleMapper($db);
+    }
     public function registerNew(Role &$role)
     {
         if (!isset($this->newObjects[$role->getId()])) {

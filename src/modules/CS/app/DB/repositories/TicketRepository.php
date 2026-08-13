@@ -12,7 +12,7 @@ class TicketRepository
     public function __construct()
     {
         $this->initialize();
-        $this->ticketMapper = new TicketMapper($this->postgre->pdo);
+        $this->ticketMapper = new TicketMapper($this->dataBase);
     }
 
     public function findOne(string $id) {

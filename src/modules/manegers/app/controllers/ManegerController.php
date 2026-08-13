@@ -10,14 +10,15 @@ use PostApi\modules\manegers\domain\services\maneger\UpdateManegerAction;
 use PostApi\modules\manegers\domain\services\maneger\DeleteManegerAction;
 use PostApi\modules\manegers\domain\services\maneger\GetManegerCollectionAction;
 use PostApi\modules\manegers\domain\services\maneger\GetManegerItemAction;
+use PostApi\shared\app\controllers\api\ApiControllerContract;
 use PostApi\shared\app\http\requests\Request;
 use PostApi\shared\app\http\responses\success\json\Json;
 use PostApi\shared\helpers\fecade\Chache;
 use PostApi\shared\helpers\fecade\ViewError;
 
-class ManegerController
+class ManegerController implements ApiControllerContract
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
             $serin = GetManegerCollectionAction::execute();
@@ -27,16 +28,15 @@ class ManegerController
         }
     }
 
-    public function create()
-    {
-        $request = new Request();
+    public function create(Request $request)
+    {       
         $body = $request->body;
         if (!isset($body['user_id'], $body['rank'], $body['department_id'])) {
             return ViewError::viewProplem('create maneger error', 'missing required paramters', 1, 'missing required paramters user_id , rank , department_id', 400);
         }
         try {
             $createManegerAction = new CreateManegerAction();
-            $maneger = $createManegerAction->execute(); 
+            $maneger = $createManegerAction->execute($body); 
             $serin = GetManegerItemAction::execute($maneger->getId());
             http_response_code(201);
             return Json::toJson($serin);
@@ -56,15 +56,14 @@ class ManegerController
         }
     }
 
-    public function update(string $id)
-    {
-        $request = new Request();
+    public function update(Request $request,string $id)
+    {        
         $body = $request->body;
         if (!isset($body['user_id'], $body['rank'], $body['department_id'])) {
             return ViewError::viewProplem('update maneger error', 'missing required paramters', 1, 'missing required paramters user_id , rank , department_id', 400);
         }
         try {
-            UpdateManegerAction::execute($id);
+            UpdateManegerAction::execute($id , $body);
             http_response_code(200);
             return Json::toJson(['message' => 'maneger updated successfuly']);
         } catch (Error $error) {

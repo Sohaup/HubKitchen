@@ -12,7 +12,10 @@ class PayrollUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private PDO $db, private PayrollJournalMapper $payrollMapper) {}
+    private PayrollJournalMapper $payrollMapper;
+    public function __construct(private PDO $db) {
+        $this->payrollMapper = new PayrollJournalMapper($db);
+    }
     public function registerNew(PayrollJournal $payroll)
     {
         if (!in_array($payroll, $this->newObjects, true)) {

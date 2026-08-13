@@ -16,7 +16,7 @@ use PostApi\shared\helpers\fecade\ViewError;
 
 class SaleryComponentController implements ApiControllerContract
 {
-    public function index()
+    public function index(Request $request)
     {
         $serin = GetSaleryComponentCollectionAction::execute();
         return Chache::checkCache($serin);
@@ -33,15 +33,14 @@ class SaleryComponentController implements ApiControllerContract
         }
     }
 
-    public function create()
-    {
-        $request = new Request();   
+    public function create(Request $request)
+    {         
         $body = $request->body;
         if (!isset($body['name'], $body['type'], $body['calc_type'] )) {
             return ViewError::viewProplem("creating salery component error", "missing required paramters error", 1, "missing required paramters name , type , calc_type  ", 400);
         }
         try {            
-            $entity = CreateSaleryComponentAction::execute();
+            $entity = CreateSaleryComponentAction::execute($body);
             $serin = GetSaleryComponentItemAction::execute((int)$entity->getId());
             http_response_code(201);
             return Json::toJson($serin);
@@ -50,15 +49,14 @@ class SaleryComponentController implements ApiControllerContract
         }
     }
 
-    public function update(string $id)
-    {
-        $request = new Request();   
+    public function update(Request $request,string $id)
+    {         
         $body = $request->body;
         if (!isset($body['name'], $body['type'], $body['calc_type'])) {
             return ViewError::viewProplem("updating salery component error", "missing required paramters error", 1, "missing required paramters name , type , calc_type ", 400);
         }
         try {
-            UpdateSaleryComponentAction::execute((int)$id);
+            UpdateSaleryComponentAction::execute((int)$id , $body);
             http_response_code(200);
             return Json::toJson(['message' => 'update salery component successfuly']);
         } catch (Error $error) {

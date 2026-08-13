@@ -13,7 +13,7 @@ class ApplicationRepository
     public function __construct()
     {
         $this->initialize();
-        $this->applicationMapper = new ApplicationMapper($this->postgre->pdo);
+        $this->applicationMapper = new ApplicationMapper($this->dataBase);
     }
 
     public function findOne(int $id)

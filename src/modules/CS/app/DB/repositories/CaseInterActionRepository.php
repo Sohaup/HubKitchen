@@ -12,7 +12,7 @@ class CaseInterActionRepository
     public function __construct()
     {
         $this->initialize();
-        $this->mapper = new CaseInterActionMapper($this->postgre->pdo);
+        $this->mapper = new CaseInterActionMapper($this->dataBase);
     }
 
     public function findOne(string $id) {

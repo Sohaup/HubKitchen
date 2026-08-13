@@ -2,8 +2,6 @@
 
 namespace PostApi\modules\CS\domain\entities;
 
-use DateTime;
-
 class CaseInterAction
 {
     private ?int $id = 0;
@@ -12,7 +10,7 @@ class CaseInterAction
     private Action $action;
     private Status $status;
     private Ticket $ticket;
-    private DateTime $interactedAt;
+    private string $interactedAt;
     private string $takedAction;
 
     public function __construct()
@@ -80,7 +78,7 @@ class CaseInterAction
     {
         return $this->takedAction;
     }
-    public function setInteractedAt(DateTime $interactedAt)
+    public function setInteractedAt(string $interactedAt)
     {
         $this->interactedAt = $interactedAt;
     }

@@ -3,7 +3,6 @@
 namespace PostApi\modules\HR\app\controllers;
 
 use Error;
-use Exception;
 use Override;
 use PostApi\modules\HR\app\DB\repositories\JobDescriptionRepository;
 use PostApi\modules\HR\domain\services\Jds\AssignSkillToJobAction;
@@ -22,7 +21,7 @@ use PostApi\shared\helpers\fecade\ViewError;
 class JobDescriptionController implements ApiControllerContract
 {
     #[Override]
-    public function index()
+    public function index(Request $request)
     {
         $serin = GetJobDescriptionCollectionAction::execute();
         return Chache::checkCache($serin);
@@ -43,15 +42,14 @@ class JobDescriptionController implements ApiControllerContract
     }
 
     #[Override]
-    public function create()
+    public function create(Request $request)
     {
-        $request = new Request();
         $params = $request->body;
         if (!isset($params['name'], $params['shift_id'])) {
             return ViewError::viewProplem("creating job description error", "missing required paramters error", 1, "missing required paramters name  , shift_id", 400);
         }
         try {
-            $jd = CreateJobDescritionAction::execute();
+            $jd = CreateJobDescritionAction::execute($params);
             $serin = GetJobDescriptionItemAction::execute($jd);
             http_response_code(201);
             return Json::toJson($serin);
@@ -61,15 +59,14 @@ class JobDescriptionController implements ApiControllerContract
     }
 
     #[Override]
-    public function update(string $id)
+    public function update(Request $request, string $id)
     {
-        $request = new Request();
         $params = $request->body;
         if (!isset($params['name'], $params['shift_id'])) {
             return ViewError::viewProplem("updating job description error", "missing required paramters error", 1, "missing required paramter name  , shift_id", 400);
         }
         try {
-            UpdateJobDescriptionAction::execute((int)$id);
+            UpdateJobDescriptionAction::execute((int)$id , $params);
             http_response_code(200);
             return Json::toJson(['message' => "update job description successfuly"]);
         } catch (Error $error) {
@@ -84,39 +81,38 @@ class JobDescriptionController implements ApiControllerContract
             DeleteJobDescriptionAction::execute($id);
             http_response_code(200);
             return Json::toJson(['message' => "delete job description successfuly"]);
-        } catch(Error $error) {
+        } catch (Error $error) {
             return ViewError::viewProplem(type: "delete job description error ", title: "incorrect paramter", status: true, detail: "there is no corresponding shift for this id", statusCode: 400);
         }
     }
 
-    public function assignSkillToJob() {
-        $request = new Request();
+    public function assignSkillToJob(Request $request)
+    {
         $params = $request->body;
-        if (!isset($params['jd_id'] , $params['skill_id'])) {
+        if (!isset($params['jd_id'], $params['skill_id'])) {
             return ViewError::viewProplem("assigning skill to job description error", "missing required paramters error", 1, "missing required paramters jd_id  , skill_id", 400);
         }
         try {
-            AssignSkillToJobAction::execute($params['skill_id'] , $params['jd_id']);
+            AssignSkillToJobAction::execute($params['skill_id'], $params['jd_id']);
             http_response_code(200);
             return Json::toJson(['message' => "assign skill to job description successfuly"]);
-        } catch(Error $error) {
+        } catch (Error $error) {
             return ViewError::viewProplem(type: "assign skill to job description error ", title: "incorrect paramter", status: true, detail: "there is no corresponding shift or job description for this id", statusCode: 400);
         }
     }
 
-    public function removeSkillFromJob() {
-        $request = new Request();
+    public function removeSkillFromJob(Request $request)
+    {
         $params = $request->body;
-        if (!isset($params['jd_id'] , $params['skill_id'])) {
+        if (!isset($params['jd_id'], $params['skill_id'])) {
             return ViewError::viewProplem("removing skill fro, job description error", "missing required paramters error", 1, "missing required paramters jd_id  , skill_id", 400);
         }
         try {
-            RemoveSkillFromJobAction::execute($params['skill_id'] , $params['jd_id']);
+            RemoveSkillFromJobAction::execute($params['skill_id'], $params['jd_id']);
             http_response_code(200);
             return Json::toJson(['message' => "remove skill from job description successfuly"]);
-        } catch(Error $error) {
+        } catch (Error $error) {
             return ViewError::viewProplem(type: "remove skill from job description error ", title: "incorrect paramter", status: true, detail: "there is no corresponding shift or job description for this id", statusCode: 400);
         }
     }
-    
 }

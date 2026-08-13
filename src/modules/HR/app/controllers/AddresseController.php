@@ -18,7 +18,7 @@ use PostApi\shared\helpers\fecade\ViewError;
 class AddresseController implements ApiControllerContract
 {
     #[Override]
-    public function index()
+    public function index(Request $request)
     {
         $serin = GetAddresseCollectionAction::execute();
         return Chache::checkCache($serin);
@@ -37,15 +37,14 @@ class AddresseController implements ApiControllerContract
     }
 
     #[Override]
-    public function create()
-    {
-        $request = new Request();
+    public function create(Request $request)
+    {        
         $params = $request->body;
         if (!isset($params['street'], $params['city'],  $params['flat'], $params['country'])) {
             return ViewError::viewProplem("creating addresse error", "missing required paramters error", 1, "missing required paramters street , city  , flat , country", 400);
         }
         try {
-            $entity = CreateAddresseAction::execute();
+            $entity = CreateAddresseAction::execute($params);
             $serin = GetAddresseItemAction::execute((int)$entity->getId());
             http_response_code(201);
             return Json::toJson($serin);
@@ -55,15 +54,14 @@ class AddresseController implements ApiControllerContract
     }
 
     #[Override]
-    public function update(string $id)
-    {
-        $request = new Request();
+    public function update(Request $request,string $id)
+    {        
         $params = $request->body;
         if (!isset($params['street'], $params['city'],  $params['flat'], $params['country'])) {
             return ViewError::viewProplem("updating addresse error", "missing required paramters error", 1, "missing required paramters street , city  , flat , country", 400);
         }
         try {
-            UpdateAddresseAction::execute((int)$id);
+            UpdateAddresseAction::execute((int)$id , $params);
             http_response_code(200);
             return Json::toJson(['message' => "update addresse successfuly"]);
         } catch (Error $error) {

@@ -9,9 +9,10 @@ class Product
     private string $id;
     private string $name;
     private float $price;
-    private int $quantity;
+    private string $quantity;
     private Supplier $supplier;
-    private DateTime $createdAt;
+    private string $image;
+    private string $createdAt;
 
     public function setId(string $id)
     {
@@ -38,7 +39,7 @@ class Product
     {
         return $this->price;
     }
-    public function setQuantity(int $quantity)
+    public function setQuantity(string $quantity)
     {
         $this->quantity = $quantity;
     }
@@ -54,12 +55,20 @@ class Product
     {
         return $this->supplier;
     }
+    public function setImage(string $image)
+    {
+        $this->image = $image;
+    }
+    public function getImage()
+    {
+        return $this->image;
+    }
     public function setCreatedAt(string $createdAt)
     {
-        $this->createdAt = new DateTime($createdAt);
+        $this->createdAt = $createdAt;
     }
     public function getCreatedAt()
     {
-        return $this->createdAt->format("r");
+        return $this->createdAt;
     }
 }

@@ -16,7 +16,7 @@ require_once __DIR__ . "/permissionRoutes.php";
 require_once __DIR__ . "/tokenRoutes.php";
 
 
-$gateMiddleWare = new GateMiddleware([RoleTypes::MANAGER->value , RoleTypes::USER->value]);
+$gateMiddleWare = new GateMiddleware([RoleTypes::MANAGER , RoleTypes::USER]);
 
 
 $grantPermissionOnRoleRoute = new Route(Urls::transformRouteUrl("/grant/:id") , HttpMethodsType::POST , RolesPermissionController::class , 'grant');

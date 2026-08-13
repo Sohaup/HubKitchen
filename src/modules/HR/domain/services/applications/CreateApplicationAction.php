@@ -4,16 +4,12 @@ namespace PostApi\modules\HR\domain\services\applications;
 
 use PostApi\modules\HR\app\DB\repositories\ApplicationRepository;
 use PostApi\modules\HR\domain\entities\Application;
-use PostApi\shared\app\http\requests\Request;
 use PostApi\shared\helpers\fecade\Files;
 
 class CreateApplicationAction
 {
-    public static function execute()
-    {
-        $request = new Request();
-        $params = $request->body;
-
+    public static function execute(array $params)
+    {     
         $applicationRepository = new ApplicationRepository();
         $application = new Application();
         $application->setName($params['name']);

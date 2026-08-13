@@ -9,14 +9,15 @@ use PostApi\modules\CS\domain\services\employee\GetEmployeeCollectionAction;
 use PostApi\modules\CS\domain\services\employee\GetEmployeeItemAction;
 use PostApi\modules\CS\domain\services\employee\UpdateEmployeeAction;
 use PostApi\modules\CS\domain\services\employee\DeleteEmployeeAction;
+use PostApi\shared\app\controllers\api\ApiControllerContract;
 use PostApi\shared\app\http\requests\Request;
 use PostApi\shared\app\http\responses\success\json\Json;
 use PostApi\shared\helpers\fecade\Chache;
 use PostApi\shared\helpers\fecade\ViewError;
 
-class EmployeeController
+class EmployeeController implements ApiControllerContract
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
             $serin = GetEmployeeCollectionAction::execute();
@@ -26,15 +27,14 @@ class EmployeeController
         }
     }
 
-    public function create()
-    {
-        $request = new Request();
+    public function create(Request $request)
+    {      
         $body = $request->body;
         if (!isset($body['user_id'], $body['employee_id'], $body['role_id'])) {
             return ViewError::viewProplem('create employee error', 'missing required paramters', 1, 'missing required paramters employee_id , user_id , role_id', 400);
         }
         try {
-            $item = CreateEmployeeAction::execute();            
+            $item = CreateEmployeeAction::execute($body);            
             $serin = GetEmployeeItemAction::execute($item->getId());
             http_response_code(201);
             return Json::toJson($serin);
@@ -54,15 +54,14 @@ class EmployeeController
         }
     }
 
-    public function update(string $id)
-    {
-        $request = new Request();
+    public function update(Request $request,string $id)
+    {       
         $body = $request->body;
         if (!isset($body['user_id'], $body['employee_id'], $body['role_id'])) {
             return ViewError::viewProplem('create employee error', 'missing required paramters', 1, 'missing required paramters employee_id , user_id , role_id', 400);
         }
         try {
-            UpdateEmployeeAction::execute($id);
+            UpdateEmployeeAction::execute($id , $body);
             http_response_code(200);
             return Json::toJson(['message' => 'updated']);
         } catch (Error $error) {

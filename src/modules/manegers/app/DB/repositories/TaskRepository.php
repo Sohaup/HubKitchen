@@ -12,7 +12,7 @@ class TaskRepository
     public function __construct()
     {
         $this->initialize();
-        $this->taskMapper = new TaskMapper($this->postgre->pdo);
+        $this->taskMapper = new TaskMapper($this->dataBase);
     }
 
     public function findOne(int $id) {

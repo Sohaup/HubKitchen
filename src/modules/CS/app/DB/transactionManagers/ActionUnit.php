@@ -12,7 +12,10 @@ class ActionUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private ActionMapper $actionMapper, private PDO $db) {}
+    private ActionMapper $actionMapper;
+    public function __construct(private PDO $db) {
+        $this->actionMapper = new ActionMapper($db);
+    }
     public function registerNew(Action &$action)
     {
         if (!in_array($action, $this->newObjects, true)) {

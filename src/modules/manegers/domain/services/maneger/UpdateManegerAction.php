@@ -2,17 +2,14 @@
 
 namespace PostApi\modules\manegers\domain\services\maneger;
 
-use PostApi\modules\auth\app\DB\repositories\UserRepository;
 use PostApi\modules\manegers\app\DB\repositories\ManegerRepository;
 use PostApi\modules\manegers\app\DB\repositories\DepartmentRepository;
-use PostApi\shared\app\http\requests\Request;
+
 
 class UpdateManegerAction
 {
-    public static function execute(string $id)
+    public static function execute(string $id, array $params)
     {
-        $request = new Request();
-        $params = $request->body;
         $repo = new ManegerRepository();
         $maneger = $repo->findOne($id);
         if (!$maneger) {
@@ -22,9 +19,7 @@ class UpdateManegerAction
             $maneger->setRank((int)$params['rank']);
         }
         if (isset($params['user_id'])) {
-            $userRepo = new UserRepository();
-            $user = $userRepo->findOne($params['user_id']);
-            $maneger->setUser($user);
+            $maneger->setUserID($params['user_id']);
         }
         if (isset($params['department_id'])) {
             $deptRepo = new DepartmentRepository();

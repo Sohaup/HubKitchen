@@ -8,7 +8,6 @@ use PostApi\modules\HR\app\DB\repositories\EmployeeRepository;
 use PostApi\modules\HR\app\DB\repositories\SaleryComponentRepository;
 use PostApi\modules\HR\domain\entities\PayrollJournal;
 use PostApi\modules\HR\domain\EntityListeners\CreatePayRollJournalListener;
-use PostApi\shared\app\http\requests\Request;
 use SplObjectStorage;
 use SplObserver;
 use SplSubject;
@@ -25,10 +24,8 @@ class CreatePayrollAction implements SplSubject
         $this->attach(new CreatePayRollJournalListener());
     }
 
-    public function execute()
-    {
-        $request = new Request();
-        $body = $request->body;
+    public function execute(array $body)
+    {        
         $employeeId = $body['employee_id'] ?? null;
         $componentId = $body['salery_component_id'] ?? null;
         $amount = (float)($body['amount'] ?? 0);

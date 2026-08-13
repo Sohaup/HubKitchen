@@ -6,17 +6,14 @@ use Exception;
 use PostApi\modules\auth\domain\Entities\User;
 use PostApi\modules\auth\helpers\adapters\GoogleProvider;
 use PostApi\modules\auth\helpers\templates\LogInTemplate;
-use PostApi\shared\app\http\requests\Request;
 use PostApi\shared\helpers\fecade\Redirect;
 use PostApi\shared\helpers\fecade\Session;
 
 class LogInWithGoogleAction extends LogInTemplate
 {
-    public function handleLogIn(): User
+    public function handleLogIn(array $params): User
     {
-        Session::startSession();
-        $request = new Request();
-        $params = $request->params;
+        Session::startSession();        
         $provider = GoogleProvider::getProvider();
         if (!empty($params['error'])) {
             exit('Got error: ' . htmlspecialchars($params['error'], ENT_QUOTES, 'UTF-8'));

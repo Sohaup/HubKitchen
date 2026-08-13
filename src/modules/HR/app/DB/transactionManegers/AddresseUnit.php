@@ -12,8 +12,10 @@ class AddresseUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-
-    public function __construct(private AddresseMapper $addresseMapper, private PDO $db) {}
+    private AddresseMapper $addresseMapper;    
+    public function __construct(private PDO $db) {
+        $this->addresseMapper = new AddresseMapper($db);
+    }
 
     public function registerNew(Addresse &$addresse)
     {

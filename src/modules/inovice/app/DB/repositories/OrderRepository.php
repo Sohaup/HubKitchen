@@ -12,7 +12,7 @@ class OrderRepository
     public function __construct()
     {
         $this->initialize();
-        $this->orderMapper = new OrderMapper($this->postgre->pdo);
+        $this->orderMapper = new OrderMapper($this->dataBase);
     }
 
     public function findOne(string $id) {

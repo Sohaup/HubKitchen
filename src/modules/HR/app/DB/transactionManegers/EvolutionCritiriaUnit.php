@@ -12,8 +12,10 @@ class EvolutionCritiriaUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-
-    public function __construct(private EvolutionCritiriaMapper $evolutionCritiriaMapper, private PDO $db) {}
+    private EvolutionCritiriaMapper $evolutionCritiriaMapper;
+    public function __construct(private PDO $db) {
+        $this->evolutionCritiriaMapper = new EvolutionCritiriaMapper($db);
+    }
 
     public function registerNew(EvolutionCritiria &$evolutionCritiria)
     {

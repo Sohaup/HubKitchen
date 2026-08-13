@@ -3,15 +3,12 @@
 namespace PostApi\modules\HR\domain\services\applications;
 
 use PostApi\modules\HR\app\DB\repositories\ApplicationRepository;
-use PostApi\shared\app\http\requests\Request;
 use PostApi\shared\helpers\fecade\Files;
 
 class UpdateApplicationAction
 {
-    public static function execute(int $id)
-    {
-        $request = new Request();
-        $params = $request->body;
+    public static function execute(int $id , array $params) 
+    {       
         $applicationRepository = new ApplicationRepository();
         $application = $applicationRepository->findOne($id);       
         if ($application) {

@@ -20,7 +20,7 @@ use PostApi\shared\helpers\fecade\ViewError;
 class DepartmentController implements ApiControllerContract
 {
     #[Override]
-    public function index()
+    public function index(Request $request)
     {
        $serin = GetDepartmentCollectionAction::execute();
        return Chache::checkCache($serin);
@@ -37,9 +37,8 @@ class DepartmentController implements ApiControllerContract
         }
     }
     #[Override]
-    public function create()
-    {
-        $request = new Request();
+    public function create(Request $request)
+    {        
         $params = $request->body;
         if (!isset($params['name'])) {
             return ViewError::viewProplem("creating departments error", "missing required paramters error", 1, "missing required paramters name", 400);
@@ -51,9 +50,8 @@ class DepartmentController implements ApiControllerContract
         return Json::toJson($serin);
     }
     #[Override]
-    public function update(string $id)
-    {
-        $request = new Request();
+    public function update(Request $request,string $id)
+    {        
         $params = $request->body;
         if (!isset($params['name'])) {
             return ViewError::viewProplem("updating departments error", "missing required paramters error", 1, "missing required paramters name", 400);

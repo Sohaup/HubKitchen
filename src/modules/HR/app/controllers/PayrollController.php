@@ -16,7 +16,7 @@ use PostApi\shared\helpers\fecade\ViewError;
 
 class PayrollController implements ApiControllerContract
 {
-    public function index()
+    public function index(Request $request)
     {
         $serin = GetPayrollCollectionAction::execute();
         return Chache::checkCache($serin);
@@ -33,16 +33,15 @@ class PayrollController implements ApiControllerContract
         }
     }
 
-    public function create()
-    {
-        $request = new Request();   
+    public function create(Request $request)
+    {         
         $params = $request->body;
         if (!isset($params['employee_id'], $params['amount'], $params['salery_component_id'])) {
             return ViewError::viewProplem("creating payroll error", "missing required paramters error", 1, "missing required paramters employee_id, amount , salery_component_id ", 400);
         }
         try {
             $createPayRollAction = new CreatePayrollAction(); 
-            $entity = $createPayRollAction->execute();
+            $entity = $createPayRollAction->execute($params);
             $serin = GetPayrollItemAction::execute((int)$entity->getId());
             http_response_code(201);
             return Json::toJson($serin);
@@ -51,15 +50,14 @@ class PayrollController implements ApiControllerContract
         }
     }
 
-    public function update(string $id)
-    {
-        $request = new Request();   
+    public function update(Request $request,string $id)
+    {         
         $params = $request->body;        
         if (!isset($params['employee_id'], $params['amount'], $params['salery_component_id'])) {
             return ViewError::viewProplem("updating payroll error", "missing required paramters error", 1, "missing required paramters employee_id, amount , salery_component_id ", 400);
         }
         try {
-            UpdatePayrollAction::execute((int)$id);
+            UpdatePayrollAction::execute((int)$id , $params);
             http_response_code(200);
             return Json::toJson(['message' => 'update payroll successfuly']);
         } catch (Error $error) {

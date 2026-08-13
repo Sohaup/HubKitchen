@@ -2,20 +2,15 @@
 
 namespace PostApi\modules\CS\domain\entities;
 
-use PostApi\modules\auth\domain\Entities\User;
-use PostApi\modules\HR\domain\entities\Employee as HrEmployee;
-
 class Employee
 {
     private ?string $id = "";
-    private User $user;
-    private HrEmployee $employee;
+    private string $userId = "";
+    private string $employeeId = "";
     private Role $role;
 
     public function __construct()
     {
-        $this->user = new User();
-        $this->employee = new HrEmployee();
         $this->role = new Role();
     }
 
@@ -27,21 +22,21 @@ class Employee
     {
         return $this->id;
     }
-    public function setUser(User $user)
+    public function setUserId(string $userId)
     {
-        $this->user = $user;
+        $this->userId = $userId;
     }
-    public function getUser()
+    public function getUserId()
     {
-        return $this->user;
+        return $this->userId;
     }
-    public function setEmployee(HrEmployee $employee)
-    {        
-        $this->employee = $employee;
+    public function setEmployeeId(string $employeeId)
+    {
+        $this->employeeId = $employeeId;
     }
-    public function getEmployee()
-    {        
-        return $this->employee;
+    public function getEmployeeId()
+    {
+        return $this->employeeId;
     }
     public function setRole(Role $role)
     {

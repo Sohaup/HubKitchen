@@ -16,7 +16,7 @@ use PostApi\shared\helpers\fecade\ViewError;
 
 class AppraiselResultController implements ApiControllerContract
 {
-    public function index()
+    public function index(Request $request)
     {
         $serin = GetAppraiselResultCollectionAction::execute();
         return Chache::checkCache($serin);
@@ -33,16 +33,15 @@ class AppraiselResultController implements ApiControllerContract
         }
     }
 
-    public function create()
-    {
-        $request = new Request();
+    public function create(Request $request)
+    {        
         $body = $request->body;
         if (!isset($body['template_id'], $body['cycle_id'], $body['critiria_id'], $body['employee_id'], $body['score'], $body['manager_comment'])) {
             return ViewError::viewProplem("creating appraisel result error", "missing required paramters error", 1, "missing required paramters template_id , cycle_id,critiria_id ,employee_id , score , manager_comment", 400);
         }
 
         try {
-            $entity = CreateAppraiselResultAction::execute();
+            $entity = CreateAppraiselResultAction::execute($body);
             $serin = GetAppraiselResultItemAction::execute((int)$entity->getId());
             http_response_code(201);
             return Json::toJson($serin);
@@ -51,16 +50,15 @@ class AppraiselResultController implements ApiControllerContract
         }
     }
 
-    public function update(string $id)
-    {
-        $request = new Request();
+    public function update(Request $request,string $id)
+    {        
         $body = $request->body;
         if (!isset($body['template_id'],$body['cycle_id'], $body['critiria_id'], $body['employee_id'], $body['score'], $body['manager_comment'])) {
             return ViewError::viewProplem("creating appraisel result error", "missing required paramters error", 1, "missing required paramters template_id , cycle_id , critiria_id ,employee_id , score , manager_comment", 400);
         }
 
         try {
-            UpdateAppraiselResultAction::execute((int)$id);
+            UpdateAppraiselResultAction::execute((int)$id , $body);
             http_response_code(200);
             return Json::toJson(['message' => 'update appraisel result successfuly']);
         } catch (Error $error) {

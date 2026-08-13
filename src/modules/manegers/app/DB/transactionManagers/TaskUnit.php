@@ -12,7 +12,11 @@ class TaskUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private TaskMapper $taskMapper, private PDO $db) {}
+    private TaskMapper $taskMapper;
+    public function __construct(private PDO $db)
+    {
+        $this->taskMapper = new TaskMapper($db);
+    }
     public function registerNew(Task &$task)
     {
         if (!in_array($task, $this->newObjects, true)) {

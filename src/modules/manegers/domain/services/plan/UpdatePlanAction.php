@@ -4,14 +4,11 @@ namespace PostApi\modules\manegers\domain\services\plan;
 
 use PostApi\modules\manegers\app\DB\repositories\ManegerRepository;
 use PostApi\modules\manegers\app\DB\repositories\PlanRepository;
-use PostApi\shared\app\http\requests\Request;
 
 class UpdatePlanAction
 {
-    public static function execute(int $id)
-    {
-        $request = new Request();
-        $params = $request->body;
+    public static function execute(int $id , array $params)
+    {       
         $repo = new PlanRepository();
         $plan = $repo->findOne($id);
         if (!$plan) {

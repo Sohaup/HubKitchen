@@ -16,7 +16,7 @@ use PostApi\shared\helpers\fecade\ViewError;
 
 class ApplicationCycleController implements ApiControllerContract
 {
-    public function index()
+    public function index(Request $request)
     {
         $serin = GetApplicationCycleCollectionAction::execute();
         return Chache::checkCache($serin);
@@ -33,16 +33,15 @@ class ApplicationCycleController implements ApiControllerContract
         }
     }
 
-    public function create()
-    {
-        $request = new Request();
+    public function create(Request $request)
+    {        
         $body = $request->body;
         if (!isset($body['name'] , $body['starts_at'] , $body['ends_at'] , $body['status'])) {
             return ViewError::viewProplem("creating application cycle error", "missing required paramters error", 1, "missing required paramters name , starts_at , ends_at , status", 400);
         }
 
         try {
-            $entity = CreateApplicationCycleAction::execute();
+            $entity = CreateApplicationCycleAction::execute($body);
             $serin = GetApplicationCycleItemAction::execute((int)$entity->getId());
             http_response_code(201);
             return Json::toJson($serin);
@@ -51,15 +50,14 @@ class ApplicationCycleController implements ApiControllerContract
         }
     }
 
-    public function update(string $id)
-    {
-        $request = new Request();
+    public function update(Request $request,string $id)
+    {        
         $body = $request->body;
         if (!isset($body['name'] , $body['starts_at'] , $body['ends_at'] , $body['status'])) {
             return ViewError::viewProplem("creating application cycle error", "missing required paramters error", 1, "missing required paramters name , starts_at , ends_at , status", 400);
         }
         try {
-            UpdateApplicationCycleAction::execute((int)$id);
+            UpdateApplicationCycleAction::execute((int)$id , $body);
             http_response_code(200);
             return Json::toJson(['message' => 'update application cycle successfuly']);
         } catch (Error $error) {

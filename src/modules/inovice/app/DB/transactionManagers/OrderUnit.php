@@ -12,7 +12,10 @@ class OrderUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private OrderMapper $orderMapper, private PDO $db) {}
+    private OrderMapper $orderMapper;
+    public function __construct(private PDO $db) {
+        $this->orderMapper = new OrderMapper($db);
+    }
     public function registerNew(Order &$order)
     {
         if (!in_array($order, $this->newObjects, true)) {

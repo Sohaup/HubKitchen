@@ -15,7 +15,7 @@ class RoleRepository
     public function __construct()
     {
         $this->initialize();
-        $this->roleMapper = new RoleMapper($this->postgre->pdo);
+        $this->roleMapper = new RoleMapper($this->dataBase);
     }
     /**
      * @return Role

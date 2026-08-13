@@ -12,7 +12,10 @@ class ProductUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private ProductMapper $productMapper, private PDO $db) {}
+    private ProductMapper $productMapper;
+    public function __construct(private PDO $db) {
+        $this->productMapper = new ProductMapper($db);
+    }
     public function registerNew(Product &$product)
     {
         if (!in_array($product, $this->newObjects, true)) {

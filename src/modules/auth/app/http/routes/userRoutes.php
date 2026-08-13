@@ -4,35 +4,35 @@ use PostApi\modules\auth\app\controllers\UserController;
 use PostApi\modules\auth\app\http\middlewares\GateMiddleware;
 use PostApi\modules\auth\app\http\middlewares\GuardMiddleware;
 use PostApi\modules\auth\helpers\types\RoleTypes;
-use PostApi\shared\app\http\proxies\ProxyMiddlewareForRoute;
+use PostApi\shared\app\http\middlewares\ThrottleMiddleware;
 use PostApi\shared\app\http\routes\Route\Route;
-use PostApi\shared\app\http\routes\Route\RouteCollection;
 use PostApi\shared\app\http\types\HttpMethodsType;
 use PostApi\shared\helpers\fecade\Urls;
 
 require_once __DIR__ . "/../../../../../shared/templates/routes.php";
 
 $guardMiddleware = new GuardMiddleware();
-$gateMiddleWare = new GateMiddleware([RoleTypes::HR->value , RoleTypes::CS->value , RoleTypes::MANAGER->value , RoleTypes::SALES->value , RoleTypes::MARKETING->value , RoleTypes::USER->value]);
+$gateMiddleWare = new GateMiddleware([RoleTypes::HR , RoleTypes::CS , RoleTypes::MANAGER , RoleTypes::SALES , RoleTypes::MARKETING , RoleTypes::USER]);
+$throttleMiddleWare = new ThrottleMiddleware(50 , 60);
 
 $getUsersRoute = new Route(Urls::transformRouteUrl("/users/") , HttpMethodsType::GET , UserController::class , 'index');
-$getUsersRoute->addMiddleware($guardMiddleware)->addMiddleware($gateMiddleWare);
+$getUsersRoute->addMiddleware($guardMiddleware)->addMiddleware($gateMiddleWare)->addMiddleware($throttleMiddleWare);
 $router->addRoute($getUsersRoute);
 $middlewareRoutes->addRoute($getUsersRoute);
 
 $getUserRoute = new Route(Urls::transformRouteUrl("/users/:id") , HttpMethodsType::GET , UserController::class , 'get');
-$getUserRoute->addMiddleware($guardMiddleware)->addMiddleware($gateMiddleWare);
+$getUserRoute->addMiddleware($guardMiddleware)->addMiddleware($gateMiddleWare)->addMiddleware($throttleMiddleWare);
 $router->addRoute($getUserRoute);
 $middlewareRoutes->addRoute($getUserRoute);
 
 $createUserRoute = new Route(Urls::transformRouteUrl("/users/create") , HttpMethodsType::POST , UserController::class , 'create');
-// $createUserRoute->addMiddleware($guardMiddleware)->addMiddleware($gateMiddleWare);
+$createUserRoute->addMiddleware($throttleMiddleWare);
 $router->addRoute($createUserRoute);
 // $middlewareRoutes->addRoute($createUserRoute);
 
-$gateMiddleWareForCrud = new GateMiddleware([RoleTypes::MANAGER->value , RoleTypes::USER->value ,RoleTypes::CS->value]);
+$gateMiddleWareForCrud = new GateMiddleware([RoleTypes::MANAGER , RoleTypes::USER ,RoleTypes::CS]);
 
-$updateUserRoute = new Route(Urls::transformRouteUrl("/users/:id") , HttpMethodsType::PUT , UserController::class , 'update');
+$updateUserRoute = new Route(Urls::transformRouteUrl("/users/:id") , HttpMethodsType::POST , UserController::class , 'update');
 $updateUserRoute->addMiddleware($guardMiddleware)->addMiddleware($gateMiddleWareForCrud);
 $router->addRoute($updateUserRoute);
 $middlewareRoutes->addRoute($updateUserRoute);

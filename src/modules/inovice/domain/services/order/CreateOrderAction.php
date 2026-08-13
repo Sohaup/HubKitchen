@@ -9,10 +9,8 @@ use PostApi\shared\app\http\requests\Request;
 
 class CreateOrderAction
 {
-    public static function execute(): Order
-    {
-        $request = new Request();
-        $params = $request->body;
+    public static function execute(array $params): Order
+    {       
         $order = new Order();
         $prucher = new Prucher();
         $prucher->setId($params['prucher_id'] ?? '');

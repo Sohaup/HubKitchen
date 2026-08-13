@@ -7,13 +7,13 @@ class ComplexCondition extends ConditionUnit
 
     public function __construct(public ConditionsCollection $conditions)
     {
-        $this->parseCondition($conditions);
+        $this->parseCondition();
     }
 
-    public function addCondtion(ConditionUnit $condition)
-    {
-        $this->conditions[] = $condition;
-    }
+    // public function addCondtion(ConditionUnit $condition)
+    // {
+    //     $this->conditions[] = $condition;
+    // }
 
     public function parseCondition()
     {

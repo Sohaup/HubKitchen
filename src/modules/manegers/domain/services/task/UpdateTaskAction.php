@@ -5,14 +5,11 @@ namespace PostApi\modules\manegers\domain\services\task;
 use PostApi\modules\manegers\app\DB\repositories\ManegerRepository;
 use PostApi\modules\manegers\app\DB\repositories\DepartmentRepository;
 use PostApi\modules\manegers\app\DB\repositories\TaskRepository;
-use PostApi\shared\app\http\requests\Request;
 
 class UpdateTaskAction
 {
-    public static function execute(int $id)
-    {
-        $request = new Request();
-        $params = $request->body;
+    public static function execute(int $id , array $params)
+    {       
         $repo = new TaskRepository();
         $task = $repo->findOne($id);
         if (!$task) {
