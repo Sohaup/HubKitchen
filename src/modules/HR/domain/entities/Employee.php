@@ -2,30 +2,39 @@
 
 namespace PostApi\modules\HR\domain\entities;
 
-use PostApi\modules\auth\domain\Entities\User;
 use PostApi\modules\HR\helpers\types\EmployeeStatusType;
 use PostApi\modules\HR\helpers\types\MartialStatusType;
-use PostApi\modules\manegers\domain\entities\Maneger;
 
 class Employee
 {
     private ?string $id = "";
     private string $employeeStatus = "";
     private string $martialStatus = "";
-    private User $user;
+    private string $userId = "";
     private JobDescription $job;
-    private Maneger $manager;
+    private string $managerId = "";
     private string $employeedAt = "";
     private Department $department;
     private Addresse $addresse;
 
     public function __construct()
     {
-        $this->user = new User();
         $this->job = new JobDescription();
-        $this->manager = new Maneger();
         $this->department = new Department();
         $this->addresse = new Addresse();
+    }
+
+    public function create(string $id, string $employeeStatus, string $martialStatus, string $userId, JobDescription $job, string $managerId, string $employeedAt, Department $department, Addresse $addresse)
+    {
+        $this->id = $id;
+        $this->employeeStatus = $employeeStatus;
+        $this->martialStatus = $martialStatus;
+        $this->userId = $userId;
+        $this->job = $job;
+        $this->managerId = $managerId;
+        $this->employeedAt = $employeedAt;
+        $this->department = $department;
+        $this->addresse = $addresse;
     }
 
     public function setId(string $id)
@@ -70,21 +79,21 @@ class Employee
     {
         return $this->employeedAt;
     }
-    public function setUser(User $user)
+    public function setUserId(string $userId)
     {
-        $this->user = $user;
+        $this->userId = $userId;
     }
-    public function getUser()
+    public function getUserId()
     {
-        return $this->user;
+        return $this->userId;
     }
-    public function setManager(Maneger $manager)
+    public function setManagerId(string $managerId)
     {
-        $this->manager = $manager;
+        $this->managerId = $managerId;
     }
-    public function getManager()
+    public function getManagerId()
     {
-        return $this->manager;
+        return $this->managerId;
     }
     public function setJob(JobDescription $job)
     {

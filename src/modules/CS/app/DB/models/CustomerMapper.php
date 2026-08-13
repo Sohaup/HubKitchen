@@ -5,7 +5,6 @@ namespace PostApi\modules\CS\app\DB\models;
 use PDO;
 use PDOException;
 use PostApi\modules\CS\domain\entities\Customer;
-use PostApi\modules\auth\app\DB\repositories\UserRepository;
 
 class CustomerMapper
 {
@@ -21,10 +20,8 @@ class CustomerMapper
             if (!$row) return null;
             $customer = new Customer();
             $customer->setId($row['id']);
-            $customer->setCountry($row['country']);
-            $userRepo = new UserRepository();
-            $user = $userRepo->findOne($row['user_id']);
-            $customer->setUser($user);
+            $customer->setCountry($row['country']);         
+            $customer->setUserId($row['user_id']);
             $this->identityMap[$id] = $customer;
         }
         return $this->identityMap[$id];
@@ -39,10 +36,8 @@ class CustomerMapper
             if (!isset($this->identityMap[$row['id']])) {
                 $customer = new Customer();
                 $customer->setId($row['id']);
-                $customer->setCountry($row['country']);
-                $userRepo = new UserRepository();
-                $user = $userRepo->findOne($row['user_id']);
-                $customer->setUser($user);
+                $customer->setCountry($row['country']);                
+                $customer->setUserId($row['user_id']);
                 $this->identityMap[$row['id']] = $customer;
             }
         }
@@ -53,7 +48,7 @@ class CustomerMapper
     {
         try {
             $stmt = $this->db->prepare("INSERT INTO cs.customers(user_id, country) VALUES(? , ? ) RETURNING id");
-            $stmt->execute([$customer->getUser()->getId(), $customer->getCountry()]);
+            $stmt->execute([$customer->getUserId(), $customer->getCountry()]);
             $id = $stmt->fetch(PDO::FETCH_ASSOC)['id'];
             $customer->setId($id);
             $this->identityMap[$id] = $customer;
@@ -65,7 +60,7 @@ class CustomerMapper
     public function update(Customer $customer)
     {
         $stmt = $this->db->prepare("UPDATE cs.customers SET user_id = ? , country = ? WHERE id = ?");
-        $stmt->execute([$customer->getUser()->getId(), $customer->getCountry(), $customer->getId()]);
+        $stmt->execute([$customer->getUserId(), $customer->getCountry(), $customer->getId()]);
         $this->identityMap[$customer->getId()] = $customer;
     }
 

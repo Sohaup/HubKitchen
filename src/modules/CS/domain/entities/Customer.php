@@ -1,11 +1,9 @@
 <?php
 namespace PostApi\modules\CS\domain\entities;
 
-use PostApi\modules\auth\domain\Entities\User;
-
 class Customer {
     private ?string $id;
-    private User $user;
+    private string $userId;
     private string $country;
 
     public function getId() {
@@ -14,11 +12,11 @@ class Customer {
     public function setId(string $id) {
         $this->id = $id;
     }
-    public function setUser(User $user) {
-        $this->user = $user;
+    public function setUserId(string $userId) {
+        $this->userId = $userId;
     }
-    public function getUser() {
-        return $this->user;
+    public function getUserId() {
+        return $this->userId;
     }
     public function setCountry(string $country) {
         $this->country = $country;

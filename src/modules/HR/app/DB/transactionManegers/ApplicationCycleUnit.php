@@ -10,8 +10,10 @@ class ApplicationCycleUnit {
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-
-    public function __construct(private ApplicationCycleMapper $applicationCycleMapper, private PDO $db) {}
+    private ApplicationCycleMapper $applicationCycleMapper;
+    public function __construct(private PDO $db) {
+        $this->applicationCycleMapper = new ApplicationCycleMapper($db);
+    }
 
     public function registerNew(ApplicationCycle &$applicationCycle)
     {

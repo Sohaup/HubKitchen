@@ -10,6 +10,15 @@ class Addresse
     private string $street = "";
     private string $flat = "";
 
+    public function create(int $id, string $country, string $city, string $street, string $flat)
+    {
+        $this->id = $id;
+        $this->country = $country;
+        $this->city = $city;
+        $this->street = $street;
+        $this->flat = $flat;
+    }
+
     public function setId(int $id)
     {
         $this->id = $id;

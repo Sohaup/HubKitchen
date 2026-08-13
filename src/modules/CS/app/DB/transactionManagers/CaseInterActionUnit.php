@@ -12,7 +12,10 @@ class CaseInterActionUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private CaseInterActionMapper $mapper, private PDO $db) {}
+    private CaseInterActionMapper $mapper;
+    public function __construct( private PDO $db) {
+        $this->mapper = new CaseInterActionMapper($db);
+    }
     public function registerNew(CaseInterAction &$entity)
     {
         if (!in_array($entity, $this->newObjects, true)) {

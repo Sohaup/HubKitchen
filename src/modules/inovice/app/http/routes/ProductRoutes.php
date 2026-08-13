@@ -28,7 +28,7 @@ $getProductRoute->addMiddleware($guardMiddleware)->addMiddleware($gateMiddleware
 $middlewareRoutes->addRoute($getProductRoute);
 $router->addRoute($getProductRoute);
 
-$updateProductRoute = new Route(Urls::transformRouteUrl("/products/:id"), HttpMethodsType::PUT, ProductController::class, 'update');
+$updateProductRoute = new Route(Urls::transformRouteUrl("/products/:id"), HttpMethodsType::POST, ProductController::class, 'update');
 $updateProductRoute->addMiddleware($guardMiddleware)->addMiddleware($gateMiddleware);
 $middlewareRoutes->addRoute($updateProductRoute);
 $router->addRoute($updateProductRoute);

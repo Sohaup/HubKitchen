@@ -12,7 +12,7 @@ class RoleRepository
     public function __construct()
     {
         $this->initialize();
-        $this->mapper = new RoleMapper($this->postgre->pdo);
+        $this->mapper = new RoleMapper($this->dataBase);
     }
 
     public function findOne(string $id) {

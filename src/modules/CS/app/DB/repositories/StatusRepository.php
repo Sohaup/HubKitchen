@@ -12,7 +12,7 @@ class StatusRepository
     public function __construct()
     {
         $this->initialize();
-        $this->statusMapper = new StatusMapper($this->postgre->pdo);
+        $this->statusMapper = new StatusMapper($this->dataBase);
     }
 
     public function findOne(string $id) {

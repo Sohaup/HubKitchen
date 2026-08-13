@@ -13,7 +13,7 @@ class ShiftRepository
     public function __construct()
     {
         $this->initialize();
-        $this->shiftMapper = new ShiftMapper($this->postgre->pdo);
+        $this->shiftMapper = new ShiftMapper($this->dataBase);
     }
     public function findOne(int $id)
     {

@@ -9,14 +9,15 @@ use PostApi\modules\CS\domain\services\role\GetRoleCollectionAction;
 use PostApi\modules\CS\domain\services\role\GetRoleItemAction;
 use PostApi\modules\CS\domain\services\role\UpdateRoleAction;
 use PostApi\modules\CS\domain\services\role\DeleteRoleAction;
+use PostApi\shared\app\controllers\api\ApiControllerContract;
 use PostApi\shared\app\http\requests\Request;
 use PostApi\shared\app\http\responses\success\json\Json;
 use PostApi\shared\helpers\fecade\Chache;
 use PostApi\shared\helpers\fecade\ViewError;
 
-class RoleController
+class RoleController implements ApiControllerContract
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
             $serin = GetRoleCollectionAction::execute();
@@ -26,15 +27,14 @@ class RoleController
         }
     }
 
-    public function create()
-    {
-        $request = new Request();
+    public function create(Request $request)
+    {        
         $body = $request->body;
         if (!isset($body['name'])) {
             return ViewError::viewProplem('create role error', 'missing required paramters', 1, 'missing required paramters name', 400);
         }
         try {
-            $item = CreateRoleAction::execute();
+            $item = CreateRoleAction::execute($body);
             $serin = GetRoleItemAction::execute($item->getId());
             http_response_code(201);
             return Json::toJson($serin);
@@ -54,15 +54,14 @@ class RoleController
         }
     }
 
-    public function update(string $id)
-    {
-       $request = new Request();
+    public function update(Request $request,string $id)
+    {       
         $body = $request->body;
         if (!isset($body['name'])) {
             return ViewError::viewProplem('create role error', 'missing required paramters', 1, 'missing required paramters name', 400);
         } 
         try {
-            UpdateRoleAction::execute((int)$id);
+            UpdateRoleAction::execute((int)$id , $body);
             http_response_code(200);
             return Json::toJson(['message' => 'updated']);
         } catch (Error $error) {

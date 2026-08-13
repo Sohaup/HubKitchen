@@ -4,9 +4,9 @@ namespace PostApi\modules\manegers\app\DB\models;
 
 use PDO;
 use PDOException;
+use PostApi\modules\manegers\domain\entities\Department;
+use PostApi\modules\manegers\domain\entities\Maneger;
 use PostApi\modules\manegers\domain\entities\Task;
-use PostApi\modules\manegers\app\DB\repositories\ManegerRepository;
-use PostApi\modules\manegers\app\DB\repositories\DepartmentRepository;
 
 class TaskMapper
 {
@@ -16,20 +16,30 @@ class TaskMapper
     public function findOne(int $id)
     {
         if (!isset($this->identityMap[$id])) {
-            $stmt = $this->db->prepare("SELECT * FROM manegers.tasks WHERE id = ?");
+            $stmt = $this->db->prepare("SELECT * FROM manegers.task_view WHERE id = ?");
             $stmt->execute([$id]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             if (!$row) return null;
+
+            $maneger = new Maneger();
+            $maneger->setId($row['manager_id']);
+            $maneger->setRank($row['rank']);
+            $maneger->setUserId($row['user_id']);
+            $manegerDepartment = new Department();
+            $manegerDepartment->setId($row['department_maneger_id']);
+            $manegerDepartment->setName($row['department_maneger_name']);
+            $maneger->setDepartment($manegerDepartment);
+            $department = new Department();
+            $department->setId((int)$row['department_id']);
+            $department->setName($row['department_name']);
+
             $task = new Task();
             $task->setId((int)$row['id']);
             $task->setName($row['name']);
             $task->setDescription($row['description']);
-            $manegerRepo = new ManegerRepository();
-            $maneger = $manegerRepo->findOne($row['maneger_id']);
             $task->setManeger($maneger);
-            $deptRepo = new DepartmentRepository();
-            $dept = $deptRepo->findOne((int)$row['department_id']);
-            $task->setDepartment($dept);
+            $task->setDepartment($department);
+
             $this->identityMap[$id] = $task;
         }
         return $this->identityMap[$id];
@@ -37,31 +47,42 @@ class TaskMapper
 
     public function findAll()
     {
-        $stmt = $this->db->prepare("SELECT * FROM manegers.tasks");
+        $stmt = $this->db->prepare("SELECT * FROM manegers.task_view ");
         $stmt->execute([]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         foreach ($rows as $row) {
             if (!isset($this->identityMap[$row['id']])) {
+                $maneger = new Maneger();
+                $maneger->setId($row['manager_id']);
+                $maneger->setRank($row['rank']);
+                $maneger->setUserId($row['user_id']);
+                $manegerDepartment = new Department();
+                $manegerDepartment->setId($row['department_maneger_id']);
+                $manegerDepartment->setName($row['department_maneger_name']);
+                $maneger->setDepartment($manegerDepartment);
+                $department = new Department();
+                $department->setId((int)$row['department_id']);
+                $department->setName($row['department_name']);
+
                 $task = new Task();
                 $task->setId((int)$row['id']);
                 $task->setName($row['name']);
                 $task->setDescription($row['description']);
-                $manegerRepo = new ManegerRepository();
-                $maneger = $manegerRepo->findOne($row['maneger_id']);
                 $task->setManeger($maneger);
-                $deptRepo = new DepartmentRepository();
-                $dept = $deptRepo->findOne((int)$row['department_id']);
-                $task->setDepartment($dept);
+                $task->setDepartment($department);
+
                 $this->identityMap[$row['id']] = $task;
             }
         }
+
         return $this->identityMap;
     }
 
     public function insert(Task $task)
     {
         try {
-            $stmt = $this->db->prepare("INSERT INTO manegers.tasks(name, description, maneger_id, department_id) VALUES(? , ? , ?, ?) RETURNING id");
+            $stmt = $this->db->prepare("INSERT INTO managers.tasks(name, description, maneger_id, department_id) VALUES(? , ? , ?, ?) RETURNING id");
             $stmt->execute([$task->getName(), $task->getDescription(), $task->getManeger()->getId(), $task->getDepartment()->getId()]);
             $id = $stmt->fetch(PDO::FETCH_ASSOC)['id'];
             $task->setId((int)$id);

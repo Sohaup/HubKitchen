@@ -3,14 +3,11 @@
 namespace PostApi\modules\HR\domain\services\addresse;
 
 use PostApi\modules\HR\app\DB\repositories\AddreseRepository;
-use PostApi\shared\app\http\requests\Request;
 
 class UpdateAddresseAction
 {
-    public static function execute(int $id)
-    {
-        $request = new Request();
-        $params = $request->body;
+    public static function execute(int $id , array $params)
+    {        
         $repo = new AddreseRepository();
         $entity = $repo->findOne($id);
         if ($entity) {

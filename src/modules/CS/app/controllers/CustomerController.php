@@ -9,14 +9,15 @@ use PostApi\modules\CS\domain\services\customer\UpdateCustomerAction;
 use PostApi\modules\CS\domain\services\customer\DeleteCustomerAction;
 use PostApi\modules\CS\domain\services\customer\GetCustomerCollectionAction;
 use PostApi\modules\CS\domain\services\customer\GetCustomerItemAction;
+use PostApi\shared\app\controllers\api\ApiControllerContract;
 use PostApi\shared\app\http\requests\Request;
 use PostApi\shared\app\http\responses\success\json\Json;
 use PostApi\shared\helpers\fecade\Chache;
 use PostApi\shared\helpers\fecade\ViewError;
 
-class CustomerController
+class CustomerController implements ApiControllerContract
 {
-    public function index()
+    public function index(Request $request)
     {        
         try {           
             $serin = GetCustomerCollectionAction::execute();
@@ -26,15 +27,14 @@ class CustomerController
         }
     }
 
-    public function create()
-    {        
-        $request = new Request();
+    public function create(Request $request)
+    {    
         $body = $request->body;
         if (!isset($body['user_id'] , $body['country'])) {
             return ViewError::viewProplem('create customer error', 'missing required paramters', 1, 'missing required paramters user_id , country', 400);
         }
         try {           
-            $customer = CreateCustomerAction::execute();
+            $customer = CreateCustomerAction::execute($body);
             $serin = GetCustomerItemAction::execute($customer->getId());
             http_response_code(201);
             return Json::toJson($serin);
@@ -54,15 +54,11 @@ class CustomerController
         }
     }
 
-    public function update(string $id)
-    {       
-        $request = new Request();
+    public function update(Request $request,string $id)
+    {      
         $body = $request->body;
-        if (!isset($body['user_id'] , $body['country'])) {
-            return ViewError::viewProplem('update customer error', 'missing required paramters', 1, 'missing required paramters user_id , country', 400);
-        }
         try {
-            UpdateCustomerAction::execute($id);
+            UpdateCustomerAction::execute($id , $body);
             http_response_code(200);
             return Json::toJson(['message' => 'customer updated successfuly']);
         } catch (Exception $error) {

@@ -4,49 +4,54 @@ namespace PostApi\modules\HR\app\DB\models;
 
 use PDO;
 use PostApi\modules\HR\domain\entities\JobDescription;
+use PostApi\modules\HR\domain\entities\Shift;
 use PostApi\modules\HR\domain\entities\Skill;
 
 class JobDescriptionMapper
 {
     private array $identityMap = [];
-    private ShiftMapper $shiftMapper;
-    private SkillMapper $skillMapper;
-    public function __construct(private PDO $db)
-    {
-        $this->shiftMapper = new ShiftMapper($db);
-        $this->skillMapper = new SkillMapper($db);
-    }
+    public function __construct(private PDO $db) {}
     public function findOne(int $id)
     {
         if (isset($this->identityMap[$id])) {
             return $this->identityMap[$id];
         }
-        $getJobDescriptionQuery = $this->db->prepare("SELECT * FROM HR.jobs_description WHERE id = ?");
+        $getJobDescriptionQuery = $this->db->prepare(
+            "SELECT * FROM HR.job_description_view WHERE id = ?"
+        );
         $getJobDescriptionQuery->execute([$id]);
         $jobDescriptionRawData = $getJobDescriptionQuery->fetch(PDO::FETCH_ASSOC);
         if ($jobDescriptionRawData) {
             $jobDescription = new JobDescription();
             $jobDescription->setId($jobDescriptionRawData['id']);
             $jobDescription->setName($jobDescriptionRawData['name']);
-            $shift = $this->shiftMapper->findOne($jobDescriptionRawData['shift_id']);
+            $shift = new Shift();
+            $shift->setId($jobDescriptionRawData['shift_id']);
+            $shift->setShiftName($jobDescriptionRawData['shift_name']);
+            $shift->setStartTime($jobDescriptionRawData['shift_start_time']);
+            $shift->setEndTime($jobDescriptionRawData['shift_end_time']);
+            $shift->setBreakDuration($jobDescriptionRawData['shift_break_duration_by_minutes']);
+            $shift->setIsActive($jobDescriptionRawData['shift_is_active']);
+            $shift->setIsOverNight($jobDescriptionRawData['shift_is_overnight']);
+            $shift->setCreatedAt($jobDescriptionRawData['shift_created_at']);
             $jobDescription->setShift($shift);
-            $skillsGetQuery = $this->db->prepare("SELECT * FROM HR.job_skill WHERE jd_id = ?");
-            $skillsGetQuery->execute([$id]);
-            $skillIds = $skillsGetQuery->fetchAll(PDO::FETCH_ASSOC);
+            $skillIds = $jobDescriptionRawData['all_skills_id'] ?  explode(",", $jobDescriptionRawData['all_skills_id']) : "";
+            $skillsName = $jobDescriptionRawData['all_skills_name'] ? explode(",", $jobDescriptionRawData['all_skills_name']) : "";
             if (!empty($skillIds)) {
-                foreach ($skillIds as $skillId) {
-                    $skill = $this->skillMapper->findOne($skillId['skill_id']);
+                foreach ($skillIds as $index => $skillId) {
+                    $skill = new Skill();
+                    $skill->setId($skillId);
+                    $skill->setName($skillsName[$index]);
                     $jobDescription->addSkill($skill);
                 }
             }
-
             $this->identityMap[$id] = $jobDescription;
         }
         return $this->identityMap[$id];
     }
     public function findAll()
     {
-        $getJobsDescriptionQuery = $this->db->prepare("SELECT * FROM HR.jobs_description");
+        $getJobsDescriptionQuery = $this->db->prepare("SELECT * FROM HR.job_description_view");
         $getJobsDescriptionQuery->execute([]);
         $jobsDescriptionRawData = $getJobsDescriptionQuery->fetchAll(PDO::FETCH_ASSOC);
         if ($jobsDescriptionRawData) {
@@ -55,14 +60,23 @@ class JobDescriptionMapper
                     $jobDescription = new JobDescription();
                     $jobDescription->setId($jobDescriptionRawData['id']);
                     $jobDescription->setName($jobDescriptionRawData['name']);
-                    $shift = $this->shiftMapper->findOne($jobDescriptionRawData['shift_id']);
+                    $shift = new Shift();
+                    $shift->setId($jobDescriptionRawData['shift_id']);
+                    $shift->setShiftName($jobDescriptionRawData['shift_name']);
+                    $shift->setStartTime($jobDescriptionRawData['shift_start_time']);
+                    $shift->setEndTime($jobDescriptionRawData['shift_end_time']);
+                    $shift->setBreakDuration($jobDescriptionRawData['shift_break_duration_by_minutes']);
+                    $shift->setIsActive($jobDescriptionRawData['shift_is_active']);
+                    $shift->setIsOverNight($jobDescriptionRawData['shift_is_overnight']);
+                    $shift->setCreatedAt($jobDescriptionRawData['shift_created_at']);
                     $jobDescription->setShift($shift);
-                    $skillsGetQuery = $this->db->prepare("SELECT * FROM HR.job_skill WHERE jd_id = ?");
-                    $skillsGetQuery->execute([$jobDescriptionRawData['id']]);
-                    $skillIds = $skillsGetQuery->fetchAll(PDO::FETCH_ASSOC);
+                    $skillIds = $jobDescriptionRawData['all_skills_id'] ?  explode(",", $jobDescriptionRawData['all_skills_id']) : "";
+                    $skillsName = $jobDescriptionRawData['all_skills_name'] ? explode(",", $jobDescriptionRawData['all_skills_name']) : "";
                     if (!empty($skillIds)) {
-                        foreach ($skillIds as $skillId) {
-                            $skill = $this->skillMapper->findOne($skillId['skill_id']);
+                        foreach ($skillIds as $index => $skillId) {
+                            $skill = new Skill();
+                            $skill->setId($skillId);
+                            $skill->setName($skillsName[$index]);
                             $jobDescription->addSkill($skill);
                         }
                     }

@@ -3,7 +3,7 @@
         'name' => 'sohaib/post-api',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '4b0ddccefd7101349b14d4c5d6525ca3d634360c',
+        'reference' => 'e1b1d9b864c9cd11416e9260a3e9314ac6bba59f',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -541,7 +541,7 @@
         'sohaib/post-api' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '4b0ddccefd7101349b14d4c5d6525ca3d634360c',
+            'reference' => 'e1b1d9b864c9cd11416e9260a3e9314ac6bba59f',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -555,6 +555,15 @@
             'install_path' => __DIR__ . '/../staabm/side-effects-detector',
             'aliases' => array(),
             'dev_requirement' => true,
+        ),
+        'stripe/stripe-php' => array(
+            'pretty_version' => 'v20.3.1',
+            'version' => '20.3.1.0',
+            'reference' => 'bf2c6caf886a88e35f831a68f3b6a49ac85cb357',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../stripe/stripe-php',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'symfony/console' => array(
             'pretty_version' => 'v7.4.6',

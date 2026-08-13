@@ -4,7 +4,6 @@ namespace PostApi\modules\HR\app\controllers;
 
 use Error;
 use Override;
-use PostApi\modules\HR\app\DB\repositories\ApplicationRepository;
 use PostApi\modules\HR\domain\services\applications\CreateApplicationAction;
 use PostApi\modules\HR\domain\services\applications\DeleteApplicationAction;
 use PostApi\modules\HR\domain\services\applications\GetApplicationCollectionAction;
@@ -14,13 +13,12 @@ use PostApi\shared\app\controllers\api\ApiControllerContract;
 use PostApi\shared\app\http\requests\Request;
 use PostApi\shared\app\http\responses\success\json\Json;
 use PostApi\shared\helpers\fecade\Chache;
-use PostApi\shared\helpers\fecade\Files;
 use PostApi\shared\helpers\fecade\ViewError;
 
 class ApplicationController implements ApiControllerContract
 {
     #[Override]
-    public function index()
+    public function index(Request $request)
     {
         $serin = GetApplicationCollectionAction::execute();
         return Chache::checkCache($serin);
@@ -39,16 +37,14 @@ class ApplicationController implements ApiControllerContract
     }
 
     #[Override]
-    public function create()
-    {
-        $request = new Request();
-        $params = $request->body;
-       
+    public function create(Request $request)
+    {        
+        $params = $request->body;       
         if (!isset($params['name'], $params['email'], $params['phone'] , $request->files['cv']))  {
             return ViewError::viewProplem("creating application error", "missing required paramters error", 1, "missing required paramters name, email, phone, cv (body or file), ", 400);
         }        
         try {
-            $application = CreateApplicationAction::execute();
+            $application = CreateApplicationAction::execute($params);
             $serin = GetApplicationItemAction::execute((int)$application->getId());
             http_response_code(201);
             return Json::toJson($serin);            
@@ -58,15 +54,14 @@ class ApplicationController implements ApiControllerContract
     }
 
     #[Override]
-    public function update(string $id)
-    {
-        $request = new Request();
+    public function update(Request $request,string $id)
+    {        
         $params = $request->body;
         if (!isset($params['name'], $params['email'], $params['phone'] )) {
             return ViewError::viewProplem("updating application error", "missing required paramters error", 1, "missing required paramters name, email, phone", 400);
         }
         try {
-            UpdateApplicationAction::execute((int)$id);
+            UpdateApplicationAction::execute((int)$id , $params);
             http_response_code(200);
             return Json::toJson(['message' => "update application successfuly"]);
         } catch (Error $error) {

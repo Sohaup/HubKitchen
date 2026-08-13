@@ -18,7 +18,7 @@ use PostApi\shared\helpers\fecade\Chache;
 
 class JobController implements ApiControllerContract {
     #[Override]
-    public function index()
+    public function index(Request $request)
     {
         $serin = GetJobCollectionAction::execute();
         return Chache::checkCache($serin);
@@ -37,15 +37,14 @@ class JobController implements ApiControllerContract {
     }
 
     #[Override]
-    public function create()
-    {
-        $request = new Request();
+    public function create(Request $request)
+    {      
         $params = $request->body;
         if (!isset($params['title'], $params['department_id'])) {
             return ViewError::viewProplem("creating job error", "missing required paramters error", 1, "missing required paramters title , department_id", 400);
         }
         try {
-            $job = CreateJobAction::execute();
+            $job = CreateJobAction::execute($params);
             $serin = GetJobItemAction::execute((int)$job->getId());
             http_response_code(201);
             return Json::toJson($serin);
@@ -55,15 +54,14 @@ class JobController implements ApiControllerContract {
     }
 
     #[Override]
-    public function update(string $id)
-    {
-        $request = new Request();
+    public function update(Request $request,string $id)
+    {        
         $params = $request->body;
         if (!isset($params['title'], $params['department_id'])) {
             return ViewError::viewProplem("updating job error", "missing required paramters error", 1, "missing required paramter title , department_id", 400);
         }
         try {
-            UpdateJobAction::execute((int)$id);
+            UpdateJobAction::execute((int)$id , $params);
             http_response_code(200);
             return Json::toJson(['message' => "update job successfuly"]);
         } catch (Error $error) {
@@ -83,9 +81,8 @@ class JobController implements ApiControllerContract {
         }
     }
 
-    public function assignApplicationToJob()
-    {
-        $request = new Request();
+    public function assignApplicationToJob(Request $request)
+    {       
         $params = $request->body;
         if (!isset($params['application_id'], $params['job_id'])) {
             return ViewError::viewProplem("assigning application error", "missing required paramters error", 1, "missing required paramters application_id, job_id", 400);
@@ -99,9 +96,8 @@ class JobController implements ApiControllerContract {
         }
     }
 
-    public function removeApplicationFromJob()
-    {
-        $request = new Request();
+    public function removeApplicationFromJob(Request $request)
+    {        
         $params = $request->body;
         if (!isset($params['application_id'], $params['job_id'])) {
             return ViewError::viewProplem("removing application error", "missing required paramters error", 1, "missing required paramters application_id, job_id", 400);

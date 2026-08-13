@@ -7,7 +7,6 @@ use PostApi\modules\CS\app\DB\repositories\CustomerLogRepository;
 use PostApi\modules\CS\app\DB\repositories\CustomerRepository;
 use PostApi\modules\CS\domain\entities\CustomerLog;
 use PostApi\modules\CS\domain\entityListeners\CreateCustomerLogListener;
-use PostApi\shared\app\http\requests\Request;
 use SplObjectStorage;
 use SplObserver;
 use SplSubject;
@@ -23,10 +22,8 @@ class CreateCustomerLogAction implements SplSubject
        $this->observers = new SplObjectStorage();
        $this->attach(new CreateCustomerLogListener());
     }
-    public function execute(): CustomerLog
-    {
-        $request = new Request();
-        $params = $request->body;
+    public function execute(array $params): CustomerLog
+    {        
         $customerId = $params['customer_id'] ?? null;
         $logType = $params['log_type'] ?? '';
         $createdAt = $params['created_at'] ?? date('c');

@@ -4,16 +4,18 @@ namespace PostApi\modules\inovice\domain\services\product;
 
 use PostApi\modules\inovice\app\DB\repositories\ProductRepository;
 use PostApi\modules\inovice\domain\entities\Supplier;
-use PostApi\shared\app\http\requests\Request;
+use PostApi\shared\helpers\command\ClousreCommand;
+use PostApi\shared\helpers\command\Queue\TaskQueue;
+use PostApi\shared\helpers\fecade\Files;
+use PostApi\shared\helpers\fecade\Retery;
 
 class UpdateProductAction
 {
-    public static function execute(string $id)
+    public static function execute(string $id, array $params)
     {
-        $request = new Request();
-        $params = $request->body;
         $repo = new ProductRepository();
         $product = $repo->findOne($id);
+        $queue = new TaskQueue();
         if (!$product) {
             throw new \Exception("product not found");
         }
@@ -30,6 +32,22 @@ class UpdateProductAction
             $supplier = new Supplier();
             $supplier->setId($params['supplier_id']);
             $product->setSupplier($supplier);
+        }
+        if (isset($params['image'])) {
+            $queue->push(new ClousreCommand(function () use ($product) {
+                Retery::execute(function () use ($product) {
+                    Files::deleteFile($product->getImage());
+                });
+            }));
+            $queue->push(new ClousreCommand(function () {
+                $imagePath = Retery::execute(function () {
+                    $newImage = Files::storeFile('image');
+                    return $newImage;
+                });
+                return $imagePath;
+            }));
+            $results = $queue->execute();
+            $product->setImage($results[1]);
         }
         $repo->update($product);
         return $product;

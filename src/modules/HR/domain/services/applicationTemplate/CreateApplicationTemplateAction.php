@@ -4,15 +4,12 @@ namespace PostApi\modules\HR\domain\services\applicationTemplate;
 
 use PostApi\modules\HR\app\DB\repositories\ApplicationTemplateRepository;
 use PostApi\modules\HR\domain\entities\ApplicationTemplate;
-use PostApi\shared\app\http\requests\Request;
 
 class CreateApplicationTemplateAction
 {
-    public static function execute()
+    public static function execute(array $body)
     {
-        $repo = new ApplicationTemplateRepository();
-        $request = new Request();
-        $body = $request->body;
+        $repo = new ApplicationTemplateRepository();        
         $title = $body['title'] ?? '';
         $description = $body['description'] ?? '';
         $entity = new ApplicationTemplate(null, $title, $description);

@@ -14,7 +14,7 @@ use PostApi\shared\helpers\queryBuilder\Interepter\Table\QueryTable;
 class GetGoogleUserAction {
     public static function execute(string $googleId) {
         $userRepository = new UserRepository();
-        $queryBuilder = new QueryBuilder($userRepository->getDbInstance()->pdo);
+        $queryBuilder = new QueryBuilder($userRepository->getDbInstance());
         $queryTable = new QueryTable("auth.users");
         $queryColumns = new QueryColumns(['*']);
         $condition = new Condition("google_id" , ConditionOperators::EQUAL , $googleId);

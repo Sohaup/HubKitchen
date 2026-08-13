@@ -12,8 +12,10 @@ class JobUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-
-    public function __construct(private PDO $db, private JobMapper $jobMapper) {}
+     private JobMapper $jobMapper;
+    public function __construct(private PDO $db) {
+        $this->jobMapper = new JobMapper($db);
+    }
 
     public function registerNew(Job &$job)
     {

@@ -11,7 +11,7 @@ class ApplicationCycleRepository {
     public function __construct()
     {
         $this->initialize();
-        $this->applicationCycleMapper = new ApplicationCycleMapper($this->postgre->pdo);
+        $this->applicationCycleMapper = new ApplicationCycleMapper($this->dataBase);
     }
 
     public function findOne(int $id)

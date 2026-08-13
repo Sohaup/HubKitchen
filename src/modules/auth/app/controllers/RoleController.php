@@ -4,7 +4,6 @@ namespace PostApi\modules\auth\app\controllers;
 
 use Error;
 use PostApi\modules\auth\app\DB\repositories\RoleRepository;
-
 use PostApi\modules\auth\domain\services\Roles\CreateRoleAction;
 use PostApi\modules\auth\domain\services\Roles\GetRoleCollectionAction;
 use PostApi\modules\auth\domain\services\Roles\GetRoleItemAction;
@@ -15,7 +14,7 @@ use PostApi\shared\helpers\fecade\ViewError;
 
 class RoleController implements ApiControllerContract
 {
-    public function index()
+    public function index(Request $request)
     {
         $roleRepository = new RoleRepository();
         $roles = $roleRepository->findAll();       
@@ -35,10 +34,9 @@ class RoleController implements ApiControllerContract
             return ViewError::viewProplem("display role error", "paramter error", 1, "there is no corosponding role for this id", 400);
         }
     }
-    public function create()
+    public function create(Request $request)
     {
-        header("Content-Type:application/json");
-        $request = new Request();
+        header("Content-Type:application/json");        
         $params = $request->body;
         if (!isset($params['name'])) {
             return  ViewError::viewProplem("creating role error", "missing required paramters error", 1, "missing required paramter name ", 400);
@@ -50,11 +48,10 @@ class RoleController implements ApiControllerContract
         http_response_code(201);
         return Json::toJson($serin);
     }
-    public function update(string $id)
+    public function update(Request $request,string $id)
     {
         header("Content-Type:application/json");
-        $roleRepository = new RoleRepository();
-        $request = new Request();
+        $roleRepository = new RoleRepository();       
         $params = $request->body;       
         try {
             if (!isset($params['name'])) {

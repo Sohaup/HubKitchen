@@ -13,7 +13,7 @@ class TurnCycleRepository
     public function __construct()
     {
         $this->initialize();
-        $this->turnCycleMapper = new TurnCycleMapper($this->postgre->pdo);
+        $this->turnCycleMapper = new TurnCycleMapper($this->dataBase);
     }
     public function findOne(int $id)
     {

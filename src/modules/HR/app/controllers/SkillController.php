@@ -3,7 +3,6 @@
 namespace PostApi\modules\HR\app\controllers;
 
 use Error;
-
 use Override;
 use PostApi\modules\HR\domain\services\skills\CreateSkillAction;
 use PostApi\modules\HR\domain\services\skills\DeleteSkillAction;
@@ -19,7 +18,7 @@ use PostApi\shared\helpers\fecade\ViewError;
 class SkillController implements ApiControllerContract
 {
     #[Override]
-    public function index()
+    public function index(Request $request)
     {
         $serin = GetSkillCollectionAction::execute();
         return Chache::checkCache($serin);
@@ -36,28 +35,26 @@ class SkillController implements ApiControllerContract
         }
     }
     #[Override]
-    public function create()
-    {
-        $request = new Request();
+    public function create(Request $request)
+    {        
         $params = $request->body;
         if (!isset($params['name'])) {
             return  ViewError::viewProplem("creating skill error", "missing required paramters error", 1, "missing required paramter name ", 400);
         }
-        $skill = CreateSkillAction::execute();
+        $skill = CreateSkillAction::execute($params);
         $serin = GetSkillItemAction::execute($skill->getId());
         http_response_code(201);
         return Json::toJson($serin);
     }
     #[Override]
-    public function update(string $id)
-    {
-        $request = new Request();
+    public function update(Request $request,string $id)
+    {        
         $params = $request->body;
         if (!isset($params['name'])) {
             return  ViewError::viewProplem("updating skill error", "missing required paramters error", 1, "missing required paramter name ", 400);
         }
         try {
-            UpdateSkillAction::execute($id);
+            UpdateSkillAction::execute($id , $params);
             http_response_code(200);
             return Json::toJson(['message' => "update skill successfuly"]);
         } catch (Error $error) {

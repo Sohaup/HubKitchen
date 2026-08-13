@@ -16,7 +16,7 @@ use PostApi\shared\helpers\fecade\ViewError;
 
 class TurnCycleController implements ApiControllerContract
 {
-    public function index()
+    public function index(Request $request)
     {
         $serin = GetTurnCycleCollectionAction::execute();
         return Chache::checkCache($serin);
@@ -33,15 +33,14 @@ class TurnCycleController implements ApiControllerContract
         }
     }
 
-    public function create()
-    {
-        $request = new Request();
+    public function create(Request $request)
+    {        
         $params = $request->body;
         if (!isset($params['employee_id'], $params['start_at'])) {
             return ViewError::viewProplem("creating turn cycle error", "missing required paramters error", 1, "missing required paramters employee_id, start_at  ", 400);
         }        
         try {
-            $entity = CreateTurnCycleAction::execute();
+            $entity = CreateTurnCycleAction::execute($params);
             $serin = GetTurnCycleItemAction::execute((int)$entity->getId());
             http_response_code(201);
             return Json::toJson($serin);
@@ -50,15 +49,14 @@ class TurnCycleController implements ApiControllerContract
         }
     }
 
-    public function update(string $id)
-    {
-        $request = new Request();
+    public function update(Request $request,string $id)
+    {       
         $params = $request->body;
         if (!isset($params['employee_id'], $params['start_at'])) {
             return ViewError::viewProplem("updating turn cycle error", "missing required paramters error", 1, "missing required paramters employee_id, start_at  ", 400);
         }
         try {
-            UpdateTurnCycleAction::execute((int)$id);
+            UpdateTurnCycleAction::execute((int)$id, $params);
             http_response_code(200);
             return Json::toJson(['message' => 'update turn cycle successfuly']);
         } catch (Error $error) {

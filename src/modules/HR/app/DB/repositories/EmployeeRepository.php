@@ -13,7 +13,7 @@ class EmployeeRepository
     public function __construct()
     {
         $this->initialize();
-        $this->employeeMapper = new EmployeeMapper($this->postgre->pdo);
+        $this->employeeMapper = new EmployeeMapper($this->dataBase);
     }
     public function findOne(string $id)
     {

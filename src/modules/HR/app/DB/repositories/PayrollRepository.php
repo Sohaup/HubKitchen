@@ -13,7 +13,7 @@ class PayrollRepository
     public function __construct()
     {
         $this->initialize();
-        $this->payrollMapper = new PayrollJournalMapper($this->postgre->pdo);
+        $this->payrollMapper = new PayrollJournalMapper($this->dataBase);
     }
     public function findOne(int $id)
     {

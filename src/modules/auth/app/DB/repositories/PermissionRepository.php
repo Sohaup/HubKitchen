@@ -11,7 +11,7 @@ class PermissionRepository {
     public function __construct()
     {
        $this->initialize();
-       $this->permissionMapper = new PermissionMapper($this->postgre->pdo);
+       $this->permissionMapper = new PermissionMapper($this->dataBase);
     }
     public function findOne(int $id) {
        $permission = $this->permissionMapper->findOne($id);

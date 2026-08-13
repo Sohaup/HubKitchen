@@ -24,10 +24,8 @@ class CreateManegerAction implements SplSubject
         $this->attach(new CreateManegerListener());
     }
     
-    public function execute(): Maneger
-    {
-        $request = new Request();
-        $params = $request->body;
+    public function execute(array $params): Maneger
+    {        
         $userId = $params['user_id'] ?? null;
         $rank = (int)($params['rank'] ?? 0);
         $departmentId = $params['department_id'] ?? null;
@@ -36,7 +34,7 @@ class CreateManegerAction implements SplSubject
         $deptRepo = new DepartmentRepository();
         $department = $deptRepo->findOne((int)$departmentId);
         $maneger = new Maneger();
-        $maneger->setUser($user);
+        $maneger->setUserId($userId);
         $maneger->setRank($rank);
         $maneger->setDepartment($department);
         $repo = new ManegerRepository();

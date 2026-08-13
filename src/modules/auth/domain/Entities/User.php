@@ -1,58 +1,83 @@
 <?php
+
 namespace PostApi\modules\auth\domain\Entities;
 
-class User {
+class User
+{
     private string $id = "";
-    private string $name = "";    
+    private string $name = "";
     private string $email = "";
     private ?string $password = null;
-    private ?string $phone = null; 
+    private ?string $phone = null;
     private Role $role;
     private ?string $googleId = null;
+    private string $avatar;
     public function __construct()
     {
-        $this->role = new Role();        
+        $this->role = new Role();
     }
-    public function setId(string $id) {
+    public function setId(string $id)
+    {
         $this->id = $id;
     }
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
-    public function setName(string $name) {
+    public function setName(string $name)
+    {
         $this->name = $name;
     }
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
-    public function setEmail(string $email) {
+    public function setEmail(string $email)
+    {
         $this->email = $email;
     }
-    public function getEmail() {        
+    public function getEmail()
+    {
         return $this->email;
     }
-    public function setPassword(?string $password) {
-       $this->password = $password;
+    public function setPassword(?string $password)
+    {
+        $this->password = $password;
     }
-    public function getPassword() {
+    public function getPassword()
+    {
         return $this->password;
     }
-    public function setPhone(?string $phone) {
+    public function setPhone(?string $phone)
+    {
         $this->phone = $phone;
     }
-    public function getPhone() {
+    public function getPhone()
+    {
         return $this->phone;
     }
-    public function setRole(Role $role) {
+    public function setRole(Role $role)
+    {
         $this->role = $role;
     }
-    public function getRole() {
+    public function getRole()
+    {
         return $this->role;
     }
-    public function setGoogleId(?string $googleId) {
+    public function setGoogleId(?string $googleId)
+    {
         $this->googleId = $googleId;
     }
-    public function getGoogleId() {
+    public function getGoogleId()
+    {
         return $this->googleId;
+    }
+    public function setAvatar(string $avatar)
+    {
+        $this->avatar = $avatar;
+    }
+    public function getAvatar()
+    {
+        return $this->avatar;
     }
 }

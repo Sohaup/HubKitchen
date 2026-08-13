@@ -21,7 +21,7 @@ class CreateGoogleUserAction
     {
         $userRepository = new UserRepository();
         $roleRepository = new RoleRepository();
-        $queryBuilder = new QueryBuilder($userRepository->getDbInstance()->pdo);
+        $queryBuilder = new QueryBuilder($userRepository->getDbInstance());
         $table = new QueryTable("auth.roles");
         $columns = new QueryColumns(["id"]);
         $condition = new Condition("name", ConditionOperators::EQUAL, "user");

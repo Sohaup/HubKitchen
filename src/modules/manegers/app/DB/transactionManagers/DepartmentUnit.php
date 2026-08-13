@@ -12,7 +12,10 @@ class DepartmentUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private DepartmentMapper $departmentMapper, private PDO $db) {}
+    private DepartmentMapper $departmentMapper;
+    public function __construct(private PDO $db) {
+        $this->departmentMapper= new DepartmentMapper($db);
+    }
     public function registerNew(Department &$department)
     {
         if (!in_array($department, $this->newObjects, true)) {

@@ -3,7 +3,6 @@
 namespace PostApi\modules\HR\app\controllers;
 
 use Error;
-use Exception;
 use Override;
 use PostApi\modules\HR\app\DB\repositories\ShiftRepository;
 use PostApi\modules\HR\domain\services\shifts\CreateShiftAction;
@@ -20,7 +19,7 @@ use PostApi\shared\helpers\fecade\ViewError;
 class ShiftController implements ApiControllerContract
 {
     #[Override]
-    public function index()
+    public function index(Request $request)
     {
         $serinJson = GetShiftCollectionAction::execute();
         return Chache::checkCache($serinJson);
@@ -41,30 +40,28 @@ class ShiftController implements ApiControllerContract
     }
 
     #[Override]
-    public function create()
-    {
-        $request = new Request();
+    public function create(Request $request)
+    {       
         $params = $request->body;
         if (!isset($params['shift_name'], $params['start_time'], $params['end_time'], $params['break_duration_minutes'], $params['is_overnight'], $params['is_active'])) {
             return ViewError::viewProplem("creating shift error", "missing required paramters error", 1, "missing required paramter name ", 400);
         }
 
-        $shift = CreateShiftAction::execute();
+        $shift = CreateShiftAction::execute($params);
         http_response_code(201);
         $serinJson = GetShiftItemAction::execute($shift);
         return Json::toJson($serinJson);
     }
 
     #[Override]
-    public function update(string $id)
-    {
-        $request = new Request();
+    public function update(Request $request,string $id)
+    {       
         $params = $request->body;
         if (!isset($params['shift_name'], $params['start_time'], $params['end_time'], $params['break_duration_minutes'], $params['is_overnight'], $params['is_active'])) {
             return ViewError::viewProplem("updating shift error", "missing required paramters error", 1, "missing required paramters  ", 400);
         }
         try {
-            UpdateShiftAction::execute($id);
+            UpdateShiftAction::execute($id , $params);
             http_response_code(200);
             return Json::toJson(["message"=> "updated successfuly"]);
         } catch (Error $error) {

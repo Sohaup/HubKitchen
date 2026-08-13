@@ -3,42 +3,39 @@
 namespace PostApi\modules\HR\app\DB\models;
 
 use PDO;
+use PostApi\modules\HR\domain\entities\ApplicationTemplate;
 use PostApi\modules\HR\domain\entities\EvolutionCritiria;
 
 class EvolutionCritiriaMapper
 {
     private array $identityMap = [];
-    private ApplicationTemplateMapper $applicationTemplateMapper;
-    public function __construct(private PDO $db)
-    {
-        $this->applicationTemplateMapper = new ApplicationTemplateMapper($this->db);
-    }
+    public function __construct(private PDO $db) {}
     public function findOne(int $id)
     {
         if (isset($this->identityMap[$id])) {
             return $this->identityMap[$id];
         }
-        $getEvolutionCritiriaQuery = $this->db->prepare("SELECT * FROM HR.evolution_critiria WHERE id = ?");
+        $getEvolutionCritiriaQuery = $this->db->prepare("SELECT critiria_id , critiria , critiria_weight , template_id , template_title , template_description FROM HR.evoluation_view WHERE critiria_id = ?");
         $getEvolutionCritiriaQuery->execute([$id]);
         $evolutionCritiriaRawData = $getEvolutionCritiriaQuery->fetch(PDO::FETCH_ASSOC);
         if ($evolutionCritiriaRawData) {
-            $template = $this->applicationTemplateMapper->findOne($evolutionCritiriaRawData['template_id']);
-            $evolutionCritiria = new EvolutionCritiria($evolutionCritiriaRawData['id'], $evolutionCritiriaRawData['critiria'], $evolutionCritiriaRawData['weight'], $template);
-            $this->identityMap[$evolutionCritiriaRawData['id']];
+            $template = new ApplicationTemplate(id: $evolutionCritiriaRawData['template_id'], title: $evolutionCritiriaRawData['template_title'], description: $evolutionCritiriaRawData['template_description']);
+            $evolutionCritiria = new EvolutionCritiria($evolutionCritiriaRawData['critiria_id '], $evolutionCritiriaRawData['critiria'], $evolutionCritiriaRawData['critiria_weight'], $template);
+            $this->identityMap[$evolutionCritiriaRawData['critiria_id']] = $evolutionCritiria;
             return $evolutionCritiria;
         }
     }
 
     public function findAll()
     {
-        $getEvolutionCritiriaQuery = $this->db->prepare("SELECT * FROM HR.evolution_critiria");
+        $getEvolutionCritiriaQuery = $this->db->prepare("SELECT critiria_id , critiria , critiria_weight , template_id , template_title , template_description FROM HR.evoluation_view WHERE critiria_id IS NOT NULL");
         $getEvolutionCritiriaQuery->execute([]);
         $evolutionsCritiriaRawData = $getEvolutionCritiriaQuery->fetchAll(PDO::FETCH_ASSOC);
         foreach ($evolutionsCritiriaRawData as $evolutionCritiriaRawData) {
-            $template = $this->applicationTemplateMapper->findOne($evolutionCritiriaRawData['template_id']);
-            $evolutionCritiria = new EvolutionCritiria($evolutionCritiriaRawData['id'], $evolutionCritiriaRawData['critiria'], $evolutionCritiriaRawData['weight'], $template);
+            $template = new ApplicationTemplate(id: $evolutionCritiriaRawData['template_id'], title: $evolutionCritiriaRawData['template_title'], description: $evolutionCritiriaRawData['template_description']);
+            $evolutionCritiria = new EvolutionCritiria($evolutionCritiriaRawData['critiria_id '], $evolutionCritiriaRawData['critiria'], $evolutionCritiriaRawData['critiria_weight'], $template);
             if (!isset($this->identityMap[$evolutionCritiriaRawData['id']])) {
-                $this->identityMap[$evolutionCritiriaRawData['id']] = $evolutionCritiria;
+                $this->identityMap[$evolutionCritiriaRawData['critiria_id']] = $evolutionCritiria;
             }
         }
         return $this->identityMap;

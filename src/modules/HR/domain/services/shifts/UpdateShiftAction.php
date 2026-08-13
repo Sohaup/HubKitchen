@@ -2,22 +2,14 @@
 
 namespace PostApi\modules\HR\domain\services\shifts;
 
-use DateTime;
 use PostApi\modules\HR\app\DB\repositories\ShiftRepository;
-use PostApi\modules\HR\domain\entities\Shift;
-use PostApi\shared\app\http\requests\Request;
 
 class UpdateShiftAction
 {
-    public static function execute(string $id)
-    {
-        $request = new Request();
-        $params = $request->body;
+    public static function execute(string $id , array $params)
+    {       
         $shiftRepository = new ShiftRepository();
         $shift = $shiftRepository->findOne($id);
-        // print_r($shift);
-        // echo "\n";
-        // echo "\n";
         $shift->setShiftName($params['shift_name']);
         $shift->setStartTime($params['start_time']);
         $shift->setShiftName($params['shift_name']);

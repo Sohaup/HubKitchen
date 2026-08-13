@@ -12,7 +12,7 @@ class SupplierRepository
     public function __construct()
     {
         $this->initialize();
-        $this->supplierMapper = new SupplierMapper($this->postgre->pdo);
+        $this->supplierMapper = new SupplierMapper($this->dataBase);
     }
 
     public function findOne(string $id) {
@@ -21,6 +21,10 @@ class SupplierRepository
 
     public function findAll() {
         return $this->supplierMapper->findAll();
+    }
+
+    public function findBy(array $critirias) {
+        return $this->supplierMapper->findBy($critirias);
     }
 
     public function create(Supplier $supplier) {

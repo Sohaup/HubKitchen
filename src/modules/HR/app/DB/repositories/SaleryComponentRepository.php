@@ -11,7 +11,7 @@ class SaleryComponentRepository {
     public function __construct()
     {
         $this->initialize();
-        $this->saleryComponentMapper = new SaleryComponentMapper($this->postgre->pdo);
+        $this->saleryComponentMapper = new SaleryComponentMapper($this->dataBase);
     }
     public function findOne(int $id)
     {

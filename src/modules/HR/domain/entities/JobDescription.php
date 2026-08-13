@@ -15,6 +15,11 @@ class JobDescription
         $this->skills = new Skills();
         $this->shift = new Shift();
     }
+    public function create(int $id , string $name , Shift $shift) {
+        $this->id = $id;
+        $this->name = $name;
+        $this->shift = $shift;
+    }
     public function setId(int $id)
     {
         $this->id = $id;

@@ -4,24 +4,21 @@ namespace PostApi\modules\CS\app\DB\models;
 
 use PDO;
 use PDOException;
+use PostApi\modules\CS\domain\entities\Action;
 use PostApi\modules\CS\domain\entities\CaseInterAction;
+use PostApi\modules\CS\domain\entities\Customer;
+use PostApi\modules\CS\domain\entities\Employee;
+use PostApi\modules\CS\domain\entities\Role;
+use PostApi\modules\CS\domain\entities\Status;
+use PostApi\modules\CS\domain\entities\Ticket;
 
 class CaseInterActionMapper
 {
     private array $identityMap = [];
-    private CustomerMapper $customerMapper;
-    private EmployeeMapper $employeeMapper;
-    private ActionMapper $actionMapper;
-    private StatusMapper $statusMapper;
-    private TicketMapper $ticketMapper;
 
     public function __construct(private PDO $db)
     {
-        $this->customerMapper = new CustomerMapper($db);
-        $this->employeeMapper = new EmployeeMapper($db);
-        $this->actionMapper = new ActionMapper($db);
-        $this->statusMapper = new StatusMapper($db);
-        $this->ticketMapper = new TicketMapper($db);
+        $this->db = $db;
     }
 
     public function findOne(string $id)
@@ -29,24 +26,51 @@ class CaseInterActionMapper
         if (isset($this->identityMap[$id])) {
             return $this->identityMap[$id];
         }
-        $stmt = $this->db->prepare("SELECT * FROM cs.case_interactions WHERE id = ?");
+        $stmt = $this->db->prepare(
+            "SELECT * FROM CS.case_inter_action_view WHERE id = ?"
+        );
         $stmt->execute([$id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row) {
             $entity = new CaseInterAction();
             $entity->setId($row['id']);
-            $customer = $this->customerMapper->findOne($row['customer_id']);
+
+            $customer = new Customer();
+            $customer->setId($row['customer_id']);
+            $customer->setCountry($row['customer_country']);
+            $customer->setUserId($row['customer_user_id']);
             $entity->setCustomer($customer);
-            $employee = $this->employeeMapper->findOne($row['employee_id']);
+
+            $employee = new Employee();
+            $employee->setId($row['employee_id']);
+            $employee->setEmployeeId($row['hr_employee_id']);
+            $employee->setUserId($row['employee_user_id']);
+
+            $role = new Role();
+            $role->setId($row['employee_role_id']);
+            $role->setName($row['role_name']);
+            $employee->setRole($role);
             $entity->setEmployee($employee);
-            $action = $this->actionMapper->findOne($row['action_id']);
+
+            $action = new Action();
+            $action->setId($row['action_id']);
+            $action->setAction($row['action']); 
+            $action->setTakedAt($row['action_taked_at']);
             $entity->setAction($action);
-            $status = $this->statusMapper->findOne($row['status_id']);
+
+            $status = new Status(); 
+            $status->setId($row['status_id']);
+            $status->setStatus($row['status']); 
+            $status->setIssuedAt($row['status_issued_at']);
             $entity->setStatus($status);
-            $ticket = $this->ticketMapper->findOne($row['ticket_id']);
+
+            $ticket = new Ticket(); 
+            $ticket->setId($row['ticket_id']);
+            $ticket->setType($row['ticket_type']); 
             $entity->setTicket($ticket);
+
             $entity->setTakedAction($row['action']);
-            $entity->setInteractedAt(new \DateTime($row['interacted_at']));
+            $entity->setInteractedAt($row['interacted_at']);
             $this->identityMap[$id] = $entity;
             return $entity;
         }
@@ -54,25 +78,52 @@ class CaseInterActionMapper
 
     public function findAll()
     {
-        $stmt = $this->db->prepare("SELECT * FROM cs.case_interactions");
+        $stmt = $this->db->prepare(
+            "SELECT * FROM CS.case_inter_action_view"
+        );
         $stmt->execute([]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($rows as $row) {
             if (!isset($this->identityMap[$row['id']])) {
                 $entity = new CaseInterAction();
                 $entity->setId($row['id']);
-                $customer = $this->customerMapper->findOne($row['customer_id']);
+
+                $customer = new Customer();
+                $customer->setId($row['customer_id']);
+                $customer->setCountry($row['customer_country']);
+                $customer->setUserId($row['customer_user_id']);
                 $entity->setCustomer($customer);
-                $employee = $this->employeeMapper->findOne($row['employee_id']);
+
+                $employee = new Employee();
+                $employee->setId($row['employee_id']);
+                $employee->setEmployeeId($row['hr_employee_id']);
+                $employee->setUserId($row['employee_user_id']);
+
+                $role = new Role();
+                $role->setId($row['employee_role_id']);
+                $role->setName($row['role_name']);
+                $employee->setRole($role);
                 $entity->setEmployee($employee);
-                $action = $this->actionMapper->findOne($row['action_id']);
+
+                $action = new Action();
+                $action->setId($row['action_id']);
+                $action->setAction($row['action']); 
+                $action->setTakedAt($row['action_taked_at']);
                 $entity->setAction($action);
-                $status = $this->statusMapper->findOne($row['status_id']);
+
+                $status = new Status();
+                $status->setId($row['status_id']);
+                $status->setStatus($row['status']); 
+                $status->setIssuedAt($row['status_issued_at']);
                 $entity->setStatus($status);
-                $ticket = $this->ticketMapper->findOne($row['ticket_id']);
+
+                $ticket = new Ticket(); 
+                $ticket->setId($row['ticket_id']);
+                $ticket->setType($row['ticket_type']);
                 $entity->setTicket($ticket);
+
                 $entity->setTakedAction($row['action']);
-                $entity->setInteractedAt(new \DateTime($row['interacted_at']));
+                $entity->setInteractedAt($row['interacted_at']);
                 $this->identityMap[$row['id']] = $entity;
             }
         }
@@ -83,14 +134,14 @@ class CaseInterActionMapper
     {
         try {
             $stmt = $this->db->prepare("INSERT INTO cs.case_interactions(customer_id, employee_id, action_id, status_id, action , ticket_id) VALUES(?, ?, ?, ?, ? , ?) RETURNING id");
-            
+
             $stmt->execute([
                 $entity->getCustomer()->getId(),
                 $entity->getEmployee()->getId(),
-                $entity->getAction()->getId(),
-                $entity->getStatus()->getId(),
-                $entity->getTakedAction() ,
-                $entity->getTicket()->getId()  
+                $entity->getAction()->getId(), 
+                $entity->getStatus()->getId(), 
+                $entity->getTakedAction(),
+                $entity->getTicket()->getId()
             ]);
             $id = $stmt->fetch(PDO::FETCH_ASSOC)['id'];
 
@@ -107,10 +158,10 @@ class CaseInterActionMapper
         $stmt->execute([
             $entity->getCustomer()->getId(),
             $entity->getEmployee()->getId(),
-            $entity->getAction()->getId(),
-            $entity->getStatus()->getId(),
+            $entity->getAction()->getId(), 
+            $entity->getStatus()->getId(), 
             $entity->getTakedAction(),
-            $entity->getTicket()->getId() ,
+            $entity->getTicket()->getId(),
             $entity->getId()
         ]);
         $this->identityMap[$entity->getId()] = $entity;

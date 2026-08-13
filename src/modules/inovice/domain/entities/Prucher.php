@@ -10,7 +10,7 @@ class Prucher
     private float $quantity;
     private Supplier $supplier;
     private Product $product;
-    private DateTime $createdAt;
+    private string $createdAt;
 
     public function setId(string $id)
     {
@@ -46,10 +46,10 @@ class Prucher
     }
     public function setCreatedAt(string $createdAt)
     {
-        $this->createdAt = new DateTime($createdAt);
+        $this->createdAt = $createdAt;
     }
     public function getCreatedAt()
     {
-        return $this->createdAt->format("r");
+        return $this->createdAt;
     }
 }

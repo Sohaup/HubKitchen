@@ -12,7 +12,11 @@ class TicketUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private TicketMapper $ticketMapper, private PDO $db) {}
+    private TicketMapper $ticketMapper;
+    public function __construct(private PDO $db)
+    {
+        $this->ticketMapper = new TicketMapper($db);
+    }
     public function registerNew(Ticket &$ticket)
     {
         if (!in_array($ticket, $this->newObjects, true)) {

@@ -12,7 +12,7 @@ class ManegerRepository
     public function __construct()
     {
         $this->initialize();
-        $this->manegerMapper = new ManegerMapper($this->postgre->pdo);
+        $this->manegerMapper = new ManegerMapper($this->dataBase);
     }
 
     public function findOne(string $id) {

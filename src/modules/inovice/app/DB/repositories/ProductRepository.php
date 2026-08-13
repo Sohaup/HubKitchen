@@ -12,7 +12,7 @@ class ProductRepository
     public function __construct()
     {
         $this->initialize();
-        $this->productMapper = new ProductMapper($this->postgre->pdo);
+        $this->productMapper = new ProductMapper($this->dataBase);
     }
 
     public function findOne(string $id) {
@@ -21,6 +21,10 @@ class ProductRepository
 
     public function findAll() {
         return $this->productMapper->findAll();
+    }
+
+    public function findBy(array $critirias) {
+        return $this->productMapper->findBy($critirias);
     }
 
     public function create(Product $product) {

@@ -11,7 +11,7 @@ class EvolutionCritiriaRepository {
     public function __construct()
     {
         $this->initialize();
-        $this->evolutionCritiriaMapper = new EvolutionCritiriaMapper($this->postgre->pdo);
+        $this->evolutionCritiriaMapper = new EvolutionCritiriaMapper($this->dataBase);
     }
 
     public function findOne(int $id)

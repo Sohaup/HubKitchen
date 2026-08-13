@@ -12,7 +12,10 @@ class StatusUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private StatusMapper $statusMapper, private PDO $db) {}
+    private StatusMapper $statusMapper;
+    public function __construct(private PDO $db) {
+        $this->statusMapper = new StatusMapper($db);
+    }
     public function registerNew(Status &$status)
     {
         if (!in_array($status, $this->newObjects, true)) {

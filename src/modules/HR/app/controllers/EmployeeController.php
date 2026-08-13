@@ -18,7 +18,7 @@ use PostApi\shared\helpers\fecade\ViewError;
 class EmployeeController implements ApiControllerContract
 {
     #[Override]
-    public function index()
+    public function index(Request $request)
     {
         $serin = GetEmployeeCollectionAction::execute();        
         return Chache::checkCache($serin);
@@ -37,17 +37,15 @@ class EmployeeController implements ApiControllerContract
     }
 
     #[Override]
-    public function create()
-    {
-        $request = new Request();
+    public function create(Request $request)
+    {       
         $params = $request->body;
         if (!isset($params['employeeStatus'], $params['martialStatus'], $params['user_id'], $params['job_id'], $params['manager_id'], $params['department_id'], $params['addresse_id'])) {
             return ViewError::viewProplem("creating employee error", "missing required paramters error", 1, "missing required paramters employeeStatus , martialStatus , user_id , job_id , manager_id , employeedAt , department_id , addresse_id", 400);
-
         }
         try {
             $createEmployeeAction = new CreateEmployeeAction();
-            $entity = $createEmployeeAction->execute();
+            $entity = $createEmployeeAction->execute($params);
             $serin = GetEmployeeItemAction::execute($entity->getId());
             http_response_code(201);
             return Json::toJson($serin);
@@ -57,10 +55,10 @@ class EmployeeController implements ApiControllerContract
     }
 
     #[Override]
-    public function update(string $id)
+    public function update(Request $request,string $id)
     {
         try {
-            UpdateEmployeeAction::execute($id);
+            UpdateEmployeeAction::execute($id , $request->body);
             http_response_code(200);
             return Json::toJson(['message' => "update employee successfuly"]);
         } catch (Error $error) {

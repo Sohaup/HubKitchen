@@ -18,14 +18,13 @@ class AuthController
         Redirect::ToRoute(Urls::transformRouteUrl("/users/create"));
     }
 
-    public function logIn()
+    public function logIn(Request $request)
     {
-        header("Content-Type:application/json");
-        $request = new Request();
+        header("Content-Type:application/json");       
         $params = $request->body;
         if (isset($params['email'], $params['password'])) {
             try {
-                $loginAction = new LogInWithCredentialsAction();
+                $loginAction = new LogInWithCredentialsAction($request);
                 $jwtToken = $loginAction->getToken();
                 http_response_code(200);
                 return Json::toJson(['message' => 'login successfuly', 'token' => $jwtToken]);
@@ -37,10 +36,10 @@ class AuthController
         }
     }
 
-    public function loginWithGoogle()
+    public function loginWithGoogle(Request $request)
     {
         try {
-            $loginAction = new LogInWithGoogleAction();
+            $loginAction = new LogInWithGoogleAction($request);
             $token = $loginAction->getToken();
             http_response_code(200);
             return Json::toJson(['message' => 'logged in successfuly', 'token' => $token]);

@@ -12,7 +12,7 @@ class PrucherRepository
     public function __construct()
     {
         $this->initialize();
-        $this->prucherMapper = new PrucherMapper($this->postgre->pdo);
+        $this->prucherMapper = new PrucherMapper($this->dataBase);
     }
 
     public function findOne(string $id) {

@@ -3,7 +3,6 @@
 namespace PostApi\modules\HR\domain\services\employee;
 
 use Override;
-use PostApi\modules\auth\app\DB\repositories\UserRepository;
 use PostApi\modules\HR\app\DB\repositories\AddreseRepository;
 use PostApi\modules\HR\app\DB\repositories\DepartmentRepository;
 use PostApi\modules\HR\app\DB\repositories\EmployeeRepository;
@@ -11,8 +10,6 @@ use PostApi\modules\HR\app\DB\repositories\JobDescriptionRepository;
 use PostApi\modules\HR\domain\entities\Employee;
 use PostApi\modules\HR\domain\EntityListeners\CreateEmployeeListener;
 use PostApi\modules\HR\domain\EntityListeners\CreateEmployeeRoleListener;
-use PostApi\modules\manegers\app\DB\repositories\ManegerRepository;
-use PostApi\shared\app\http\requests\Request;
 use SplObjectStorage;
 use SplObserver;
 use SplSubject;
@@ -30,25 +27,19 @@ class CreateEmployeeAction implements SplSubject
         $this->attach(new CreateEmployeeRoleListener());
     }
 
-    public function execute()
+    public function execute(array $params)
     {
-        $request = new Request();
-        $params = $request->body;
         $repo = new EmployeeRepository();
-        $userRepo = new UserRepository();
-        $managerRepo = new ManegerRepository();
         $departmentRepo = new DepartmentRepository();
         $addreseRepo = new AddreseRepository();
         $jobDescriptionRepo = new JobDescriptionRepository();
         $entity = new Employee();
         $entity->setEmployeeStatus($params['employeeStatus']);
         $entity->setMartialStatus($params['martialStatus']);
-        $user = $userRepo->findOne($params['user_id']);
-        $entity->setUser($user);
+        $entity->setUserId($params['user_id']);
         $job = $jobDescriptionRepo->findOne($params['job_id']);
         $entity->setJob($job);
-        $manager = $managerRepo->findOne($params['manager_id']);
-        $entity->setManager($manager);
+        $entity->setManagerId($params['manager_id']);
         $department = $departmentRepo->findOne($params['department_id']);
         $entity->setDepartment($department);
         $addresse = $addreseRepo->findOne($params['addresse_id']);

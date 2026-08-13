@@ -8,7 +8,7 @@ class Order
 {
     private string $id;
     private Prucher $prucher;
-    private DateTime $createdAt;
+    private string $createdAt;
 
     public function setId(string $id)
     {
@@ -28,10 +28,10 @@ class Order
     }
     public function setCreatedAt(string $createdAt)
     {
-        $this->createdAt = new DateTime($createdAt);
+        $this->createdAt = $createdAt;
     }
     public function getCreatedAt()
     {
-        return $this->createdAt->format("r");
+        return $this->createdAt;
     }
 }

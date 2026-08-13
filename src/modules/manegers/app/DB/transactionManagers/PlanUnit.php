@@ -12,7 +12,10 @@ class PlanUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private PlanMapper $planMapper, private PDO $db) {}
+    private PlanMapper $planMapper;
+    public function __construct(private PDO $db) {
+        $this->planMapper = new PlanMapper($db);
+    }
     public function registerNew(Plan &$plan)
     {
         if (!in_array($plan, $this->newObjects, true)) {

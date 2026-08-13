@@ -9,14 +9,11 @@ use PostApi\modules\CS\app\DB\repositories\EmployeeRepository as CsEmployeeRepo;
 use PostApi\modules\CS\app\DB\repositories\ActionRepository;
 use PostApi\modules\CS\app\DB\repositories\StatusRepository;
 use PostApi\modules\CS\app\DB\repositories\TicketRepository;
-use PostApi\shared\app\http\requests\Request;
 
 class CreateCaseInterActionAction
 {
-    public static function execute(): CaseInterAction
-    {
-        $request = new Request();
-        $params = $request->body;
+    public static function execute(array $params): CaseInterAction
+    {       
         $repo = new CaseInterActionRepository();
         $customerRepo = new CustomerRepository();
         $employeeRepo = new CsEmployeeRepo();

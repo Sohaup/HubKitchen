@@ -3,7 +3,7 @@ namespace PostApi\modules\auth\helpers\types;
 
 enum RoleTypes : string {
     case USER = "user";
-    case MANAGER = "manager";
+    case MANAGER = "maneger";
     case SECURITY = "security";
     case HR = "HR";
     case CS = "customer service";

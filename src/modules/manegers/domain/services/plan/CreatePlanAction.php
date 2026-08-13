@@ -5,14 +5,11 @@ namespace PostApi\modules\manegers\domain\services\plan;
 use PostApi\modules\manegers\app\DB\repositories\PlanRepository;
 use PostApi\modules\manegers\app\DB\repositories\ManegerRepository;
 use PostApi\modules\manegers\domain\entities\Plan;
-use PostApi\shared\app\http\requests\Request;
 
 class CreatePlanAction
 {
-    public static function execute(): Plan
-    {
-        $request = new Request();
-        $params = $request->body;
+    public static function execute(array $params): Plan
+    {        
         $type = $params['type'] ?? '';        
         $name = $params['name'] ?? '';
         $description = $params['description'] ?? '';

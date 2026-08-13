@@ -14,7 +14,7 @@ class JobRepository
     public function __construct()
     {
         $this->initialize();
-        $this->jobMapper = new JobMapper($this->postgre->pdo);
+        $this->jobMapper = new JobMapper($this->dataBase);
     }
     public function findOne(int $id)
     {

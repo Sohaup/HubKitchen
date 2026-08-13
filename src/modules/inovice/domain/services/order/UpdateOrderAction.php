@@ -8,10 +8,8 @@ use PostApi\shared\app\http\requests\Request;
 
 class UpdateOrderAction
 {
-    public static function execute(string $id)
-    {
-        $request = new Request();
-        $params = $request->body;
+    public static function execute(string $id , array $params)
+    {       
         $repo = new OrderRepository();
         $order = $repo->findOne($id);
         if (!$order) {

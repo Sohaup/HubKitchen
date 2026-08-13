@@ -12,7 +12,10 @@ class CustomerUnit
     private array $newObjects = [];
     private array $dirtyObjects = [];
     private array $deletedObjects = [];
-    public function __construct(private CustomerMapper $customerMapper, private PDO $db) {}
+    private CustomerMapper $customerMapper;
+    public function __construct(private PDO $db) {
+        $this->customerMapper = new CustomerMapper($db);
+    }
     public function registerNew(Customer &$customer)
     {
         if (!in_array($customer, $this->newObjects, true)) {
