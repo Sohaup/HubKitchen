@@ -7,8 +7,6 @@ use Exception;
 use PostApi\modules\auth\app\DB\repositories\UserRepository;
 use PostApi\modules\auth\app\DB\transactionManagers\UserUnit;
 use PostApi\modules\auth\domain\Entities\User;
-use PostApi\modules\auth\domain\services\authirization\CheckUserAuthorizaidAction;
-use PostApi\modules\auth\domain\services\user\AssignRoleToUserAction;
 use PostApi\modules\auth\domain\services\user\CreateUserAction;
 use PostApi\modules\auth\domain\services\user\GetUserItemAction;
 use PostApi\modules\auth\domain\services\user\GetUsersCollectionAction;

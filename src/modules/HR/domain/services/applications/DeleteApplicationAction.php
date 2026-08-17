@@ -2,6 +2,7 @@
 
 namespace PostApi\modules\HR\domain\services\applications;
 
+use Error;
 use PostApi\modules\HR\app\DB\repositories\ApplicationRepository;
 use PostApi\shared\helpers\fecade\Files;
 
@@ -17,7 +18,7 @@ class DeleteApplicationAction
                 if (Files::deleteFile($cvPath)) {
                     $applicationRepository->delete($id);
                 } else {
-                    echo "Failed to delete CV file.";
+                   throw new Error("Failed to delete CV file.");
                 }
             }
         }

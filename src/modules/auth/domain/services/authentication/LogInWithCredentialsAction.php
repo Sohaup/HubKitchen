@@ -19,26 +19,30 @@ use PostApi\shared\helpers\queryBuilder\Interepter\Table\QueryTable;
 class LogInWithCredentialsAction extends LogInTemplate
 {
   public function handleLogIn(array $params): User
-  {    
-    $email = $params['email'];
-    $password = $params['password'];
-    $userRepository = new UserRepository();
-    $db = $userRepository->getDbInstance();
-    $queryBuilder = new QueryBuilder($db);
-    $table = new QueryTable("auth.users");
-    $condition = new Condition("email", ConditionOperators::EQUAL, $email);
-    $conditionQuery = new BasicCondition($condition);
-    $columns = new QueryColumns(['*']);
-    $select = new Select(table: $table->getQuery(), columns: $columns->getColumns(), condition: $conditionQuery->getCondition());
-    $userRow = $queryBuilder->select($select->getQuery(), $conditionQuery->getValues(), PDO::FETCH_ASSOC)[0];
+  {
+    try {
+      $email = $params['email'];
+      $password = $params['password'];
+      $userRepository = new UserRepository();
+      $db = $userRepository->getDbInstance();
+      $queryBuilder = new QueryBuilder($db);
+      $table = new QueryTable("auth.users");
+      $condition = new Condition("email", ConditionOperators::EQUAL, $email);
+      $conditionQuery = new BasicCondition($condition);
+      $columns = new QueryColumns(['*']);
+      $select = new Select(table: $table->getQuery(), columns: $columns->getColumns(), condition: $conditionQuery->getCondition());
+      $userRow = $queryBuilder->select($select->getQuery(), $conditionQuery->getValues(), PDO::FETCH_ASSOC)[0];
 
-    if (!$userRow) {
-      throw new Exception("email or password is not correct ");
+      if (!$userRow) {
+        throw new Exception("email or password is not correct ");
+      }
+      if (!password_verify($password, $userRow['password'])) {
+        throw new Exception("email or password is not correct ");
+      }
+      $user = $userRepository->findOne($userRow['id']);
+      return $user;
+    } catch (Exception $err) {
+      throw new Error($err->getMessage());
     }
-    if (!password_verify($password, $userRow['password'])) {
-      throw new Exception("email or password is not correct ");
-    }
-    $user = $userRepository->findOne($userRow['id']);
-    return $user;
   }
 }

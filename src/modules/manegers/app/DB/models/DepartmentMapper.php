@@ -2,6 +2,7 @@
 
 namespace PostApi\modules\manegers\app\DB\models;
 
+use Error;
 use PDO;
 use PDOException;
 use PostApi\modules\manegers\domain\entities\Department;
@@ -13,33 +14,41 @@ class DepartmentMapper
 
     public function findOne(int $id)
     {
-        if (!isset($this->identityMap[$id])) {
-            $stmt = $this->db->prepare("SELECT * FROM manegers.departments WHERE id = ?");
-            $stmt->execute([$id]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!$row) return null;
-            $department = new Department();
-            $department->setId((int)$row['id']);
-            $department->setName($row['name']);
-            $this->identityMap[$id] = $department;
+        try {
+            if (!isset($this->identityMap[$id])) {
+                $stmt = $this->db->prepare("SELECT * FROM manegers.departments WHERE id = ?");
+                $stmt->execute([$id]);
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                if (!$row) return null;
+                $department = new Department();
+                $department->setId((int)$row['id']);
+                $department->setName($row['name']);
+                $this->identityMap[$id] = $department;
+            }
+            return $this->identityMap[$id];
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
         }
-        return $this->identityMap[$id];
     }
 
     public function findAll()
     {
-        $stmt = $this->db->prepare("SELECT * FROM manegers.departments");
-        $stmt->execute([]);
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($rows as $row) {
-            if (!isset($this->identityMap[$row['id']])) {
-                $department = new Department();
-                $department->setId((int)$row['id']);
-                $department->setName($row['name']);
-                $this->identityMap[$row['id']] = $department;
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM manegers.departments");
+            $stmt->execute([]);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($rows as $row) {
+                if (!isset($this->identityMap[$row['id']])) {
+                    $department = new Department();
+                    $department->setId((int)$row['id']);
+                    $department->setName($row['name']);
+                    $this->identityMap[$row['id']] = $department;
+                }
             }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
         }
-        return $this->identityMap;
     }
 
     public function insert(Department $department)
@@ -51,21 +60,29 @@ class DepartmentMapper
             $department->setId((int)$id);
             $this->identityMap[$id] = $department;
         } catch (PDOException $error) {
-            echo $error->getMessage();
+            throw new Error($error->getMessage());
         }
     }
 
     public function update(Department $department)
     {
-        $stmt = $this->db->prepare("UPDATE manegers.departments SET name = ? WHERE id = ?");
-        $stmt->execute([$department->getName(), $department->getId()]);
-        $this->identityMap[$department->getId()] = $department;
+        try {
+            $stmt = $this->db->prepare("UPDATE manegers.departments SET name = ? WHERE id = ?");
+            $stmt->execute([$department->getName(), $department->getId()]);
+            $this->identityMap[$department->getId()] = $department;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
     }
 
     public function delete(int $id)
     {
-        $stmt = $this->db->prepare("DELETE FROM manegers.departments WHERE id = ?");
-        $stmt->execute([$id]);
-        unset($this->identityMap[$id]);
+        try {
+            $stmt = $this->db->prepare("DELETE FROM manegers.departments WHERE id = ?");
+            $stmt->execute([$id]);
+            unset($this->identityMap[$id]);
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
     }
 }

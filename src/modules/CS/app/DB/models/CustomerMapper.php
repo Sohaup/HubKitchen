@@ -2,6 +2,7 @@
 
 namespace PostApi\modules\CS\app\DB\models;
 
+use Error;
 use PDO;
 use PDOException;
 use PostApi\modules\CS\domain\entities\Customer;
@@ -13,35 +14,43 @@ class CustomerMapper
 
     public function findOne(string $id)
     {
-        if (!isset($this->identityMap[$id])) {
-            $stmt = $this->db->prepare("SELECT * FROM cs.customers WHERE id = ?");
-            $stmt->execute([$id]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!$row) return null;
-            $customer = new Customer();
-            $customer->setId($row['id']);
-            $customer->setCountry($row['country']);         
-            $customer->setUserId($row['user_id']);
-            $this->identityMap[$id] = $customer;
+        try {
+            if (!isset($this->identityMap[$id])) {
+                $stmt = $this->db->prepare("SELECT * FROM cs.customers WHERE id = ?");
+                $stmt->execute([$id]);
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                if (!$row) return null;
+                $customer = new Customer();
+                $customer->setId($row['id']);
+                $customer->setCountry($row['country']);
+                $customer->setUserId($row['user_id']);
+                $this->identityMap[$id] = $customer;
+            }
+            return $this->identityMap[$id];
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
         }
-        return $this->identityMap[$id];
     }
 
     public function findAll()
     {
-        $stmt = $this->db->prepare("SELECT * FROM cs.customers");
-        $stmt->execute([]);
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($rows as $row) {
-            if (!isset($this->identityMap[$row['id']])) {
-                $customer = new Customer();
-                $customer->setId($row['id']);
-                $customer->setCountry($row['country']);                
-                $customer->setUserId($row['user_id']);
-                $this->identityMap[$row['id']] = $customer;
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM cs.customers");
+            $stmt->execute([]);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($rows as $row) {
+                if (!isset($this->identityMap[$row['id']])) {
+                    $customer = new Customer();
+                    $customer->setId($row['id']);
+                    $customer->setCountry($row['country']);
+                    $customer->setUserId($row['user_id']);
+                    $this->identityMap[$row['id']] = $customer;
+                }
             }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
         }
-        return $this->identityMap;
     }
 
     public function insert(Customer $customer)
@@ -53,21 +62,29 @@ class CustomerMapper
             $customer->setId($id);
             $this->identityMap[$id] = $customer;
         } catch (PDOException $error) {
-            echo $error->getMessage();
+            throw new Error($error->getMessage());
         }
     }
 
     public function update(Customer $customer)
     {
-        $stmt = $this->db->prepare("UPDATE cs.customers SET user_id = ? , country = ? WHERE id = ?");
-        $stmt->execute([$customer->getUserId(), $customer->getCountry(), $customer->getId()]);
-        $this->identityMap[$customer->getId()] = $customer;
+        try {
+            $stmt = $this->db->prepare("UPDATE cs.customers SET user_id = ? , country = ? WHERE id = ?");
+            $stmt->execute([$customer->getUserId(), $customer->getCountry(), $customer->getId()]);
+            $this->identityMap[$customer->getId()] = $customer;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
     }
 
     public function delete(string $id)
     {
-        $stmt = $this->db->prepare("DELETE FROM cs.customers WHERE id = ?");
-        $stmt->execute([$id]);
-        unset($this->identityMap[$id]);
+        try {
+            $stmt = $this->db->prepare("DELETE FROM cs.customers WHERE id = ?");
+            $stmt->execute([$id]);
+            unset($this->identityMap[$id]);
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
     }
 }
