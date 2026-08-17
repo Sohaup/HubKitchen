@@ -2,6 +2,7 @@
 
 namespace PostApi\modules\manegers\app\DB\models;
 
+use Error;
 use PDO;
 use PDOException;
 use PostApi\modules\manegers\domain\entities\Department;
@@ -15,36 +16,14 @@ class ManegerMapper
 
     public function findOne(string $id)
     {
-        if (!isset($this->identityMap[$id])) {
-            $stmt = $this->db->prepare("SELECT m.*, d.name AS department_name FROM manegers.manegers m JOIN manegers.departments d ON m.department_id = d.id WHERE m.id = ?");
-            $stmt->execute([$id]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if (!$row) return null;
+        try {
+            if (!isset($this->identityMap[$id])) {
+                $stmt = $this->db->prepare("SELECT m.*, d.name AS department_name FROM manegers.manegers m JOIN manegers.departments d ON m.department_id = d.id WHERE m.id = ?");
+                $stmt->execute([$id]);
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            $manager = new Maneger();
-            $manager->setId($row['id']);
-            $manager->setRank((int)$row['rank']);
-            $manager->setUserId($row['user_id']);
+                if (!$row) return null;
 
-            $department = new Department();
-            $department->setId((int)$row['department_id']);
-            $department->setName($row['department_name']);
-            $manager->setDepartment($department);
-
-            $this->identityMap[$id] = $manager;
-        }
-        return $this->identityMap[$id];
-    }
-
-    public function findAll()
-    {
-        $stmt = $this->db->prepare("SELECT m.*, d.name AS department_name FROM manegers.manegers m JOIN manegers.departments d ON m.department_id = d.id ");
-        $stmt->execute([]);
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($rows as $row) {
-            if (!isset($this->identityMap[$row['id']])) {
                 $manager = new Maneger();
                 $manager->setId($row['id']);
                 $manager->setRank((int)$row['rank']);
@@ -55,10 +34,40 @@ class ManegerMapper
                 $department->setName($row['department_name']);
                 $manager->setDepartment($department);
 
-                $this->identityMap[$row['id']] = $manager;
+                $this->identityMap[$id] = $manager;
             }
+            return $this->identityMap[$id];
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
         }
-        return $this->identityMap;
+    }
+
+    public function findAll()
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT m.*, d.name AS department_name FROM manegers.manegers m JOIN manegers.departments d ON m.department_id = d.id ");
+            $stmt->execute([]);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($rows as $row) {
+                if (!isset($this->identityMap[$row['id']])) {
+                    $manager = new Maneger();
+                    $manager->setId($row['id']);
+                    $manager->setRank((int)$row['rank']);
+                    $manager->setUserId($row['user_id']);
+
+                    $department = new Department();
+                    $department->setId((int)$row['department_id']);
+                    $department->setName($row['department_name']);
+                    $manager->setDepartment($department);
+
+                    $this->identityMap[$row['id']] = $manager;
+                }
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
     }
 
     public function insert(Maneger $maneger)
@@ -70,21 +79,29 @@ class ManegerMapper
             $maneger->setId($id);
             $this->identityMap[$id] = $maneger;
         } catch (PDOException $error) {
-            echo $error->getMessage();
+            throw new Error($error->getMessage());
         }
     }
 
     public function update(Maneger $maneger)
     {
-        $stmt = $this->db->prepare("UPDATE managers.managers SET user_id = ? , rank = ? , department_id = ? WHERE id = ?");
-        $stmt->execute([$maneger->getUserId(), $maneger->getRank(), $maneger->getDepartment()->getId(), $maneger->getId()]);
-        $this->identityMap[$maneger->getId()] = $maneger;
+        try {
+            $stmt = $this->db->prepare("UPDATE managers.managers SET user_id = ? , rank = ? , department_id = ? WHERE id = ?");
+            $stmt->execute([$maneger->getUserId(), $maneger->getRank(), $maneger->getDepartment()->getId(), $maneger->getId()]);
+            $this->identityMap[$maneger->getId()] = $maneger;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
     }
 
     public function delete(string $id)
     {
-        $stmt = $this->db->prepare("DELETE FROM manegers.managers WHERE id = ?");
-        $stmt->execute([$id]);
-        unset($this->identityMap[$id]);
+        try {
+            $stmt = $this->db->prepare("DELETE FROM manegers.managers WHERE id = ?");
+            $stmt->execute([$id]);
+            unset($this->identityMap[$id]);
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
     }
 }

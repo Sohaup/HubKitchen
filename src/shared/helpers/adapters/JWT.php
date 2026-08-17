@@ -3,6 +3,7 @@
 namespace PostApi\shared\helpers\adapters;
 
 use Error;
+use Exception;
 use Firebase\JWT\JWT as FirebaseJWT;
 use Firebase\JWT\Key;
 use PostApi\shared\config\Env;
@@ -15,7 +16,7 @@ class JWT
             Env::configureEnv();
             $jwtToken = FirebaseJWT::encode($payload, $_ENV['JWT_TOKEN_SECRET'], 'HS256');
             return $jwtToken;
-        } catch (Error $error) {
+        } catch (Exception $error) {
             throw new Error($error->getMessage());
         }
     }
@@ -26,7 +27,7 @@ class JWT
             Env::configureEnv();
             $decodedJwtToken = FirebaseJWT::decode($jwtToken, new Key($_ENV['JWT_TOKEN_SECRET'], 'HS256'));
             return  $decodedJwtToken;
-        } catch (Error $error) {
+        } catch (Exception  $error) {
             throw new Error($error->getMessage());
         }
     }
