@@ -18,8 +18,34 @@ class SaleryComponentController implements ApiControllerContract
 {
     public function index(Request $request)
     {
-        $serin = GetSaleryComponentCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $repository = new \PostApi\modules\HR\app\DB\repositories\SaleryComponentRepository();
+            $body = $request->body;
+            $critiria = [];
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['name'])) {
+                $critiria['name'] = $body['name'];
+            }
+            if (isset($body['type'])) {
+                $critiria['type'] = $body['type'];
+            }
+            if (isset($body['calc_type'])) {
+                $critiria['calc_type'] = $body['calc_type'];
+            }
+            if (!empty($critiria)) {
+                $collection = $repository->findBy($critiria);
+                $serin = GetSaleryComponentCollectionAction::execute($collection);
+            } else {
+                $collection = $repository->findAll();
+                $serin = GetSaleryComponentCollectionAction::execute($collection);
+            }
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (\Throwable $err) {
+            return ViewError::viewProplem("display salery component error", "paramter error", 1, "internal server error", 500);
+        }
     }
 
     public function get(string $id)

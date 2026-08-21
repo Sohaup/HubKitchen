@@ -23,7 +23,13 @@ class SaleryComponentRepository {
         return $this->saleryComponentMapper->findAll();
     }
 
-    public function create(SaleryComponent $saleryComponent)
+    
+    public function findBy(array $criteria = [])
+    {
+        return $this->saleryComponentMapper->findBy($criteria);
+    }
+
+public function create(SaleryComponent $saleryComponent)
     {
         $this->saleryComponentMapper->create($saleryComponent);
     }

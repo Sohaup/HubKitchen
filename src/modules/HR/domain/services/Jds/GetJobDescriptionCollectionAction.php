@@ -5,10 +5,9 @@ use PostApi\modules\HR\app\DB\repositories\JobDescriptionRepository;
 use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetJobDescriptionCollectionAction {
-    public static function execute() {
+    public static function execute(array $items = null) {
         $jdRepository = new JobDescriptionRepository();
-        $jds = $jdRepository->findAll();
-        $serin = SerializeToSerin::serializeCollection($jds);
+        $serin = SerializeToSerin::serializeCollection($items ?? $jdRepository->findAll());
         return $serin;
     }
 }

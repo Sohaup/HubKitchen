@@ -7,10 +7,9 @@ use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetCategoryCollectionAction
 {
-    public static function execute()
+    public static function execute(array $items = null)
     {
         $categoryRepository = new CategoryRepository();
-        $categories = $categoryRepository->findAll();
-        return SerializeToSerin::serializeCollection($categories);
+        return SerializeToSerin::serializeCollection($items ?? $categoryRepository->findAll());
     }
 }

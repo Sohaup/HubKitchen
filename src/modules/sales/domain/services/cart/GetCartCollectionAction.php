@@ -7,11 +7,11 @@ use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetCartCollectionAction
 {
-    public static function execute()
+    public static function execute(array $items = null)
     {
         $cartRepository = new CartRepository();
         $carts = $cartRepository->findAll();
-        $serin = SerializeToSerin::serializeCollection($carts);
+        $serin = SerializeToSerin::serializeCollection($items ?? $carts);
         return $serin;
     }
 }

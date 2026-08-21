@@ -20,8 +20,28 @@ class SkillController implements ApiControllerContract
     #[Override]
     public function index(Request $request)
     {
-        $serin = GetSkillCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $skillRepository = new \PostApi\modules\HR\app\DB\repositories\SkillRepository();
+            $body = $request->body;
+            $critiria = [];
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['name'])) {
+                $critiria['name'] = $body['name'];
+            }
+            if (!empty($critiria)) {
+                $skills = $skillRepository->findBy($critiria);
+                $serin = GetSkillCollectionAction::execute($skills);
+            } else {
+                $skills = $skillRepository->findAll();
+                $serin = GetSkillCollectionAction::execute($skills);
+            }
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (\Throwable $err) {
+            return ViewError::viewProplem("display skill error", "paramter error", 1, "internal server error", 500);
+        }
     }
     #[Override]
     public function get(string $id)

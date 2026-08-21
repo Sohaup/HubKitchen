@@ -7,11 +7,10 @@ use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetReviewCollectionAction
 {
-    public static function execute()
+    public static function execute(array $items = null)
     {
         $reviewRepository = new ReviewRepository();
-        $reviews = $reviewRepository->findAll();
-        $serin = SerializeToSerin::serializeCollection($reviews);
+        $serin = SerializeToSerin::serializeCollection($items ?? $reviewRepository->findAll());
         return $serin;
     }
 }

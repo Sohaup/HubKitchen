@@ -27,6 +27,11 @@ class OfferRepository
         return $this->offerMapper->findAll();
     }
 
+    public function findBy(array $critiria)
+    {
+        return $this->offerMapper->findBy($critiria);
+    }
+
     public function create(Offer $offer)
     {
         $this->offerMapper->create($offer);

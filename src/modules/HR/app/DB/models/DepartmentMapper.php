@@ -53,6 +53,44 @@ class DepartmentMapper
         }
     }
 
+    public function findBy(array $criteria = []): array
+    {
+        $filterDepartmentsQuery = "SELECT * FROM HR.departments";
+        $whereClouses = [];
+        $bindings = [];
+
+        if (isset($criteria['id'])) {
+            $whereClouses[] = "id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (isset($criteria['name'])) {
+            $whereClouses[] = "name LIKE ?";
+            $bindings[] = "%" . $criteria['name'] . "%";
+        }
+
+        if (count($whereClouses) > 0) {
+            $filterDepartmentsQuery .= " WHERE " . implode(" AND ", $whereClouses);
+        }
+
+        try {
+            $getDeartmentsQuery = $this->db->prepare($filterDepartmentsQuery);
+            $getDeartmentsQuery->execute($bindings);
+            $departmentsRawData = $getDeartmentsQuery->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($departmentsRawData as $departmentRawData) {
+                if (!isset($this->identityMap[$departmentRawData['id']])) {
+                    $department = new Department();
+                    $department->setId($departmentRawData['id']);
+                    $department->setName($departmentRawData['name']);
+                    $this->identityMap[$departmentRawData['id']] = $department;
+                }
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function create(Department $department)
     {
         try {

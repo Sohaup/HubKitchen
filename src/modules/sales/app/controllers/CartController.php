@@ -22,8 +22,38 @@ class CartController implements ApiControllerContract
     #[Override]
     public function index(Request $request)
     {
-        $serin = GetCartCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $body = $request->body;
+            $cartRepository = new CartRepository();
+            $critiria = [];
+
+            if (isset($body['user_id'])) {
+                $critiria['user_id'] = $body['user_id'];
+            }
+
+            if (isset($body['price'])) {
+                $critiria['price'] = $body['price'];
+            } elseif (isset($body['greater_than_price'])) {
+                $critiria['greater_than_price'] = $body['greater_than_price'];
+            } elseif (isset($body['less_than_price'])) {;
+                $critiria['less_than_price'] = $body['less_than_price'];
+            } elseif (isset($body['greater_than_or_equal_price'])) {
+                $critiria['greater_than_or_equal_price'] = $body['greater_than_or_equal_price'];
+            } elseif (isset($body['less_than_or_equal_price'])) {
+                $critiria['less_than_or_equal_price'] = $body['less_than_or_equal_price'];
+            }
+
+            if (!empty($critiria)) {
+                $carts = $cartRepository->findBy($critiria);
+            } else {
+                $carts = $cartRepository->findAll();
+            }
+            $serin = GetCartCollectionAction::execute($carts);
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (Error $error) {
+            return ViewError::viewProplem(type: "display cart error ", title: "incorrect paramter", status: true, detail: "internal server error", statusCode: 500);
+        }
     }
 
     #[Override]
@@ -40,7 +70,7 @@ class CartController implements ApiControllerContract
 
     #[Override]
     public function create(Request $request)
-    {       
+    {
         $params = $request->body;
         if (!isset($params['user_id'], $params['price'])) {
             return ViewError::viewProplem("creating cart error", "missing required paramters error", 1, "missing required paramters  user_id, price", 400);
@@ -58,8 +88,8 @@ class CartController implements ApiControllerContract
     }
 
     #[Override]
-    public function update(Request $request,string $id)
-    {        
+    public function update(Request $request, string $id)
+    {
         $params = $request->body;
         if (!isset($params['user_id'], $params['price'])) {
             return ViewError::viewProplem("updating cart error", "missing required paramters error", 1, "missing required paramters user_id, price", 400);
@@ -70,7 +100,7 @@ class CartController implements ApiControllerContract
             if (!$cart) {
                 return ViewError::viewProplem(type: "update cart error ", title: "incorrect paramter", status: true, detail: "cart not found", statusCode: 400);
             }
-            $cart->setUser($params['user_id']);            
+            $cart->setUser($params['user_id']);
             $cart->setPrice((float)$params['price']);
             UpdateCartAction::execute($cart);
             http_response_code(200);

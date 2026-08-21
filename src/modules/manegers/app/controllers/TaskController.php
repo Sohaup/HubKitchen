@@ -21,7 +21,34 @@ class TaskController implements ApiControllerContract
     public function index(Request $request)
     {
         try {
-            $serin = GetTaskCollectionAction::execute();
+            $body = $request->body;
+            $taskRepository = new \PostApi\modules\manegers\app\DB\repositories\TaskRepository();
+            $critiria = [];
+
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['name'])) {
+                $critiria['name'] = $body['name'];
+            }
+            if (isset($body['description'])) {
+                $critiria['description'] = $body['description'];
+            }
+            if (isset($body['maneger_id'])) {
+                $critiria['maneger_id'] = $body['maneger_id'];
+            }
+            if (isset($body['department_id'])) {
+                $critiria['department_id'] = $body['department_id'];
+            }
+
+            if (!empty($critiria)) {
+                $tasks = $taskRepository->findBy($critiria);
+            } else {
+                $tasks = $taskRepository->findAll();
+            }
+
+            $serin = GetTaskCollectionAction::execute($tasks);
+            http_response_code(200);
             return Chache::checkCache($serin);
         } catch (Exception $error) {
             return ViewError::viewProplem('fetch error', 'internal error', 1, $error->getMessage(), 500);

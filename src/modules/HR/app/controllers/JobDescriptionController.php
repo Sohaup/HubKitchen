@@ -23,8 +23,31 @@ class JobDescriptionController implements ApiControllerContract
     #[Override]
     public function index(Request $request)
     {
-        $serin = GetJobDescriptionCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $jobDescriptionRepository = new \PostApi\modules\HR\app\DB\repositories\JobDescriptionRepository();
+            $body = $request->body;
+            $critiria = [];
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['name'])) {
+                $critiria['name'] = $body['name'];
+            }
+            if (isset($body['shift_id'])) {
+                $critiria['shift_id'] = $body['shift_id'];
+            }
+            if (!empty($critiria)) {
+                $jobDescriptions = $jobDescriptionRepository->findBy($critiria);
+                $serin = GetJobDescriptionCollectionAction::execute($jobDescriptions);
+            } else {
+                $jobDescriptions = $jobDescriptionRepository->findAll();
+                $serin = GetJobDescriptionCollectionAction::execute($jobDescriptions);
+            }
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (\Throwable $err) {
+            return ViewError::viewProplem("display job description error", "paramter error", 1, "internal server error", 500);
+        }
     }
 
     #[Override]

@@ -22,8 +22,30 @@ class EmployeeController implements ApiControllerContract
     #[Override]
     public function index(Request $request)
     {
-        $serin = GetEmployeeCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $body = $request->body;
+            $employeeRepository = new EmployeeRepository();
+            $critiria = [];
+
+            if (isset($body['user_id'])) {
+                $critiria['user_id'] = $body['user_id'];
+            }
+            if (isset($body['country'])) {
+                $critiria['country'] = $body['country'];
+            }
+
+            if (!empty($critiria)) {
+                $employees = $employeeRepository->findBy($critiria);
+            } else {
+                $employees = $employeeRepository->findAll();
+            }
+
+            $serin = GetEmployeeCollectionAction::execute($employees);
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (Error $error) {
+            return ViewError::viewProplem(type: "display employee error ", title: "incorrect paramter", status: true, detail: "internal server error", statusCode: 500);
+        }
     }
 
     #[Override]

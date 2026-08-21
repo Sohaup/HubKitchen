@@ -22,8 +22,27 @@ class LeadController implements ApiControllerContract
     #[Override]
     public function index(Request $request)
     {
-        $serin = GetLeadCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $body = $request->body;
+            $leadRepository = new LeadRepository();
+            $critiria = [];
+
+            if (isset($body['user_id'])) {
+                $critiria['user_id'] = $body['user_id'];
+            }
+
+            if (!empty($critiria)) {
+                $leads = $leadRepository->findBy($critiria);
+            } else {
+                $leads = $leadRepository->findAll();
+            }
+
+            $serin = GetLeadCollectionAction::execute($leads);
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (Error $error) {
+            return ViewError::viewProplem(type: "display lead error ", title: "incorrect paramter", status: true, detail: "internal server error", statusCode: 500);
+        }
     }
 
     #[Override]

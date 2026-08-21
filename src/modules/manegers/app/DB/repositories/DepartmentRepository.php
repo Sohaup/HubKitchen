@@ -23,6 +23,10 @@ class DepartmentRepository
         return $this->departmentMapper->findAll();
     }
 
+    public function findBy(array $critirias) {
+        return $this->departmentMapper->findBy($critirias);
+    }
+
     public function create(Department $department) {
         $this->departmentMapper->insert($department);
     }

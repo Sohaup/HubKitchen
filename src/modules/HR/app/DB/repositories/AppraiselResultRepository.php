@@ -24,7 +24,13 @@ class AppraiselResultRepository {
         return $this->appraiselResultMapper->findAll();
     }
 
-    public function create(AppraiselResult $appraiselResult)
+    
+    public function findBy(array $criteria = [])
+    {
+        return $this->appraiselResultMapper->findBy($criteria);
+    }
+
+public function create(AppraiselResult $appraiselResult)
     {
         $this->appraiselResultMapper->create($appraiselResult);
     }

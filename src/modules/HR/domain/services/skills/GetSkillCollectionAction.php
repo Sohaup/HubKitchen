@@ -7,11 +7,10 @@ use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetSkillCollectionAction
 {
-    public static function execute()
+    public static function execute(array $items = null)
     {
         $skillsRepository = new SkillRepository();
-        $skills = $skillsRepository->findAll();
-        $serin = SerializeToSerin::serializeCollection($skills);
+        $serin = SerializeToSerin::serializeCollection($items ?? $skillsRepository->findAll());
         return $serin;
     }
 }

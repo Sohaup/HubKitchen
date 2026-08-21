@@ -19,7 +19,22 @@ class TicketController implements ApiControllerContract
     public function index(Request $request)
     {
         try {
-            $serin = GetTicketCollectionAction::execute();
+            $body = $request->body;
+            $criteria = [];
+            if (isset($body['id'])) {
+                $criteria['id'] = $body['id'];
+            }
+            if (isset($body['type'])) {
+                $criteria['type'] = $body['type'];
+            }
+
+            if (!empty($criteria)) {
+                $repository = new \PostApi\modules\CS\app\DB\repositories\TicketRepository();
+                $items = $repository->findBy($criteria);
+                $serin = GetTicketCollectionAction::execute($items);
+            } else {
+                $serin = GetTicketCollectionAction::execute();
+            }
             return Chache::checkCache($serin);
         } catch (Error $error) {
             return ViewError::viewProplem('fetch error', 'internal error', 1, $error->getMessage(), 500);

@@ -73,7 +73,49 @@ class SaleryMapper
         }
     }
 
-    public function create(Salery $salery)
+    
+    public function findBy(array $criteria = []): array
+    {
+        $query = "SELECT * FROM HR.selaries";
+        $whereClouses = [];
+        $bindings = [];
+
+        if (isset($criteria['id'])) {
+            $whereClouses[] = "id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (isset($criteria['employee_id'])) {
+            $whereClouses[] = "employee_id = ?";
+            $bindings[] = $criteria['employee_id'];
+        }
+
+        if (isset($criteria['selary'])) {
+            $whereClouses[] = "selary = ?";
+            $bindings[] = $criteria['selary'];
+        }
+
+        if (count($whereClouses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClouses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $selariesRawData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($selariesRawData as $saleryRawData) {
+                $employee = new Employee();
+                $employee->setId($saleryRawData['employee_id']);
+                $salery = new Salery(id: $saleryRawData['id'], employee: $employee, salery: $saleryRawData['selary']);
+                $this->identityMap[$saleryRawData['id']] = $salery;
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
+public function create(Salery $salery)
     {
         try {
             $createShiftQuery = $this->db->prepare("INSERT INTO HR.selaries(employee_id , selary) VALUES(? , ? ) RETURNING id");

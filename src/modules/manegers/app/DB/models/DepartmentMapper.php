@@ -51,6 +51,46 @@ class DepartmentMapper
         }
     }
 
+    public function findBy(array $criteria = []): array
+    {
+        $query = "SELECT * FROM manegers.departments";
+        $whereClauses = [];
+        $bindings = [];
+
+        if (!empty($criteria['id'])) {
+            $whereClauses[] = "id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (!empty($criteria['name'])) {
+            $whereClauses[] = "name LIKE ?";
+            $bindings[] = "%" . $criteria['name'] . "%";
+        }
+
+        if (count($whereClauses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($rows as $row) {
+                if (!isset($this->identityMap[$row['id']])) {
+                    $department = new Department();
+                    $department->setId((int)$row['id']);
+                    $department->setName($row['name']);
+                    $this->identityMap[$row['id']] = $department;
+                }
+            }
+
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function insert(Department $department)
     {
         try {

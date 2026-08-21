@@ -7,11 +7,10 @@ use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetOrderCollectionAction
 {
-    public static function execute()
+    public static function execute(array $items = null)
     {
         $orderRepository = new OrderRepository();
-        $orders = $orderRepository->findAll();
-        $serin = SerializeToSerin::serializeCollection($orders);
+        $serin = SerializeToSerin::serializeCollection($items ?? $orderRepository->findAll());
         return $serin;
     }
 }

@@ -18,9 +18,27 @@ use PostApi\shared\helpers\fecade\ViewError;
 class CustomerController implements ApiControllerContract
 {
     public function index(Request $request)
-    {        
-        try {           
-            $serin = GetCustomerCollectionAction::execute();
+    {
+        try {
+            $body = $request->body;
+            $criteria = [];
+            if (isset($body['id'])) {
+                $criteria['id'] = $body['id'];
+            }
+            if (isset($body['user_id'])) {
+                $criteria['user_id'] = $body['user_id'];
+            }
+            if (isset($body['country'])) {
+                $criteria['country'] = $body['country'];
+            }
+
+            if (!empty($criteria)) {
+                $repository = new \PostApi\modules\CS\app\DB\repositories\CustomerRepository();
+                $customers = $repository->findBy($criteria);
+                $serin = GetCustomerCollectionAction::execute($customers);
+            } else {
+                $serin = GetCustomerCollectionAction::execute();
+            }
             return Chache::checkCache($serin);
         } catch (Exception $error) {
             return ViewError::viewProplem('fetch error', 'internal error', 1, $error->getMessage(), 500);

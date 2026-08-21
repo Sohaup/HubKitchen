@@ -7,10 +7,9 @@ use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetAddresseCollectionAction
 {
-    public static function execute()
+    public static function execute(array $items = null)
     {
         $repo = new AddreseRepository();
-        $items = $repo->findAll();
-        return SerializeToSerin::serializeCollection($items);
+        return SerializeToSerin::serializeCollection($items ?? $repo->findAll());
     }
 }

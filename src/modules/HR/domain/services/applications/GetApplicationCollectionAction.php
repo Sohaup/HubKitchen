@@ -7,10 +7,10 @@ use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetApplicationCollectionAction
 {
-    public static function execute()
+    public static function execute(array $items = null)
     {
         $applicationRepository = new ApplicationRepository();
-        $applications = $applicationRepository->findAll();
+        $applications = $items ?? $applicationRepository->findAll();
         $serin = SerializeToSerin::serializeCollection($applications);
         return $serin;
     }

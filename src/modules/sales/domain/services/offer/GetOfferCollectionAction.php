@@ -7,11 +7,10 @@ use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetOfferCollectionAction
 {
-    public static function execute()
+    public static function execute(array $items)
     {
         $offerRepository = new OfferRepository();
-        $offers = $offerRepository->findAll();
-        $serin = SerializeToSerin::serializeCollection($offers);
+        $serin = SerializeToSerin::serializeCollection($items ?? $offerRepository->findAll());
         return $serin;
     }
 }

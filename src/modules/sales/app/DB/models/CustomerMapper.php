@@ -56,6 +56,43 @@ class CustomerMapper
         }
     }
 
+    public function findBy(array $criteria = [])
+    {
+        $query = "SELECT * FROM sales.customers";
+        $whereClauses = [];
+        $bindings = [];
+
+        if (isset($criteria['user_id'])) {
+            $whereClauses[] = "user_id = ?";
+            $bindings[] = $criteria['user_id'];
+        }
+
+        if (isset($criteria['stripe_id'])) {
+            $whereClauses[] = "stripe_id = ?";
+            $bindings[] = $criteria['stripe_id'];
+        }
+
+        if (count($whereClauses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $customersRawData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($customersRawData as $customerRawData) {
+                $customer = new Customer();
+                $customer->setId($customerRawData['id']);
+                $customer->setUserId($customerRawData['user_id']);
+                $customer->setStripeId($customerRawData['stripe_id']);
+                $this->identityMap[$customerRawData['id']] = $customer;
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function create(Customer $customer)
     {
         try {

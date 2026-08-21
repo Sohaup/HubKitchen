@@ -26,7 +26,13 @@ class ApplicationRepository
         return $this->applicationMapper->findAll();
     }
 
-    public function create(Application $application)
+    
+    public function findBy(array $criteria = [])
+    {
+        return $this->applicationMapper->findBy($criteria);
+    }
+
+public function create(Application $application)
     {
         $this->applicationMapper->create($application);
     }

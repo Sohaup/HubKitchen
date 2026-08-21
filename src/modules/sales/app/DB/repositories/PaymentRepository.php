@@ -27,6 +27,11 @@ class PaymentRepository
         return $this->paymentMapper->findAll();
     }
 
+    public function findBy(array $critiria)
+    {
+        return $this->paymentMapper->findBy($critiria);
+    }
+
     public function create(Payment $payment)
     {
         $this->paymentMapper->create($payment);

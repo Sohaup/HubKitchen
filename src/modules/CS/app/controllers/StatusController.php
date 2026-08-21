@@ -19,7 +19,25 @@ class StatusController implements ApiControllerContract
     public function index(Request $request)
     {
         try {
-            $serin = GetStatusCollectionAction::execute();
+            $body = $request->body;
+            $criteria = [];
+            if (isset($body['id'])) {
+                $criteria['id'] = $body['id'];
+            }
+            if (isset($body['status'])) {
+                $criteria['status'] = $body['status'];
+            }
+            if (isset($body['issued_at'])) {
+                $criteria['issued_at'] = $body['issued_at'];
+            }
+
+            if (!empty($criteria)) {
+                $repository = new \PostApi\modules\CS\app\DB\repositories\StatusRepository();
+                $items = $repository->findBy($criteria);
+                $serin = GetStatusCollectionAction::execute($items);
+            } else {
+                $serin = GetStatusCollectionAction::execute();
+            }
             return Chache::checkCache($serin);
         } catch (Error $error) {
             return ViewError::viewProplem('fetch error', 'internal error', 1, $error->getMessage(), 500);

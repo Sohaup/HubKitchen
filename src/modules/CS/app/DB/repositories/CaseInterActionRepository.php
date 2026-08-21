@@ -23,6 +23,10 @@ class CaseInterActionRepository
         return $this->mapper->findAll();
     }
 
+    public function findBy(array $criteria = []) {
+        return $this->mapper->findBy($criteria);
+    }
+
     public function create(CaseInterAction $entity) {
         $this->mapper->insert($entity);
     }

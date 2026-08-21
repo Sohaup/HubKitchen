@@ -5,10 +5,9 @@ use PostApi\modules\sales\app\DB\repositories\PaymentRepository;
 use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetPaymentCollectionAction {
-    public static function execute() {
+    public static function execute(array $items = null) {
         $paymentRepo = new PaymentRepository();
-        $payments = $paymentRepo->findAll();
-        $serin = SerializeToSerin::serializeCollection($payments);
+        $serin = SerializeToSerin::serializeCollection($items ?? $paymentRepo->findAll());
         return $serin;
     }
 }

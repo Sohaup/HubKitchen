@@ -7,10 +7,8 @@ use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetTaskCollectionAction
 {
-    public static function execute()
+    public static function execute(array $items)
     {
-        $repo = new TaskRepository();
-        $items = $repo->findAll();
         $serin = SerializeToSerin::serializeCollection($items);
         return $serin;
     }

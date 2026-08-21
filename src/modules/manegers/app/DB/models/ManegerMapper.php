@@ -70,6 +70,67 @@ class ManegerMapper
         }
     }
 
+    public function findBy(array $criteria = []): array
+    {
+        $query = "
+        SELECT m.*, d.name AS department_name
+        FROM manegers.manegers m
+        JOIN manegers.departments d ON m.department_id = d.id
+    ";
+
+        $whereClauses = [];
+        $bindings = [];
+
+        if (!empty($criteria['id'])) {
+            $whereClauses[] = "m.id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (!empty($criteria['user_id'])) {
+            $whereClauses[] = "m.user_id = ?";
+            $bindings[] = $criteria['user_id'];
+        }
+
+        if (!empty($criteria['rank'])) {
+            $whereClauses[] = "m.rank = ?";
+            $bindings[] = $criteria['rank'];
+        }
+
+        if (!empty($criteria['department_id'])) {
+            $whereClauses[] = "m.department_id = ?";
+            $bindings[] = $criteria['department_id'];
+        }
+
+        if (count($whereClauses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($rows as $row) {
+                if (!isset($this->identityMap[$row['id']])) {
+                    $manager = new Maneger();
+                    $manager->setId($row['id']);
+                    $manager->setRank((int)$row['rank']);
+                    $manager->setUserId($row['user_id']);
+
+                    $department = new Department();
+                    $department->setId((int)$row['department_id']);
+                    $department->setName($row['department_name']);
+                    $manager->setDepartment($department);
+
+                    $this->identityMap[$row['id']] = $manager;
+                }
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function insert(Maneger $maneger)
     {
         try {

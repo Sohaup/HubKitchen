@@ -20,8 +20,31 @@ class JobController implements ApiControllerContract {
     #[Override]
     public function index(Request $request)
     {
-        $serin = GetJobCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $repository = new \PostApi\modules\HR\app\DB\repositories\JobRepository();
+            $body = $request->body;
+            $critiria = [];
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['title'])) {
+                $critiria['title'] = $body['title'];
+            }
+            if (isset($body['department_id'])) {
+                $critiria['department_id'] = $body['department_id'];
+            }
+            if (!empty($critiria)) {
+                $collection = $repository->findBy($critiria);
+                $serin = GetJobCollectionAction::execute($collection);
+            } else {
+                $collection = $repository->findAll();
+                $serin = GetJobCollectionAction::execute($collection);
+            }
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (\Throwable $err) {
+            return ViewError::viewProplem("display job error", "paramter error", 1, "internal server error", 500);
+        }
     }
 
     #[Override]

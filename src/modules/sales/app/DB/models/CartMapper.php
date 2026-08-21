@@ -107,6 +107,56 @@ class CartMapper
         }
     }
 
+    public function findBy(array $criteria = [])
+    {
+        $query = "SELECT * FROM sales.cart";
+        $whereClauses = [];
+        $bindings = [];
+
+        if (isset($criteria['user_id'])) {
+            $whereClauses[] = "user_id = ?";
+            $bindings[] = $criteria['user_id'];
+        }
+
+        if (isset($criteria['price'])) {
+            $whereClauses[] = "price = ?";
+            $bindings[] = $criteria['price'];
+        } elseif (isset($criteria['greater_than_price'])) {
+            $whereClauses[] = "price > ?";
+            $bindings[] = $criteria['greater_than_price'];
+        } elseif (isset($criteria['less_than_price'])) {
+            $whereClauses[] = "price < ?";
+            $bindings[] = $criteria['less_than_price'];
+        } elseif (isset($criteria['greater_than_or_equal_price'])) {
+            $whereClauses[] = "price >= ?";
+            $bindings[] = $criteria['greater_than_or_equal_price'];
+        } elseif (isset($criteria['less_than_or_equal_price'])) {
+            $whereClauses[] = "price <= ?";
+            $bindings[] = $criteria['less_than_or_equal_price'];
+        }
+
+        if (count($whereClauses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($rows as $row) {
+                $cart = new Cart();
+                $cart->setId($row['id']);
+                $cart->setPrice($row['price']);
+                $cart->setCreatedAt($row['created_at']);
+                $cart->setUserId($row['user_id']);
+                $this->identityMap[$row['id']] = $cart;
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function create(Cart $cart)
     {
         try {

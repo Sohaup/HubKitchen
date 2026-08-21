@@ -24,7 +24,13 @@ class EvolutionCritiriaRepository {
         return $this->evolutionCritiriaMapper->findAll();
     }
 
-    public function create(EvolutionCritiria $evolutionCritiria)
+    
+    public function findBy(array $criteria = [])
+    {
+        return $this->evolutionCritiriaMapper->findBy($criteria);
+    }
+
+public function create(EvolutionCritiria $evolutionCritiria)
     {
         $this->evolutionCritiriaMapper->create($evolutionCritiria);
     }

@@ -18,8 +18,34 @@ class PayrollController implements ApiControllerContract
 {
     public function index(Request $request)
     {
-        $serin = GetPayrollCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $repository = new \PostApi\modules\HR\app\DB\repositories\PayrollRepository();
+            $body = $request->body;
+            $critiria = [];
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['employee_id'])) {
+                $critiria['employee_id'] = $body['employee_id'];
+            }
+            if (isset($body['amount'])) {
+                $critiria['amount'] = $body['amount'];
+            }
+            if (isset($body['salery_component_id'])) {
+                $critiria['salery_component_id'] = $body['salery_component_id'];
+            }
+            if (!empty($critiria)) {
+                $collection = $repository->findBy($critiria);
+                $serin = GetPayrollCollectionAction::execute($collection);
+            } else {
+                $collection = $repository->findAll();
+                $serin = GetPayrollCollectionAction::execute($collection);
+            }
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (\Throwable $err) {
+            return ViewError::viewProplem("display payroll error", "paramter error", 1, "internal server error", 500);
+        }
     }
 
     public function get(string $id)

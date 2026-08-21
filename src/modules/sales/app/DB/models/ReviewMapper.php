@@ -85,6 +85,60 @@ class ReviewMapper
         }
     }
 
+    public function findBy(array $criteria = [])
+    {
+        $query = "SELECT * FROM sales.review_view";
+        $whereClauses = [];
+        $bindings = [];
+
+        if (isset($criteria['customer_id'])) {
+            $whereClauses[] = "customer_id = ?";
+            $bindings[] = $criteria['customer_id'];
+        }
+
+        if (isset($criteria['product_id'])) {
+            $whereClauses[] = "product_id = ?";
+            $bindings[] = $criteria['product_id'];
+        }
+
+        if (isset($criteria['review'])) {
+            $whereClauses[] = "review = ?";
+            $bindings[] = $criteria['review'];
+        }
+
+        if (count($whereClauses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $reviewsRawData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($reviewsRawData as $reviewRawData) {
+                $customer = new Customer();
+                $customer->setId($reviewRawData['customer_id']);
+                $customer->setUserId($reviewRawData['user_id']);
+                $customer->setStripeId($reviewRawData['customer_stripe_id']);
+                $product = new Product();
+                $product->setId($reviewRawData['product_id']);
+                $product->setName($reviewRawData['name']);
+                $product->setPrice($reviewRawData['price']);
+                $product->setStripeId($reviewRawData['product_stripe_id']);
+                $product->setImage($reviewRawData['image']);
+                $product->setCreatedAt($reviewRawData['created_at']);
+                $review = new Review();
+                $review->setId($reviewRawData['id']);
+                $review->setReview($reviewRawData['review']);
+                $review->setCustomer($customer);
+                $review->setProduct($product);
+                $this->identityMap[$reviewRawData['id']] = $review;
+            }
+            return array_values($this->identityMap);
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function create(Review $review)
     {
         try {

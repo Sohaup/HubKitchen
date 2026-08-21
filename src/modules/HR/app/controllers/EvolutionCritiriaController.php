@@ -18,8 +18,34 @@ class EvolutionCritiriaController implements ApiControllerContract
 {
     public function index(Request $request)
     {
-        $serin = GetEvolutionCritiriaCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $repository = new \PostApi\modules\HR\app\DB\repositories\EvolutionCritiriaRepository();
+            $body = $request->body;
+            $critiria = [];
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['template_id'])) {
+                $critiria['template_id'] = $body['template_id'];
+            }
+            if (isset($body['critiria'])) {
+                $critiria['critiria'] = $body['critiria'];
+            }
+            if (isset($body['weight'])) {
+                $critiria['weight'] = $body['weight'];
+            }
+            if (!empty($critiria)) {
+                $collection = $repository->findBy($critiria);
+                $serin = GetEvolutionCritiriaCollectionAction::execute($collection);
+            } else {
+                $collection = $repository->findAll();
+                $serin = GetEvolutionCritiriaCollectionAction::execute($collection);
+            }
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (\Throwable $err) {
+            return ViewError::viewProplem("display evolution critiria error", "paramter error", 1, "internal server error", 500);
+        }
     }
 
     public function get(string $id)

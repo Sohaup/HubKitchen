@@ -26,7 +26,13 @@ class ApplicationTemplateRepository
         return $this->applicationTemplateMapper->findAll();
     }
 
-    public function create(ApplicationTemplate $applicationTemplate)
+    
+    public function findBy(array $criteria = [])
+    {
+        return $this->applicationTemplateMapper->findBy($criteria);
+    }
+
+public function create(ApplicationTemplate $applicationTemplate)
     {
         $this->applicationTemplateMapper->create($applicationTemplate);
     }

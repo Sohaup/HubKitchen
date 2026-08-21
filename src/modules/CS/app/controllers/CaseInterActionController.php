@@ -19,7 +19,40 @@ class CaseInterActionController implements ApiControllerContract
     public function index(Request $request)
     {
         try {
-            $serin = GetCaseInterActionCollectionAction::execute();
+            $body = $request->body;
+            $criteria = [];
+            if (isset($body['id'])) {
+                $criteria['id'] = $body['id'];
+            }
+            if (isset($body['customer_id'])) {
+                $criteria['customer_id'] = $body['customer_id'];
+            }
+            if (isset($body['employee_id'])) {
+                $criteria['employee_id'] = $body['employee_id'];
+            }
+            if (isset($body['action_id'])) {
+                $criteria['action_id'] = $body['action_id'];
+            }
+            if (isset($body['status_id'])) {
+                $criteria['status_id'] = $body['status_id'];
+            }
+            if (isset($body['ticket_id'])) {
+                $criteria['ticket_id'] = $body['ticket_id'];
+            }
+            if (isset($body['action'])) {
+                $criteria['action'] = $body['action'];
+            }
+            if (isset($body['interacted_at'])) {
+                $criteria['interacted_at'] = $body['interacted_at'];
+            }
+
+            if (!empty($criteria)) {
+                $repository = new \PostApi\modules\CS\app\DB\repositories\CaseInterActionRepository();
+                $items = $repository->findBy($criteria);
+                $serin = GetCaseInterActionCollectionAction::execute($items);
+            } else {
+                $serin = GetCaseInterActionCollectionAction::execute();
+            }
             return Chache::checkCache($serin);
         } catch (Error $error) {
             return ViewError::viewProplem('fetch error', 'internal error', 1, $error->getMessage(), 500);

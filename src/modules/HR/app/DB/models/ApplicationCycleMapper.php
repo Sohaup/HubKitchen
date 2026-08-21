@@ -48,6 +48,47 @@ class ApplicationCycleMapper
         }
     }
 
+    public function findBy(array $criteria = []): array
+    {
+        $filterApplicationCyclesQuery = "SELECT * FROM HR.appraisal_cycles";
+        $whereClouses = [];
+        $bindings = [];
+
+        if (isset($criteria['id'])) {
+            $whereClouses[] = "id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (isset($criteria['name'])) {
+            $whereClouses[] = "name LIKE ?";
+            $bindings[] = "%" . $criteria['name'] . "%";
+        }
+
+        if (isset($criteria['status'])) {
+            $whereClouses[] = "status = ?";
+            $bindings[] = $criteria['status'];
+        }
+
+        if (count($whereClouses) > 0) {
+            $filterApplicationCyclesQuery .= " WHERE " . implode(" AND ", $whereClouses);
+        }
+
+        try {
+            $getApplicationsQuery = $this->db->prepare($filterApplicationCyclesQuery);
+            $getApplicationsQuery->execute($bindings);
+            $applicationCyclesRawData = $getApplicationsQuery->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($applicationCyclesRawData as $applicationCycleRawData) {
+                if (!isset($this->identityMap[$applicationCycleRawData['id']])) {
+                    $applicationCycle = new ApplicationCycle(id: $applicationCycleRawData['id'], name: $applicationCycleRawData['name'], starts_at: $applicationCycleRawData['starts_at'], ends_at: $applicationCycleRawData['ends_at'], status: $applicationCycleRawData['status']);
+                    $this->identityMap[$applicationCycleRawData['id']] = $applicationCycle;
+                }
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function create(ApplicationCycle $applicationCycle)
     {
         try {

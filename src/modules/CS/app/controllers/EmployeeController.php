@@ -20,7 +20,28 @@ class EmployeeController implements ApiControllerContract
     public function index(Request $request)
     {
         try {
-            $serin = GetEmployeeCollectionAction::execute();
+            $body = $request->body;
+            $criteria = [];
+            if (isset($body['id'])) {
+                $criteria['id'] = $body['id'];
+            }
+            if (isset($body['user_id'])) {
+                $criteria['user_id'] = $body['user_id'];
+            }
+            if (isset($body['employee_id'])) {
+                $criteria['employee_id'] = $body['employee_id'];
+            }
+            if (isset($body['role_id'])) {
+                $criteria['role_id'] = $body['role_id'];
+            }
+
+            if (!empty($criteria)) {
+                $repository = new \PostApi\modules\CS\app\DB\repositories\EmployeeRepository();
+                $items = $repository->findBy($criteria);
+                $serin = GetEmployeeCollectionAction::execute($items);
+            } else {
+                $serin = GetEmployeeCollectionAction::execute();
+            }
             return Chache::checkCache($serin);
         } catch (Exception $error) {
             return ViewError::viewProplem('fetch error', 'internal error', 1, $error->getMessage(), 500);

@@ -18,8 +18,34 @@ class TurnCycleController implements ApiControllerContract
 {
     public function index(Request $request)
     {
-        $serin = GetTurnCycleCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $turnCycleRepository = new \PostApi\modules\HR\app\DB\repositories\TurnCycleRepository();
+            $body = $request->body;
+            $critiria = [];
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['employee_id'])) {
+                $critiria['employee_id'] = $body['employee_id'];
+            }
+            if (isset($body['start_at'])) {
+                $critiria['start_at'] = $body['start_at'];
+            }
+            if (isset($body['leave_at'])) {
+                $critiria['leave_at'] = $body['leave_at'];
+            }
+            if (!empty($critiria)) {
+                $turnCycles = $turnCycleRepository->findBy($critiria);
+                $serin = GetTurnCycleCollectionAction::execute($turnCycles);
+            } else {
+                $turnCycles = $turnCycleRepository->findAll();
+                $serin = GetTurnCycleCollectionAction::execute($turnCycles);
+            }
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (\Throwable $err) {
+            return ViewError::viewProplem("display turn cycle error", "paramter error", 1, "internal server error", 500);
+        }
     }
 
     public function get(string $id)

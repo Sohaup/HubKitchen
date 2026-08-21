@@ -20,7 +20,25 @@ class SupplierController implements ApiControllerContract
     public function index(Request $request)
     {
         try {
-            $serin = GetSupplierCollectionAction::execute();
+            $body = $request->body;
+            $supplierRepository = new \PostApi\modules\inovice\app\DB\repositories\SupplierRepository();
+            $critiria = [];
+
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['name'])) {
+                $critiria['name'] = $body['name'];
+            }
+
+            if (!empty($critiria)) {
+                $suppliers = $supplierRepository->findBy($critiria);
+            } else {
+                $suppliers = $supplierRepository->findAll();
+            }
+
+            $serin = GetSupplierCollectionAction::execute($suppliers);
+            http_response_code(200);
             return Chache::checkCache($serin);
         } catch (Exception $error) {
             return ViewError::viewProplem('fetch error', 'internal error', 1, $error->getMessage(), 500);

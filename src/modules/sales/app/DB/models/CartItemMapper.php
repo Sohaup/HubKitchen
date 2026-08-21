@@ -88,6 +88,74 @@ class CartItemMapper
         }
     }
 
+    public function findBy(array $criteria = [])
+    {
+        $query = "SELECT * FROM sales.cart_item_view";
+        $whereClauses = [];
+        $bindings = [];
+
+        if (isset($criteria['cart_id'])) {
+            $whereClauses[] = "cart_id = ?";
+            $bindings[] = $criteria['cart_id'];
+        }
+
+        if (isset($criteria['product_id'])) {
+            $whereClauses[] = "product_id = ?";
+            $bindings[] = $criteria['product_id'];
+        }
+
+        if (isset($criteria['quantity'])) {
+            $whereClauses[] = "quantity = ?";
+            $bindings[] = $criteria['quantity'];
+        } elseif (isset($criteria['greater_than_quantity'])) {
+            $whereClauses[] = "quantity > ?";
+            $bindings[] = $criteria['greater_than_quantity'];
+        } elseif (isset($criteria['less_than_quantity'])) {
+            $whereClauses[] = "quantity < ?";
+            $bindings[] = $criteria['less_than_quantity'];
+        } elseif (isset($criteria['greater_than_or_equal_quantity'])) {
+            $whereClauses[] = "quantity >= ?";
+            $bindings[] = $criteria['greater_than_or_equal_quantity'];
+        } elseif (isset($criteria['less_than_or_equal_quantity'])) {
+            $whereClauses[] = "quantity <= ?";
+            $bindings[] = $criteria['less_than_or_equal_quantity'];
+        }
+
+        if (count($whereClauses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($rows as $row) {
+                $cartItem = new CartItem();
+                $cartItem->setId($row['id']);
+                $cartItem->setQuantity($row['quantity']);
+                $cartItem->setAddedAt($row['added_at']);
+                $product = new Product();
+                $product->setId($row['product_id']);
+                $product->setName($row['name']);
+                $product->setPrice($row['price']);
+                $product->setStripeId($row['stripe_id']);
+                $product->setImage($row['image']);
+                $product->setCreatedAt($row['created_at']);
+                $cartItem->setProduct($product);
+                $cart = new Cart();
+                $cart->setId($row['cart_id']);
+                $cart->setUserId($row['user_id']);
+                $cart->setPrice($row['cart_total_price']);
+                $cart->setCreatedAt($row['cart_created_at']);
+                $cartItem->setCart($cart);
+                $this->identityMap[$row['id']] = $cartItem;
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function create(CartItem $cartItem)
     {
         try {

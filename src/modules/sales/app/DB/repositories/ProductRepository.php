@@ -27,6 +27,11 @@ class ProductRepository
         return $this->productMapper->findAll();
     }
 
+    public function findBy(array $critiria)
+    {
+        return $this->productMapper->findBy($critiria);
+    }
+
     public function create(Product $product)
     {
         $this->productMapper->create($product);

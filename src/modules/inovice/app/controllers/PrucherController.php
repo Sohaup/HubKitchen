@@ -20,7 +20,31 @@ class PrucherController implements ApiControllerContract
     public function index(Request $request)
     {
         try {
-            $serin = GetPrucherCollectionAction::execute();
+            $body = $request->body;
+            $prucherRepository = new \PostApi\modules\inovice\app\DB\repositories\PrucherRepository();
+            $critiria = [];
+
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['quantity'])) {
+                $critiria['quantity'] = $body['quantity'];
+            }
+            if (isset($body['supplier_id'])) {
+                $critiria['supplier_id'] = $body['supplier_id'];
+            }
+            if (isset($body['product_id'])) {
+                $critiria['product_id'] = $body['product_id'];
+            }
+
+            if (!empty($critiria)) {
+                $pruchers = $prucherRepository->findBy($critiria);
+            } else {
+                $pruchers = $prucherRepository->findAll();
+            }
+
+            $serin = GetPrucherCollectionAction::execute($pruchers);
+            http_response_code(200);
             return Chache::checkCache($serin);
         } catch (Exception $error) {
             return ViewError::viewProplem('fetch error', 'internal error', 1, $error->getMessage(), 500);

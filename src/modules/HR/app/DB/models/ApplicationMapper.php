@@ -58,6 +58,58 @@ class ApplicationMapper
         }
     }
 
+    public function findBy(array $criteria = []): array
+    {
+        $filterApplicationsQuery = "SELECT * FROM HR.applications";
+        $whereClouses = [];
+        $bindings = [];
+
+        if (isset($criteria['id'])) {
+            $whereClouses[] = "id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (isset($criteria['name'])) {
+            $whereClouses[] = "name LIKE ?";
+            $bindings[] = "%" . $criteria['name'] . "%";
+        }
+
+        if (isset($criteria['email'])) {
+            $whereClouses[] = "email = ?";
+            $bindings[] = $criteria['email'];
+        }
+
+        if (isset($criteria['phone'])) {
+            $whereClouses[] = "phone = ?";
+            $bindings[] = $criteria['phone'];
+        }
+
+        if (count($whereClouses) > 0) {
+            $filterApplicationsQuery .= " WHERE " . implode(" AND ", $whereClouses);
+        }
+
+        try {
+           
+            $getApplicationsQuery = $this->db->prepare($filterApplicationsQuery);
+            $getApplicationsQuery->execute($bindings);
+            $applicationsRawData = $getApplicationsQuery->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($applicationsRawData as $applicationRawData) {
+                if (!isset($this->identityMap[$applicationRawData['id']])) {
+                    $application = new Application();
+                    $application->setId($applicationRawData['id']);
+                    $application->setName($applicationRawData['name']);
+                    $application->setEmail($applicationRawData['email']);
+                    $application->setPhone($applicationRawData['phone']);
+                    $application->setCv($applicationRawData['cv']);
+                    $this->identityMap[$applicationRawData['id']] = $application;
+                }
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function create(Application $application)
     {
         try {

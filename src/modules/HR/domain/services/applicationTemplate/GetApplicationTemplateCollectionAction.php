@@ -7,11 +7,10 @@ use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetApplicationTemplateCollectionAction
 {
-    public static function execute()
+    public static function execute(array $items = null)
     {
         $repo = new ApplicationTemplateRepository();
-        $entities = $repo->findAll();
-        $serin = SerializeToSerin::serializeCollection($entities);
+        $serin = SerializeToSerin::serializeCollection($items ?? $repo->findAll());
         return $serin;
     }
 }

@@ -21,7 +21,34 @@ class PlanController implements ApiControllerContract
     public function index(Request $request)
     {
         try {
-            $serin = GetPlanCollectionAction::execute();
+            $body = $request->body;
+            $planRepository = new \PostApi\modules\manegers\app\DB\repositories\PlanRepository();
+            $critiria = [];
+
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['type'])) {
+                $critiria['type'] = $body['type'];
+            }
+            if (isset($body['name'])) {
+                $critiria['name'] = $body['name'];
+            }
+            if (isset($body['description'])) {
+                $critiria['description'] = $body['description'];
+            }
+            if (isset($body['maneger_id'])) {
+                $critiria['maneger_id'] = $body['maneger_id'];
+            }
+
+            if (!empty($critiria)) {
+                $plans = $planRepository->findBy($critiria);
+            } else {
+                $plans = $planRepository->findAll();
+            }
+
+            $serin = GetPlanCollectionAction::execute($plans);
+            http_response_code(200);
             return Chache::checkCache($serin);
         } catch (Exception $error) {
             return ViewError::viewProplem('fetch error', 'internal error', 1, $error->getMessage(), 500);

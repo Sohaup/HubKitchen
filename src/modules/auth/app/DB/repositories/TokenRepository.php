@@ -26,6 +26,9 @@ class TokenRepository {
         $tokens = $this->tokenMapper->findAll();
         return $tokens;
     }
+    public function findBy(array $critiria) {
+        return $this->tokenMapper->findBy($critiria);
+    }
     public function create(Token $token) {
         $this->tokenMapper->create($token);
     }

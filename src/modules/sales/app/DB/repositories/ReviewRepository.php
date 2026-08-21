@@ -27,6 +27,11 @@ class ReviewRepository
         return $this->reviewMapper->findAll();
     }
 
+    public function findBy(array $critiria)
+    {
+        return $this->reviewMapper->findBy($critiria);
+    }
+
     public function create(Review $review)
     {
         $this->reviewMapper->create($review);

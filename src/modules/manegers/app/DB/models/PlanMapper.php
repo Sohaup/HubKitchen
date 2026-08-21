@@ -80,6 +80,72 @@ class PlanMapper
         }
     }
 
+    public function findBy(array $criteria = []): array
+    {
+        $query = "SELECT * FROM manegers.plan_view";
+        $whereClauses = [];
+        $bindings = [];
+
+        if (!empty($criteria['id'])) {
+            $whereClauses[] = "id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (!empty($criteria['type'])) {
+            $whereClauses[] = "type = ?";
+            $bindings[] = $criteria['type'];
+        }
+
+        if (!empty($criteria['name'])) {
+            $whereClauses[] = "name LIKE ?";
+            $bindings[] = "%" . $criteria['name'] . "%";
+        }
+
+        if (!empty($criteria['description'])) {
+            $whereClauses[] = "description LIKE ?";
+            $bindings[] = "%" . $criteria['description'] . "%";
+        }
+
+        if (!empty($criteria['maneger_id'])) {
+            $whereClauses[] = "manager_id = ?";
+            $bindings[] = $criteria['maneger_id'];
+        }
+
+        if (count($whereClauses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($rows as $row) {
+                if (!isset($this->identityMap[$row['id']])) {
+                    $maneger = new Maneger();
+                    $maneger->setId($row['manager_id']);
+                    $maneger->setRank($row['rank']);
+                    $maneger->setUserId($row['user_id']);
+                    $department = new Department();
+                    $department->setId($row['department_id']);
+                    $department->setName($row['department_name']);
+                    $maneger->setDepartment($department);
+                    $plan = new Plan();
+                    $plan->setId((int)$row['id']);
+                    $plan->setType($row['type']);
+                    $plan->setName($row['name']);
+                    $plan->setDescription($row['description']);
+                    $plan->setManeger($maneger);
+                    $this->identityMap[$row['id']] = $plan;
+                }
+            }
+
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function insert(Plan $plan)
     {
         try {

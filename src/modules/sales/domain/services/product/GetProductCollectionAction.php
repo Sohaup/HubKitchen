@@ -7,11 +7,10 @@ use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetProductCollectionAction
 {
-    public static function execute()
+    public static function execute(array $items = null)
     {
         $productRepository = new ProductRepository();
-        $products = $productRepository->findAll();
-        $serin = SerializeToSerin::serializeCollection($products);
+        $serin = SerializeToSerin::serializeCollection($items ?? $productRepository->findAll());
         return $serin;
     }
 }

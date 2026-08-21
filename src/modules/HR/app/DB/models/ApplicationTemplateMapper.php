@@ -49,6 +49,47 @@ class ApplicationTemplateMapper
         }
     }
 
+    public function findBy(array $criteria = []): array
+    {
+        $filterApplicationTemplatesQuery = "SELECT * FROM HR.appraisal_template";
+        $whereClouses = [];
+        $bindings = [];
+
+        if (isset($criteria['id'])) {
+            $whereClouses[] = "id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (isset($criteria['title'])) {
+            $whereClouses[] = "title LIKE ?";
+            $bindings[] = "%" . $criteria['title'] . "%";
+        }
+
+        if (isset($criteria['description'])) {
+            $whereClouses[] = "description LIKE ?";
+            $bindings[] = "%" . $criteria['description'] . "%";
+        }
+
+        if (count($whereClouses) > 0) {
+            $filterApplicationTemplatesQuery .= " WHERE " . implode(" AND ", $whereClouses);
+        }
+
+        try {
+            $getApplicationsTemplateQuery = $this->db->prepare($filterApplicationTemplatesQuery);
+            $getApplicationsTemplateQuery->execute($bindings);
+            $applicationsTemplateRawData = $getApplicationsTemplateQuery->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($applicationsTemplateRawData as $applicationTemplateRawData) {
+                if (!isset($this->identityMap[$applicationTemplateRawData['id']])) {
+                    $applicationTemplate = new ApplicationTemplate($applicationTemplateRawData['id'], $applicationTemplateRawData['title'], $applicationTemplateRawData['description']);
+                    $this->identityMap[$applicationTemplateRawData['id']] = $applicationTemplate;
+                }
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function create(ApplicationTemplate $applicationTemplate)
     {
         try {

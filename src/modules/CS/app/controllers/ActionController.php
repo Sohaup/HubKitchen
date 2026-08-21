@@ -19,7 +19,22 @@ class ActionController implements ApiControllerContract
     public function index(Request $request)
     {
         try {
-            $serin = GetActionCollectionAction::execute();
+            $body = $request->body;
+            $criteria = [];
+            if (isset($body['id'])) {
+                $criteria['id'] = $body['id'];
+            }
+            if (isset($body['action'])) {
+                $criteria['action'] = $body['action'];
+            }
+
+            if (!empty($criteria)) {
+                $repository = new \PostApi\modules\CS\app\DB\repositories\ActionRepository();
+                $items = $repository->findBy($criteria);
+                $serin = GetActionCollectionAction::execute($items);
+            } else {
+                $serin = GetActionCollectionAction::execute();
+            }
             return Chache::checkCache($serin);
         } catch (Error $error) {
             return ViewError::viewProplem('fetch error', 'internal error', 1, $error->getMessage(), 500);

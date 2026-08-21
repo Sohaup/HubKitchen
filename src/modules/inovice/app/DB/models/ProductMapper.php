@@ -94,7 +94,7 @@ class ProductMapper
     public function findBy(array $criteria = []): array
     {
         $query = "
-        SELECT p.*, s.id AS supplier_id, s.name AS supplier_name, s.created_at AS supplier_created_at
+        SELECT p.*, s.id AS supplier_id, s.name AS supplier_name, p.created_at AS supplier_created_at
         FROM inovice.products p
         LEFT JOIN inovice.suppliers s ON p.supplier_id = s.id
     ";
@@ -112,14 +112,38 @@ class ProductMapper
             $bindings[] = "%" . $criteria['name'] . "%";
         }
 
-        if (!empty($criteria['price'])) {
+        if (isset($criteria['price'])) {
             $whereClauses[] = "p.price = ?";
             $bindings[] = $criteria['price'];
+        } elseif (isset($criteria['greater_than_price'])) {
+            $whereClauses[] = "p.price > ?";
+            $bindings[] = $criteria['greater_than_price'];
+        } elseif (isset($criteria['less_than_price'])) {
+            $whereClauses[] = "p.price < ?";
+            $bindings[] = $criteria['less_than_price'];
+        } elseif (isset($criteria['greater_than_or_equal_price'])) {
+            $whereClauses[] = "p.price >= ?";
+            $bindings[] = $criteria['greater_than_or_equal_price'];
+        } elseif (isset($criteria['less_than_or_equal_price'])) {
+            $whereClauses[] = "p.price <= ?";
+            $bindings[] = $criteria['less_than_or_equal_price'];
         }
 
-        if (!empty($criteria['quantity'])) {
+        if (isset($criteria['quantity'])) {
             $whereClauses[] = "p.quantity = ?";
             $bindings[] = $criteria['quantity'];
+        } elseif (isset($criteria['greater_than_quantity'])) {
+            $whereClauses[] = "p.quantity > ?";
+            $bindings[] = $criteria['greater_than_quantity'];
+        } elseif (isset($criteria['less_than_quantity'])) {
+            $whereClauses[] = "p.quantity < ?";
+            $bindings[] = $criteria['less_than_quantity'];
+        } elseif (isset($criteria['greater_than_or_equal_quantity'])) {
+            $whereClauses[] = "p.quantity >= ?";
+            $bindings[] = $criteria['greater_than_or_equal_quantity'];
+        } elseif (isset($criteria['less_than_or_equal_quantity'])) {
+            $whereClauses[] = "p.quantity <= ?";
+            $bindings[] = $criteria['less_than_or_equal_quantity'];
         }
 
         if (count($whereClauses) > 0) {

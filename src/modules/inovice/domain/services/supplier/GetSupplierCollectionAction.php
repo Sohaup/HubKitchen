@@ -7,10 +7,8 @@ use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetSupplierCollectionAction
 {
-    public static function execute()
+    public static function execute(array $suppliers)
     {
-        $repo = new SupplierRepository();
-        $suppliers = $repo->findAll();
         return SerializeToSerin::serializeCollection($suppliers);
     }
 }

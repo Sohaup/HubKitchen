@@ -13,7 +13,7 @@ require_once __DIR__ . "/../../../../../shared/templates/routes.php";
 
 $guardMiddleware = new GuardMiddleware();
 $gateMiddleWare = new GateMiddleware([RoleTypes::HR , RoleTypes::CS , RoleTypes::MANAGER , RoleTypes::SALES , RoleTypes::MARKETING , RoleTypes::USER]);
-$throttleMiddleWare = new ThrottleMiddleware(50 , 60);
+$throttleMiddleWare = new ThrottleMiddleware(120 , 60);
 
 $getUsersRoute = new Route(Urls::transformRouteUrl("/users/") , HttpMethodsType::GET , UserController::class , 'index');
 $getUsersRoute->addMiddleware($guardMiddleware)->addMiddleware($gateMiddleWare)->addMiddleware($throttleMiddleWare);

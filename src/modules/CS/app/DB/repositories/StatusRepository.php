@@ -23,6 +23,10 @@ class StatusRepository
         return $this->statusMapper->findAll();
     }
 
+    public function findBy(array $criteria = []) {
+        return $this->statusMapper->findBy($criteria);
+    }
+
     public function create(Status $status) {
         $this->statusMapper->insert($status);
     }

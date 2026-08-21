@@ -27,6 +27,11 @@ class CategoryRepository
         return $this->categoryMapper->findAll();
     }
 
+    public function findBy(array $critiria)
+    {
+        return $this->categoryMapper->findBy($critiria);
+    }
+
     public function create(Category $category)
     {
         $this->categoryMapper->create($category);

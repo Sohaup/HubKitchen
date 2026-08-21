@@ -96,7 +96,61 @@ class JobDescriptionMapper
             throw new Error($err->getMessage());
         }
     }
-    public function create(JobDescription $jobDescription)
+    
+    public function findBy(array $criteria = []): array
+    {
+        $query = "SELECT * FROM HR.job_description_view";
+        $whereClouses = [];
+        $bindings = [];
+
+        if (isset($criteria['id'])) {
+            $whereClouses[] = "id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (isset($criteria['name'])) {
+            $whereClouses[] = "name LIKE ?";
+            $bindings[] = "%" . $criteria['name'] . "%";
+        }
+
+        if (isset($criteria['shift_id'])) {
+            $whereClouses[] = "shift_id = ?";
+            $bindings[] = $criteria['shift_id'];
+        }
+
+        if (count($whereClouses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClouses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $jobsDescriptionRawData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($jobsDescriptionRawData as $jobDescriptionRawData) {
+                if (!isset($this->identityMap[$jobDescriptionRawData['id']])) {
+                    $jobDescription = new JobDescription();
+                    $jobDescription->setId($jobDescriptionRawData['id']);
+                    $jobDescription->setName($jobDescriptionRawData['name']);
+                    $shift = new Shift();
+                    $shift->setId($jobDescriptionRawData['shift_id']);
+                    $shift->setShiftName($jobDescriptionRawData['shift_name']);
+                    $shift->setStartTime($jobDescriptionRawData['shift_start_time']);
+                    $shift->setEndTime($jobDescriptionRawData['shift_end_time']);
+                    $shift->setBreakDuration($jobDescriptionRawData['shift_break_duration_by_minutes']);
+                    $shift->setIsActive($jobDescriptionRawData['shift_is_active']);
+                    $shift->setIsOverNight($jobDescriptionRawData['shift_is_overnight']);
+                    $shift->setCreatedAt($jobDescriptionRawData['shift_created_at']);
+                    $jobDescription->setShift($shift);
+                    $this->identityMap[$jobDescriptionRawData['id']] = $jobDescription;
+                }
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
+public function create(JobDescription $jobDescription)
     {
         try {
             $createJobDescriptionQuery = $this->db->prepare("INSERT INTO HR.jobs_description(name , shift_id) VALUES(? , ?) RETURNING id ");

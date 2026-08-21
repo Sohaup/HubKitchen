@@ -23,8 +23,46 @@ class ProductController implements ApiControllerContract
     #[Override]
     public function index(Request $request)
     {
-        $serin = GetProductCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $body = $request->body;
+            $productRepository = new ProductRepository();
+            $critiria = [];
+
+            if (isset($body['name'])) {
+                $critiria['name'] = $body['name'];
+            }
+            if (isset($body['category_id'])) {
+                $critiria['category_id'] = $body['category_id'];
+            }
+
+            if (isset($body['price'])) {
+                $critiria['price'] = $body['price'];
+            } elseif (isset($body['greater_than_price'])) {
+                $critiria['greater_than_price'] = $body['greater_than_price'];
+            } elseif (isset($body['less_than_price'])) {;
+                $critiria['less_than_price'] = $body['less_than_price'];
+            } elseif (isset($body['greater_than_or_equal_price'])) {
+                $critiria['greater_than_or_equal_price'] = $body['greater_than_or_equal_price'];
+            } elseif (isset($body['less_than_or_equal_price'])) {
+                $critiria['less_than_or_equal_price'] = $body['less_than_or_equal_price'];
+            }
+
+            if (isset($body['stripe_id'])) {
+                $critiria['stripe_id'] = $body['stripe_id'];
+            }
+                       
+            if (!empty($critiria)) {
+                $products = $productRepository->findBy($critiria);
+            } else {
+                $products = $productRepository->findAll();
+            }
+
+            $serin = GetProductCollectionAction::execute($products);
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (Error $error) {
+            return ViewError::viewProplem(type: "display product error ", title: "incorrect paramter", status: true, detail: "internal server error", statusCode: 500);
+        }
     }
 
     #[Override]

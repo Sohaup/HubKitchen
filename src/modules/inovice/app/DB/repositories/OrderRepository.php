@@ -23,6 +23,10 @@ class OrderRepository
         return $this->orderMapper->findAll();
     }
 
+    public function findBy(array $critirias) {
+        return $this->orderMapper->findBy($critirias);
+    }
+
     public function create(Order $order) {
         $this->orderMapper->insert($order);
     }

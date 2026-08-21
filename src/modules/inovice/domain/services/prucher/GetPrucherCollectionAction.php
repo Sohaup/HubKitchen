@@ -7,10 +7,8 @@ use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetPrucherCollectionAction
 {
-    public static function execute()
+    public static function execute(array $pruchers)
     {
-        $repo = new PrucherRepository();
-        $pruchers = $repo->findAll();
         return SerializeToSerin::serializeCollection($pruchers);
     }
 }

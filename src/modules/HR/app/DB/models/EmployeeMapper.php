@@ -70,7 +70,73 @@ class EmployeeMapper
             throw new Error($err->getMessage());
         }
     }
-    public function create(Employee $employee)
+    
+    public function findBy(array $criteria = []): array
+    {
+        $query = "SELECT * FROM HR.employees_view";
+        $whereClouses = [];
+        $bindings = [];
+
+        if (isset($criteria['id'])) {
+            $whereClouses[] = "id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (isset($criteria['user_id'])) {
+            $whereClouses[] = "user_id = ?";
+            $bindings[] = $criteria['user_id'];
+        }
+
+        if (isset($criteria['department_id'])) {
+            $whereClouses[] = "department_id = ?";
+            $bindings[] = $criteria['department_id'];
+        }
+
+        if (isset($criteria['manager_id'])) {
+            $whereClouses[] = "manager_id = ?";
+            $bindings[] = $criteria['manager_id'];
+        }
+
+        if (isset($criteria['employee_status'])) {
+            $whereClouses[] = "employee_status LIKE ?";
+            $bindings[] = "%" . $criteria['employee_status'] . "%";
+        }
+
+        if (isset($criteria['martial_status'])) {
+            $whereClouses[] = "martial_status LIKE ?";
+            $bindings[] = "%" . $criteria['martial_status'] . "%";
+        }
+
+        if (count($whereClouses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClouses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $employeeRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($employeeRows as $employeeRawdata) {
+                if (!isset($this->identityMap[$employeeRawdata['id']])) {
+                    $employee = new Employee();
+                    $job = new JobDescription();
+                    $shift = new Shift();
+                    $shift->create(id: $employeeRawdata['shift_id'], shiftName: $employeeRawdata['shift_name'], startTime: $employeeRawdata['shift_start_time'], endTime: $employeeRawdata['shift_end_time'], breakDuration: $employeeRawdata['shift_break_duration_by_minutes'], isOverNight: $employeeRawdata['shift_is_overnight'], isActive: $employeeRawdata['shift_is_active'], createdAt: $employeeRawdata['shift_created_at']);
+                    $job->create($employeeRawdata['jd_id'], $employeeRawdata['jd_name'], $shift);
+                    $department = new Department();
+                    $department->create($employeeRawdata['department_id'], $employeeRawdata['department_name']);
+                    $addresse = new Addresse();
+                    $addresse->create($employeeRawdata['addresse_id'], $employeeRawdata['country'], $employeeRawdata['city'], $employeeRawdata['street'], $employeeRawdata['flat']);
+                    $employee->create($employeeRawdata['id'], $employeeRawdata['employee_status'], $employeeRawdata['martial_status'], $employeeRawdata['user_id'], $job, $employeeRawdata['manager_id'], $employeeRawdata['employeed_at'], $department, $addresse);
+                    $this->identityMap[$employeeRawdata['id']] = $employee;
+                }
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
+public function create(Employee $employee)
     {
         try {
             $createEmployeeQuery = $this->db->prepare("INSERT INTO HR.employees(martial_status , employee_status , user_id , jd_id , manager_id , department_id , addresse_id ) VALUES(? ,?, ? , ? , ? , ? , ?) RETURNING id ");

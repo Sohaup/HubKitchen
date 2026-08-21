@@ -21,6 +21,9 @@ class RoleRepository
     public function findAll() {
         return $this->mapper->findAll();
     }
+    public function findBy(array $criteria = []) {
+        return $this->mapper->findBy($criteria);
+    }
     public function create(Role $role) {
         $this->mapper->insert($role);
     }

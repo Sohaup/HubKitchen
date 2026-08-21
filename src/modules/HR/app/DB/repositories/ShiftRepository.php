@@ -25,7 +25,13 @@ class ShiftRepository
         return $this->shiftMapper->findAll();
     }
 
-    public function create(Shift $shift)
+    
+    public function findBy(array $criteria = [])
+    {
+        return $this->shiftMapper->findBy($criteria);
+    }
+
+public function create(Shift $shift)
     {
         $this->shiftMapper->create($shift);
     }

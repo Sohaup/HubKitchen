@@ -7,10 +7,12 @@ use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetCustomerCollectionAction
 {
-    public static function execute()
+    public static function execute(array $customers = null)
     {
-        $customersRepo = new CustomerRepository();
-        $customers = $customersRepo->findAll();
+        if ($customers === null) {
+            $customersRepo = new CustomerRepository();
+            $customers = $customersRepo->findAll();
+        }
         $serin = SerializeToSerin::serializeCollection($customers);
         return $serin;
     }

@@ -7,11 +7,10 @@ use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetEmployeeCollectionAction
 {
-    public static function execute()
+    public static function execute(array $items)
     {
         $employeeRepository = new EmployeeRepository();
-        $employees = $employeeRepository->findAll();
-        $serin = SerializeToSerin::serializeCollection($employees);
+        $serin = SerializeToSerin::serializeCollection($items ?? $employeeRepository->findAll());
         return $serin;
     }
 }

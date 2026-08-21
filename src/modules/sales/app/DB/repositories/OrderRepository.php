@@ -27,6 +27,11 @@ class OrderRepository
         return $this->orderMapper->findAll();
     }
 
+    public function findBy(array $critiria)
+    {
+        return $this->orderMapper->findBy($critiria);
+    }
+
     public function create(Order $order)
     {
         $this->orderMapper->create($order);

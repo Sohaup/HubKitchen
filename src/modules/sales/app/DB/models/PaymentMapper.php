@@ -105,6 +105,68 @@ class PaymentMapper
         }
     }
 
+    public function findBy(array $criteria = [])
+    {
+        $query = "SELECT * FROM sales.payment_view";
+        $whereClauses = [];
+        $bindings = [];
+
+        if (isset($criteria['status'])) {
+            $whereClauses[] = "status = ?";
+            $bindings[] = $criteria['status'];
+        }
+
+        if (isset($criteria['currency'])) {
+            $whereClauses[] = "currency = ?";
+            $bindings[] = $criteria['currency'];
+        }
+
+        if (isset($criteria['order_id'])) {
+            $whereClauses[] = "order_id = ?";
+            $bindings[] = $criteria['order_id'];
+        }
+
+        if (count($whereClauses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $paymentsRawData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($paymentsRawData as $paymentRawData) {
+                $order = new Order();
+                $order->setId($paymentRawData['order_id']);
+                $order->setCreatedAt($paymentRawData['order_created_at']);
+                $customer = new Customer();
+                $customer->setId($paymentRawData['customer_id']);
+                $customer->setUserId($paymentRawData['user_id']);
+                $customer->setStripeId($paymentRawData['stripe_id']);
+                $order->setCustomer($customer);
+                $payment = new Payment();
+                $payment->setId($paymentRawData['id']);
+                $payment->setAmount($paymentRawData['amount']);
+                $payment->setCurrency($paymentRawData['currency']);
+                $payment->setStatus($paymentRawData['status']);
+                $payment->setOrder($order);
+                $payment->setStripeSessionId($paymentRawData['stripe_session_id']);
+                $payment->setStripePaymentIntentId($paymentRawData['stripe_payment_intent']);
+                $payment->setCreatedAt($paymentRawData['created_at']);
+                $payment->setUpdatedAt($paymentRawData['updated_at']);
+                $cart = new Cart();
+                $cart->setId($paymentRawData['cart_id']);
+                $cart->setPrice($paymentRawData['cart_price']);
+                $cart->setCreatedAt($paymentRawData['cart_created_at']);
+                $cart->setUserId($paymentRawData['cart_user_id']);
+                $order->setCart($cart);
+                $this->identityMap[$paymentRawData['id']] = $payment;
+            }
+            return array_values($this->identityMap);
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function create(Payment $payment): void
     {
         try {
