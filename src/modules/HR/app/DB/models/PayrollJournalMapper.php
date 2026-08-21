@@ -75,7 +75,65 @@ class PayrollJournalMapper
         }
     }
 
-    public function create(PayrollJournal $payroll)
+    
+    public function findBy(array $criteria = []): array
+    {
+        $query = "SELECT * FROM HR.employees_view";
+        $whereClouses = [];
+        $bindings = [];
+
+        if (isset($criteria['id'])) {
+            $whereClouses[] = "payroll_id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (isset($criteria['employee_id'])) {
+            $whereClouses[] = "id = ?";
+            $bindings[] = $criteria['employee_id'];
+        }
+
+        if (isset($criteria['selary_component_id'])) {
+            $whereClouses[] = "selary_component_id = ?";
+            $bindings[] = $criteria['selary_component_id'];
+        }
+
+        if (isset($criteria['amount'])) {
+            $whereClouses[] = "payroll_amount = ?";
+            $bindings[] = $criteria['amount'];
+        }
+
+        if (count($whereClouses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClouses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $payrollsRawData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($payrollsRawData as $payrollRawData) {
+                if (!isset($this->identityMap[$payrollRawData['id']])) {
+                $employee = new Employee();
+                $job = new JobDescription();
+                $shift = new Shift();
+                $shift->create(id: $payrollRawData['shift_id'], shiftName: $payrollRawData['shift_name'], startTime: $payrollRawData['shift_start_time'], endTime: $payrollRawData['shift_end_time'], breakDuration: $payrollRawData['shift_break_duration_by_minutes'], isOverNight: $payrollRawData['is_overnight'], isActive: $payrollRawData['is_active'], createdAt: $payrollRawData['shift_created_at']);
+                $job->create($payrollRawData['jd_id'], $payrollRawData['jd_ name'], $shift);
+                $department = new Department();
+                $department->create($payrollRawData['department_id'], $payrollRawData['department_name']);
+                $addresse = new Addresse();
+                $addresse->create($payrollRawData['addresse_id'], $payrollRawData['country'], $payrollRawData['city'], $payrollRawData['street'], $payrollRawData['flat']);
+                $saleryComponent = new SaleryComponent($payrollRawData['selary_component_id'], $payrollRawData['selary_component_name'], $payrollRawData['selary_component_type'], $payrollRawData['selary_component_calc_type']);
+                $employee->create($payrollRawData['id'], $payrollRawData['employee_status'], $payrollRawData['martial_status'], $payrollRawData['user_id'], $job, $payrollRawData['manager_id'], $payrollRawData['employeed_at'], $department, $addresse);
+                $payroll = new PayrollJournal(id: $payrollRawData['payroll_id'], employee: $employee, saleryComponent: $saleryComponent, amount: $payrollRawData['payroll_amount'], date: $payrollRawData['payroll_date']);
+                    $this->identityMap[$payrollRawData['id']] = $payroll;
+                }
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
+public function create(PayrollJournal $payroll)
     {
         try {
             $createPayrollQuery = $this->db->prepare("INSERT INTO HR.payroll_journal(employee_id, selary_component_id, amount) VALUES(? , ? , ? ) RETURNING id");

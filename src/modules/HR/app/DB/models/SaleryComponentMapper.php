@@ -50,7 +50,52 @@ class SaleryComponentMapper
         }
     }
 
-    public function create(SaleryComponent $saleryComponent)
+    
+    public function findBy(array $criteria = []): array
+    {
+        $query = "SELECT * FROM HR.selary_components";
+        $whereClouses = [];
+        $bindings = [];
+
+        if (isset($criteria['id'])) {
+            $whereClouses[] = "id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (isset($criteria['name'])) {
+            $whereClouses[] = "name LIKE ?";
+            $bindings[] = "%" . $criteria['name'] . "%";
+        }
+
+        if (isset($criteria['type'])) {
+            $whereClouses[] = "type LIKE ?";
+            $bindings[] = "%" . $criteria['type'] . "%";
+        }
+
+        if (isset($criteria['calc_type'])) {
+            $whereClouses[] = "calc_type LIKE ?";
+            $bindings[] = "%" . $criteria['calc_type'] . "%";
+        }
+
+        if (count($whereClouses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClouses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $selariesComponentRawData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($selariesComponentRawData as $saleryComponentRawData) {
+                $saleryComponent = new SaleryComponent(id: $saleryComponentRawData['id'], name: $saleryComponentRawData['name'], type: $saleryComponentRawData['type'], calcType: $saleryComponentRawData['calc_type']);
+                $this->identityMap[$saleryComponent->getId()] = $saleryComponent;
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
+public function create(SaleryComponent $saleryComponent)
     {
         try {
             $createSaleryComponentQuery = $this->db->prepare("INSERT INTO HR.selary_components(name , type , calc_type) VALUES(? , ? , ? ) RETURNING id");

@@ -56,6 +56,43 @@ class EmployeeMapper
         }
     }
 
+    public function findBy(array $criteria = [])
+    {
+        $query = "SELECT * FROM sales.employees";
+        $whereClauses = [];
+        $bindings = [];
+
+        if (isset($criteria['user_id'])) {
+            $whereClauses[] = "user_id = ?";
+            $bindings[] = $criteria['user_id'];
+        }
+
+        if (isset($criteria['country'])) {
+            $whereClauses[] = "country = ?";
+            $bindings[] = $criteria['country'];
+        }
+
+        if (count($whereClauses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $employeesRawData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($employeesRawData as $employeeRawData) {
+                $employee = new Employee();
+                $employee->setId($employeeRawData['id']);
+                $employee->setUserId($employeeRawData['user_id']);
+                $employee->setCountry($employeeRawData['country']);
+                $this->identityMap[$employeeRawData['id']] = $employee;
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function create(Employee $employee)
     {
         try {

@@ -21,8 +21,34 @@ class ShiftController implements ApiControllerContract
     #[Override]
     public function index(Request $request)
     {
-        $serinJson = GetShiftCollectionAction::execute();
-        return Chache::checkCache($serinJson);
+        try {
+            $shiftRepository = new \PostApi\modules\HR\app\DB\repositories\ShiftRepository();
+            $body = $request->body;
+            $critiria = [];
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['shift_name'])) {
+                $critiria['shift_name'] = $body['shift_name'];
+            }
+            if (isset($body['is_active'])) {
+                $critiria['is_active'] = $body['is_active'];
+            }
+            if (isset($body['is_overnight'])) {
+                $critiria['is_overnight'] = $body['is_overnight'];
+            }
+            if (!empty($critiria)) {
+                $shifts = $shiftRepository->findBy($critiria);
+                $serin = GetShiftCollectionAction::execute($shifts);
+            } else {
+                $shifts = $shiftRepository->findAll();
+                $serin = GetShiftCollectionAction::execute($shifts);
+            }
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (\Throwable $err) {
+            return ViewError::viewProplem("display shift error", "paramter error", 1, "internal server error", 500);
+        }
     }
 
     #[Override]

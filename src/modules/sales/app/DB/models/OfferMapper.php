@@ -76,6 +76,50 @@ class OfferMapper
         }
     }
 
+    public function findBy(array $criteria = [])
+    {
+        $query = "SELECT o.id, o.value, p.id AS product_id, p.name, p.price, p.stripe_id, p.image, p.created_at FROM sales.offers o JOIN sales.products p ON o.product_id = p.id";
+        $whereClauses = [];
+        $bindings = [];
+
+        if (isset($criteria['product_id'])) {
+            $whereClauses[] = "o.product_id = ?";
+            $bindings[] = $criteria['product_id'];
+        }
+
+        if (isset($criteria['value'])) {
+            $whereClauses[] = "o.value = ?";
+            $bindings[] = $criteria['value'];
+        }
+
+        if (count($whereClauses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($rows as $row) {
+                $offer = new Offer();
+                $offer->setId($row['id']);
+                $offer->setValue((float)$row['value']);
+                $product = new Product();
+                $product->setId($row['product_id']);
+                $product->setName($row['name']);
+                $product->setPrice((float)$row['price']);
+                $product->setStripeId($row['stripe_id']);
+                $product->setImage($row['image']);
+                $product->setCreatedAt($row['created_at']);
+                $offer->setProduct($product);
+                $this->identityMap[$row['id']] = $offer;
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function create(Offer $offer)
     {
         try {

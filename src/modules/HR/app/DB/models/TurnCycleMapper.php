@@ -71,6 +71,61 @@ class TurnCycleMapper
             throw new Error($err->getMessage());
         }
     }
+
+    public function findBy(array $criteria = []): array
+    {
+        $query = "SELECT * FROM HR.employees_view";
+        $whereClouses = [];
+        $bindings = [];
+
+        if (isset($criteria['id'])) {
+            $whereClouses[] = "turn_cycle_id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (isset($criteria['employee_id'])) {
+            $whereClouses[] = "id = ?";
+            $bindings[] = $criteria['employee_id'];
+        }
+
+        if (isset($criteria['start_at'])) {
+            $whereClouses[] = "start_at LIKE ?";
+            $bindings[] = "%" . $criteria['start_at'] . "%";
+        }
+
+        if (isset($criteria['leave_at'])) {
+            $whereClouses[] = "leave_at LIKE ?";
+            $bindings[] = "%" . $criteria['leave_at'] . "%";
+        }
+
+        if (count($whereClouses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClouses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $turnCyclesRawData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($turnCyclesRawData as $turnCycleRawData) {
+                $employee = new Employee();
+                $job = new JobDescription();
+                $shift = new Shift();
+                $shift->create(id: $turnCycleRawData['shift_id'], shiftName: $turnCycleRawData['shift_name'], startTime: $turnCycleRawData['shift_start_time'], endTime: $turnCycleRawData['shift_end_time'], breakDuration: $turnCycleRawData['shift_break_duration_by_minutes'], isOverNight: $turnCycleRawData['shift_is_overnight'], isActive: $turnCycleRawData['shift_is_active'], createdAt: $turnCycleRawData['shift_created_at']);
+                $job->create($turnCycleRawData['jd_id'], $turnCycleRawData['jd_name'], $shift);
+                $department = new Department();
+                $department->create($turnCycleRawData['department_id'], $turnCycleRawData['department_name']);
+                $addresse = new Addresse();
+                $addresse->create($turnCycleRawData['addresse_id'], $turnCycleRawData['country'], $turnCycleRawData['city'], $turnCycleRawData['street'], $turnCycleRawData['flat']);
+                $employee->create($turnCycleRawData['id'], $turnCycleRawData['employee_status'], $turnCycleRawData['martial_status'], $turnCycleRawData['user_id'], $job, $turnCycleRawData['manager_id'], $turnCycleRawData['employeed_at'], $department, $addresse);
+                $turnCycle = new TurnCycle(id: $turnCycleRawData['turn_cycle_id'], start_at: $turnCycleRawData['start_at'], leave_at: $turnCycleRawData['leave_at'], employee: $employee);
+                $this->identityMap[$turnCycleRawData['id']] = $turnCycle;
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function create(TurnCycle $turnCycle)
     {
         try {

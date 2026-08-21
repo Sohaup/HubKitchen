@@ -23,8 +23,30 @@ class OfferController implements ApiControllerContract
     #[Override]
     public function index(Request $request)
     {
-        $serin = GetOfferCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $body = $request->body;
+            $offerRepository = new OfferRepository();
+            $critiria = [];
+
+            if (isset($body['product_id'])) {
+                $critiria['product_id'] = $body['product_id'];
+            }
+            if (isset($body['value'])) {
+                $critiria['value'] = $body['value'];
+            }
+
+            if (!empty($critiria)) {
+                $offers = $offerRepository->findBy($critiria);
+            } else {
+                $offers = $offerRepository->findAll();
+            }
+
+            $serin = GetOfferCollectionAction::execute($offers);
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (Error $error) {
+            return ViewError::viewProplem(type: "display offer error ", title: "incorrect paramter", status: true, detail: "internal server error", statusCode: 500);
+        }
     }
 
     #[Override]

@@ -8,11 +8,10 @@ use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetShiftCollectionAction
 {
-    public static function execute()
+    public static function execute(array $items = null)
     {
         $shiftRepository = new ShiftRepository();
-        $shifts = $shiftRepository->findAll();
-        $serinJson = SerializeToSerin::serializeCollection($shifts);       
+        $serinJson = SerializeToSerin::serializeCollection($items ?? $shiftRepository->findAll());       
         return $serinJson;
     }
 }

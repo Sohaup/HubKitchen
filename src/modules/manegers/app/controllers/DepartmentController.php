@@ -21,7 +21,25 @@ class DepartmentController implements ApiControllerContract
     public function index(Request $request)
     {
         try {
-            $serin = GetDepartmentCollectionAction::execute();
+            $body = $request->body;
+            $departmentRepository = new \PostApi\modules\manegers\app\DB\repositories\DepartmentRepository();
+            $critiria = [];
+
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['name'])) {
+                $critiria['name'] = $body['name'];
+            }
+
+            if (!empty($critiria)) {
+                $departments = $departmentRepository->findBy($critiria);
+            } else {
+                $departments = $departmentRepository->findAll();
+            }
+
+            $serin = GetDepartmentCollectionAction::execute($departments);
+            http_response_code(200);
             return Chache::checkCache($serin);
         } catch (Exception $error) {
             return ViewError::viewProplem('fetch error', 'internal error', 1, $error->getMessage(), 500);

@@ -53,6 +53,45 @@ class ActionMapper
         }
     }
 
+    public function findBy(array $criteria = []): array
+    {
+        $query = "SELECT * FROM cs.actions";
+        $whereClauses = [];
+        $bindings = [];
+
+        if (!empty($criteria['id'])) {
+            $whereClauses[] = "id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (!empty($criteria['action'])) {
+            $whereClauses[] = "action LIKE ?";
+            $bindings[] = "%" . $criteria['action'] . "%";
+        }
+
+        if (count($whereClauses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($rows as $row) {
+                if (!isset($this->identityMap[$row['id']])) {
+                    $action = new Action();
+                    $action->setId($row['id']);
+                    $action->setAction($row['action']);
+                    $action->setTakedAt($row['taked_at']);
+                    $this->identityMap[$row['id']] = $action;
+                }
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function insert(Action $action)
     {
         try {

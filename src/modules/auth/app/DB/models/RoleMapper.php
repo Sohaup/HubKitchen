@@ -54,6 +54,40 @@ class RoleMapper
             throw new Error($err->getMessage());
         }
     }
+    public function findBy(array $critiria)
+    {
+        $filterRolesQuery  = "SELECT * FROM auth.roles";
+        $whereClouses = [];
+        $bindings = [];
+        if (isset($critiria['id'])) {
+            $whereClouses[] = "id = ?";
+            $bindings[] = $critiria['id'];
+        }
+        if (isset($critiria['name'])) {
+            $whereClouses[] = "name LIKE ?";
+            $bindings[] = "%" . $critiria['name'] . "%";
+        }
+        if (count($whereClouses) > 0) {
+            $filterRolesQuery .= " WHERE " . implode(" AND ", $whereClouses);
+        }
+
+        try {
+            $getRolesStmt = $this->db->prepare($filterRolesQuery);
+            $getRolesStmt->execute($bindings);
+            $roles = $getRolesStmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($roles as $roleData) {
+                if (!isset($this->identityMap[$roleData['id']])) {
+                    $role = new Role();
+                    $role->setId($roleData['id']);
+                    $role->setName($roleData['name']);
+                    $this->identityMap[$role->getId()] = $role;
+                }
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
     public function insert(Role $role)
     {
         try {

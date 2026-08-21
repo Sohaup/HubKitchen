@@ -106,23 +106,32 @@ class UserMapper
         if (count($whereClauses) > 0) {
             $query .= " WHERE " . implode(" AND ", $whereClauses);
         }
-
-        $stmt = $this->db->prepare($query);
-        $stmt->execute($bindings);
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        $results = [];
-        foreach ($rows as $row) {
-            $id = $row['id'];
-
-            if (!isset($this->identityMap[$id])) {
-                $this->identityMap[$id] = $this->findOne($id);
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $usersRow = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($usersRow as $userRow) {
+                if (!isset($this->identityMap[$userRow['id']])) {
+                    $user = new User();
+                    $user->setId($userRow['id']);
+                    $user->setName($userRow['name']);
+                    $user->setEmail($userRow['email']);
+                    $user->setPassword($userRow['password']);
+                    $user->setPhone($userRow['phone'] ?? "");
+                    $user->setGoogleId($userRow['google_id'] ?? "");
+                    $userRole = new Role();
+                    $userRole->setId($userRow['role_id']);
+                    $userRole->setName($userRow['role_name']);
+                    $user->setRole($userRole);
+                    $user->setAvatar($userRow['avatar'] ?? "");
+                    $this->identityMap[$userRow['id']] = $user;
+                }
             }
-
-            $results[] = $this->identityMap[$id];
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
         }
-
-        return $results;
+        
     }
     public function insert(User $user)
     {

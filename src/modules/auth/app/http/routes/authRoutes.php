@@ -4,6 +4,7 @@ use PostApi\modules\auth\app\controllers\AuthController;
 use PostApi\modules\auth\app\controllers\RolesPermissionController;
 use PostApi\modules\auth\app\http\middlewares\GateMiddleware;
 use PostApi\modules\auth\helpers\types\RoleTypes;
+use PostApi\shared\app\http\middlewares\ThrottleMiddleware;
 use PostApi\shared\app\http\proxies\ProxyMiddlewareForRoute;
 use PostApi\shared\app\http\routes\Route\Route;
 use PostApi\shared\app\http\types\HttpMethodsType;
@@ -17,22 +18,24 @@ require_once __DIR__ . "/tokenRoutes.php";
 
 
 $gateMiddleWare = new GateMiddleware([RoleTypes::MANAGER , RoleTypes::USER]);
-
+$throttleMiddleWare = new ThrottleMiddleware(10 , 60);
 
 $grantPermissionOnRoleRoute = new Route(Urls::transformRouteUrl("/grant/:id") , HttpMethodsType::POST , RolesPermissionController::class , 'grant');
-$grantPermissionOnRoleRoute->addMiddleware($guardMiddleWare)->addMiddleware($gateMiddleWare);
+$grantPermissionOnRoleRoute->addMiddleware($throttleMiddleWare)->addMiddleware($guardMiddleWare)->addMiddleware($gateMiddleWare);
 $router->addRoute($grantPermissionOnRoleRoute);
 $middlewareRoutes->addRoute($grantPermissionOnRoleRoute);
 
 $revokePermissionFromRoleRoute = new Route(Urls::transformRouteUrl("/revoke/:id") , HttpMethodsType::DELETE , RolesPermissionController::class , 'revoke');
-$revokePermissionFromRoleRoute->addMiddleware($guardMiddleWare)->addMiddleware($gateMiddleWare);
+$revokePermissionFromRoleRoute->addMiddleware($throttleMiddleWare)->addMiddleware($guardMiddleWare)->addMiddleware($gateMiddleWare);
 $router->addRoute($revokePermissionFromRoleRoute);
 $middlewareRoutes->addRoute($revokePermissionFromRoleRoute);
 
 $registerRoute = new Route(Urls::transformRouteUrl("/register") , HttpMethodsType::POST , AuthController::class , 'register');
+$registerRoute->addMiddleware($throttleMiddleWare);
 $router->addRoute($registerRoute);
 
 $loginRoute = new Route(Urls::transformRouteUrl("/login") , HttpMethodsType::POST ,AuthController::class , 'logIn' );
+$loginRoute->addMiddleware($throttleMiddleWare);
 $router->addRoute($loginRoute);
 
 $loginWithGoogleRoute = new Route(Urls::transformRouteUrl("/login/google") , HttpMethodsType::GET , AuthController::class , 'loginWithGoogle');

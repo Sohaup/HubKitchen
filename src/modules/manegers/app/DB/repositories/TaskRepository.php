@@ -23,6 +23,10 @@ class TaskRepository
         return $this->taskMapper->findAll();
     }
 
+    public function findBy(array $critirias) {
+        return $this->taskMapper->findBy($critirias);
+    }
+
     public function create(Task $task) {
         $this->taskMapper->insert($task);
     }

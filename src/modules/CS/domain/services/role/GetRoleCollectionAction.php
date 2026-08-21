@@ -7,10 +7,12 @@ use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetRoleCollectionAction
 {
-    public static function execute()
+    public static function execute(array $items = null)
     {
-        $repo = new RoleRepository();
-        $items = $repo->findAll();
+        if ($items === null) {
+            $repo = new RoleRepository();
+            $items = $repo->findAll();
+        }
         return SerializeToSerin::serializeCollection($items);
     }
 }

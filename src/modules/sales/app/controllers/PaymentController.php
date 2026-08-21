@@ -21,8 +21,33 @@ class PaymentController implements ApiControllerContract
     #[Override]
     public function index(Request $request)
     {
-        $serin = GetPaymentCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $body = $request->body;
+            $paymentRepository = new \PostApi\modules\sales\app\DB\repositories\PaymentRepository();
+            $critiria = [];
+
+            if (isset($body['status'])) {
+                $critiria['status'] = $body['status'];
+            }
+            if (isset($body['currency'])) {
+                $critiria['currency'] = $body['currency'];
+            }
+            if (isset($body['order_id'])) {
+                $critiria['order_id'] = $body['order_id'];
+            }
+
+            if (!empty($critiria)) {
+                $payments = $paymentRepository->findBy($critiria);
+            } else {
+                $payments = $paymentRepository->findAll();
+            }
+
+            $serin = GetPaymentCollectionAction::execute($payments);
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (Error $error) {
+            return ViewError::viewProplem(type: "display payment error ", title: "incorrect paramter", status: true, detail: "internal server error", statusCode: 500);
+        }
     }
 
     #[Override]

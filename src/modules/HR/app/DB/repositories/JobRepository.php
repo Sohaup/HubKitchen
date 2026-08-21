@@ -24,7 +24,13 @@ class JobRepository
     {
         return $this->jobMapper->findAll();
     }
-    public function create(Job $job)
+    
+    public function findBy(array $criteria = [])
+    {
+        return $this->jobMapper->findBy($criteria);
+    }
+
+public function create(Job $job)
     {
         $this->jobMapper->create($job);
     }

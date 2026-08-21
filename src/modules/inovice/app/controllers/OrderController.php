@@ -19,7 +19,28 @@ class OrderController implements ApiControllerContract
     public function index(Request $request)
     {
         try {
-            $serin = GetOrderCollectionAction::execute();
+            $body = $request->body;
+            $orderRepository = new \PostApi\modules\inovice\app\DB\repositories\OrderRepository();
+            $critiria = [];
+
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['prucher_id'])) {
+                $critiria['prucher_id'] = $body['prucher_id'];
+            }
+            if (isset($body['created_at'])) {
+                $critiria['created_at'] = $body['created_at'];
+            }
+
+            if (!empty($critiria)) {
+                $orders = $orderRepository->findBy($critiria);
+            } else {
+                $orders = $orderRepository->findAll();
+            }
+
+            $serin = GetOrderCollectionAction::execute($orders);
+            http_response_code(200);
             return Chache::checkCache($serin);
         } catch (Exception $error) {
             return ViewError::viewProplem('fetch error', 'internal error', 1, $error->getMessage(), 500);

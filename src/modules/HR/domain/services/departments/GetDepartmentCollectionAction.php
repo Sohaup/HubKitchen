@@ -5,10 +5,9 @@ use PostApi\modules\HR\app\DB\repositories\DepartmentRepository;
 use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetDepartmentCollectionAction {
-    public static function execute() {
+    public static function execute(array $items = null) {
         $departmentsRepository = new DepartmentRepository();
-        $departments = $departmentsRepository->findAll();
-        $serin = SerializeToSerin::serializeCollection($departments);
+        $serin = SerializeToSerin::serializeCollection($items ?? $departmentsRepository->findAll());
         return $serin;
     }
 }

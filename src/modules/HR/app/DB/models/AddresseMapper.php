@@ -58,6 +58,62 @@ class AddresseMapper
         }
     }
 
+    public function findBy(array $criteria = []): array
+    {
+        $filterAddressQuery = "SELECT * FROM HR.addresses";
+        $whereClouses = [];
+        $bindings = [];
+
+        if (isset($criteria['id'])) {
+            $whereClouses[] = "id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (isset($criteria['country'])) {
+            $whereClouses[] = "country LIKE ?";
+            $bindings[] = "%" . $criteria['country'] . "%";
+        }
+
+        if (isset($criteria['city'])) {
+            $whereClouses[] = "city LIKE ?";
+            $bindings[] = "%" . $criteria['city'] . "%";
+        }
+
+        if (isset($criteria['street'])) {
+            $whereClouses[] = "street LIKE ?";
+            $bindings[] = "%" . $criteria['street'] . "%";
+        }
+
+        if (isset($criteria['flat'])) {
+            $whereClouses[] = "flat LIKE ?";
+            $bindings[] = "%" . $criteria['flat'] . "%";
+        }
+
+        if (count($whereClouses) > 0) {
+            $filterAddressQuery .= " WHERE " . implode(" AND ", $whereClouses);
+        }
+
+        try {
+            $getAddressesQuery = $this->db->prepare($filterAddressQuery);
+            $getAddressesQuery->execute($bindings);
+            $addressesRawData = $getAddressesQuery->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($addressesRawData as $addresseRawData) {
+                if (!isset($this->identityMap[$addresseRawData['id']])) {
+                    $addresse = new Addresse();
+                    $addresse->setId($addresseRawData['id']);
+                    $addresse->setCountry($addresseRawData['country']);
+                    $addresse->setCity($addresseRawData['city']);
+                    $addresse->setFlat($addresseRawData['flat']);
+                    $addresse->setStreet($addresseRawData['street']);
+                    $this->identityMap[$addresseRawData['id']] = $addresse;
+                }
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function create(Addresse $addresse)
     {
         try {

@@ -22,8 +22,30 @@ class CategoryController implements ApiControllerContract
     #[Override]
     public function index(Request $request)
     {
-        $serin = GetCategoryCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $body = $request->body;
+            $categoryRepository = new CategoryRepository();
+            $critiria = [];
+
+            if (isset($body['name'])) {
+                $critiria['name'] = $body['name'];
+            }
+            if (isset($body['image'])) {
+                $critiria['image'] = $body['image'];
+            }
+
+            if (!empty($critiria)) {
+                $categories = $categoryRepository->findBy($critiria);
+            } else {
+                $categories = $categoryRepository->findAll();
+            }
+
+            $serin = GetCategoryCollectionAction::execute($categories);
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (Error $error) {
+            return ViewError::viewProplem(type: "display category error ", title: "incorrect parameter", status: true, detail: "internal server error", statusCode: 500);
+        }
     }
 
     #[Override]

@@ -23,6 +23,10 @@ class PlanRepository
         return $this->planMapper->findAll();
     }
 
+    public function findBy(array $critirias) {
+        return $this->planMapper->findBy($critirias);
+    }
+
     public function create(Plan $plan) {
         $this->planMapper->insert($plan);
     }

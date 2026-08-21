@@ -123,6 +123,89 @@ class AppraiselResultMapper
         }
     }
 
+
+    public function findBy(array $criteria = []): array
+    {
+        $query = "SELECT * FROM HR.evoluation_view";
+        $whereClouses = [];
+        $bindings = [];
+
+        if (isset($criteria['id'])) {
+            $whereClouses[] = "id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (isset($criteria['cycle_id'])) {
+            $whereClouses[] = "cycle_id = ?";
+            $bindings[] = $criteria['cycle_id'];
+        }
+
+        if (isset($criteria['employee_id'])) {
+            $whereClouses[] = "employee_id = ?";
+            $bindings[] = $criteria['employee_id'];
+        }
+
+        if (isset($criteria['critiria_id'])) {
+            $whereClouses[] = "critiria_id = ?";
+            $bindings[] = $criteria['critiria_id'];
+        }
+
+        if (isset($criteria['score'])) {
+            $whereClouses[] = "score = ?";
+            $bindings[] = $criteria['score'];
+        }
+
+        if (count($whereClouses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClouses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $appraisalResultsRawData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($appraisalResultsRawData as $appriaselReslutRawData) {
+                $cycle = new ApplicationCycle(id: $appriaselReslutRawData['cycle_id'], name: $appriaselReslutRawData['cycle_name'], starts_at: $appriaselReslutRawData['cycle_starts_at'], ends_at: $appriaselReslutRawData['cycle_ends_at'], status: $appriaselReslutRawData['cycle_status']);
+                $employee = new Employee();
+                $employee->setId($appriaselReslutRawData['employee_id']);
+                $employee->setUserId($appriaselReslutRawData['employee_user_id']);
+                $employee->setManagerId($appriaselReslutRawData['employee_manager_id']);
+                $employee->setMartialStatus($appriaselReslutRawData['employee_martial_status']);
+                $employee->setEmployeeStatus($appriaselReslutRawData['employee_status']);
+                $addrese = new Addresse();
+                $addrese->setCountry($appriaselReslutRawData['addrese_country']);
+                $addrese->setCity($appriaselReslutRawData['addrese_city']);
+                $addrese->setFlat($appriaselReslutRawData['addrese_flat']);
+                $addrese->setStreet($appriaselReslutRawData['addrese_street']);
+                $addrese->setId($appriaselReslutRawData['addresse_id']);
+                $employee->setAddress($addrese);
+                $job = new JobDescription();
+                $job->setId($appriaselReslutRawData['employee_job_description_id']);
+                $job->setName($appriaselReslutRawData['jd_name']);
+                $shift = new Shift();
+                $shift->setId($appriaselReslutRawData['jd_shift_id']);
+                $shift->setShiftName($appriaselReslutRawData['shift_name']);
+                $shift->setStartTime($appriaselReslutRawData['shift_start_time']);
+                $shift->setEndTime($appriaselReslutRawData['shift_end_time']);
+                $shift->setBreakDuration($appriaselReslutRawData['shift_break_duration_by_minutes']);
+                $shift->setIsActive($appriaselReslutRawData['shift_is_active']);
+                $shift->setIsOverNight($appriaselReslutRawData['shift_is_overnight']);
+                $shift->setCreatedAt($appriaselReslutRawData['shift_created_at']);
+                $job->setShift($shift);
+                $department = new Department();
+                $department->setId($appriaselReslutRawData['department_id']);
+                $department->setName($appriaselReslutRawData['department_name']);
+                $employee->setDepartment($department);
+                $application = new ApplicationTemplate(id: $appriaselReslutRawData['template_id'], title: $appriaselReslutRawData['template_title'], description: $appriaselReslutRawData['template_description']);
+                $critiria = new EvolutionCritiria(id: $appriaselReslutRawData['critiria_id'], critiria: $appriaselReslutRawData['critiria'], weight: $appriaselReslutRawData['critiria_weight'], application: $application);
+                $appriaselReslut = new AppraiselResult(id: $appriaselReslutRawData['id'], cycle: $cycle, critiria: $critiria, employee: $employee, score: $appriaselReslutRawData['score'], mangerComments: $appriaselReslutRawData['manager_comment']);
+                $this->identityMap[$appriaselReslutRawData['id']] = $appriaselReslut;
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function create(AppraiselResult $appriaselReslut)
     {
         try {

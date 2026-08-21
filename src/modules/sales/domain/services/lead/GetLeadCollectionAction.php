@@ -7,11 +7,10 @@ use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetLeadCollectionAction
 {
-    public static function execute()
+    public static function execute(array $items = null)
     {
         $leadRepository = new LeadRepository();
-        $leads = $leadRepository->findAll();
-        $serin = SerializeToSerin::serializeCollection($leads);
+        $serin = SerializeToSerin::serializeCollection($items ?? $leadRepository->findAll());
         return $serin;
     }
 }

@@ -21,6 +21,9 @@ class PermissionRepository {
         $permissions = $this->permissionMapper->findAll();
         return $permissions;
     }
+    public function findBy(array $critiria) {
+        return $this->permissionMapper->findBy($critiria);
+    }
     public function create(Permission $permission) {
         $this->permissionMapper->insert($permission);
     }

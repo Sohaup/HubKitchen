@@ -23,6 +23,10 @@ class ActionRepository
         return $this->actionMapper->findAll();
     }
 
+    public function findBy(array $criteria = []) {
+        return $this->actionMapper->findBy($criteria);
+    }
+
     public function create(Action $action) {
         $this->actionMapper->insert($action);
     }

@@ -18,8 +18,37 @@ class AppraiselResultController implements ApiControllerContract
 {
     public function index(Request $request)
     {
-        $serin = GetAppraiselResultCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $appraiselResultRepository = new \PostApi\modules\HR\app\DB\repositories\AppraiselResultRepository();
+            $body = $request->body;
+            $critiria = [];
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['cycle_id'])) {
+                $critiria['cycle_id'] = $body['cycle_id'];
+            }
+            if (isset($body['employee_id'])) {
+                $critiria['employee_id'] = $body['employee_id'];
+            }
+            if (isset($body['critiria_id'])) {
+                $critiria['critiria_id'] = $body['critiria_id'];
+            }
+            if (isset($body['score'])) {
+                $critiria['score'] = $body['score'];
+            }
+            if (!empty($critiria)) {
+                $results = $appraiselResultRepository->findBy($critiria);
+                $serin = GetAppraiselResultCollectionAction::execute($results);
+            } else {
+                $results = $appraiselResultRepository->findAll();
+                $serin = GetAppraiselResultCollectionAction::execute($results);
+            }
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (\Throwable $err) {
+            return ViewError::viewProplem("display appraisel result error", "paramter error", 1, "internal server error", 500);
+        }
     }
 
     public function get(string $id)

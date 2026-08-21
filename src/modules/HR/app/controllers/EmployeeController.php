@@ -20,8 +20,46 @@ class EmployeeController implements ApiControllerContract
     #[Override]
     public function index(Request $request)
     {
-        $serin = GetEmployeeCollectionAction::execute();        
-        return Chache::checkCache($serin);
+        try {
+            $repository = new \PostApi\modules\HR\app\DB\repositories\EmployeeRepository();
+            $body = $request->body;
+            $critiria = [];
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['employee_status'])) {
+                $critiria['employee_status'] = $body['employee_status'];
+            }
+            if (isset($body['martial_status'])) {
+                $critiria['martial_status'] = $body['martial_status'];
+            }
+            if (isset($body['user_id'])) {
+                $critiria['user_id'] = $body['user_id'];
+            }
+            if (isset($body['job_id'])) {
+                $critiria['job_id'] = $body['job_id'];
+            }
+            if (isset($body['manager_id'])) {
+                $critiria['manager_id'] = $body['manager_id'];
+            }
+            if (isset($body['department_id'])) {
+                $critiria['department_id'] = $body['department_id'];
+            }
+            if (isset($body['addresse_id'])) {
+                $critiria['addresse_id'] = $body['addresse_id'];
+            }
+            if (!empty($critiria)) {
+                $collection = $repository->findBy($critiria);
+                $serin = GetEmployeeCollectionAction::execute($collection);
+            } else {
+                $collection = $repository->findAll();
+                $serin = GetEmployeeCollectionAction::execute($collection);
+            }
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (\Throwable $err) {
+            return ViewError::viewProplem("display employee error", "paramter error", 1, "internal server error", 500);
+        }
     }
 
     #[Override]

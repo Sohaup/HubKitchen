@@ -4,6 +4,7 @@ namespace PostApi\modules\HR\app\controllers;
 
 use Error;
 use Override;
+use PostApi\modules\HR\app\DB\repositories\AddreseRepository;
 use PostApi\modules\HR\domain\services\addresse\CreateAddresseAction;
 use PostApi\modules\HR\domain\services\addresse\DeleteAddresseAction;
 use PostApi\modules\HR\domain\services\addresse\GetAddresseCollectionAction;
@@ -20,8 +21,37 @@ class AddresseController implements ApiControllerContract
     #[Override]
     public function index(Request $request)
     {
-        $serin = GetAddresseCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $repository = new AddreseRepository();
+            $body = $request->body;
+            $critiria = [];
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['country'])) {
+                $critiria['country'] = $body['country'];
+            }
+            if (isset($body['city'])) {
+                $critiria['city'] = $body['city'];
+            }
+            if (isset($body['street'])) {
+                $critiria['street'] = $body['street'];
+            }
+            if (isset($body['flat'])) {
+                $critiria['flat'] = $body['flat'];
+            }
+            if (!empty($critiria)) {
+                $collection = $repository->findBy($critiria);
+                $serin = GetAddresseCollectionAction::execute($collection);
+            } else {
+                $collection = $repository->findAll();
+                $serin = GetAddresseCollectionAction::execute($collection);
+            }
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (\Throwable $err) {
+            return ViewError::viewProplem("display addresse error", "paramter error", 1, "internal server error", 500);
+        }
     }
 
     #[Override]

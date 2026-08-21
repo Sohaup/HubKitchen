@@ -77,7 +77,56 @@ class JobMapper
             throw new Error($err->getMessage());
         }
     }
-    public function create(Job $job)
+    
+    public function findBy(array $criteria = []): array
+    {
+        $query = "SELECT * FROM HR.opining_jobs";
+        $whereClouses = [];
+        $bindings = [];
+
+        if (isset($criteria['id'])) {
+            $whereClouses[] = "id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (isset($criteria['title'])) {
+            $whereClouses[] = "title LIKE ?";
+            $bindings[] = "%" . $criteria['title'] . "%";
+        }
+
+        if (isset($criteria['department_id'])) {
+            $whereClouses[] = "department_id = ?";
+            $bindings[] = $criteria['department_id'];
+        }
+
+        if (count($whereClouses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClouses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $jobsRawData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($jobsRawData as $jobRawData) {
+                if (!isset($this->identityMap[$jobRawData['id']])) {
+                    $job = new Job();
+                    $job->setId($jobRawData['id']);
+                    $job->setTitle($jobRawData['title']);
+                    $deparmentMapper = new DepartmentMapper($this->db);
+                    if (isset($jobRawData['department_id']) && !is_null($jobRawData['department_id'])) {
+                        $department = $deparmentMapper->findOne($jobRawData['department_id']);
+                        $job->setDepartment($department);
+                    }
+                    $this->identityMap[$jobRawData['id']] = $job;
+                }
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
+public function create(Job $job)
     {
         try {
             $createJobQuery = $this->db->prepare("INSERT INTO HR.opining_jobs(title , department_id ) VALUES(? , ?) RETURNING id");

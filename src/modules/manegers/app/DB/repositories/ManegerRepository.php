@@ -23,6 +23,10 @@ class ManegerRepository
         return $this->manegerMapper->findAll();
     }
 
+    public function findBy(array $critirias) {
+        return $this->manegerMapper->findBy($critirias);
+    }
+
     public function create(Maneger $maneger) {
         $this->manegerMapper->insert($maneger);
     }

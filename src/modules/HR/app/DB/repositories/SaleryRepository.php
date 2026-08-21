@@ -25,7 +25,13 @@ class SaleryRepository
         return $this->saleryMapper->findAll();
     }
 
-    public function create(Salery $salery)
+    
+    public function findBy(array $criteria = [])
+    {
+        return $this->saleryMapper->findBy($criteria);
+    }
+
+public function create(Salery $salery)
     {
         $this->saleryMapper->create($salery);
     }

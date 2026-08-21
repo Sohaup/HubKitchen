@@ -19,7 +19,13 @@ class SkillRepository {
     public function findAll() {
         return $this->skillMapper->findAll();
     }
-    public function create(Skill $skill) {
+    
+    public function findBy(array $criteria = [])
+    {
+        return $this->skillMapper->findBy($criteria);
+    }
+
+public function create(Skill $skill) {
         $this->skillMapper->create($skill);
     }
     public function update(Skill $skill) {

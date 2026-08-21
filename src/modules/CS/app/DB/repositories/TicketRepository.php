@@ -23,6 +23,10 @@ class TicketRepository
         return $this->ticketMapper->findAll();
     }
 
+    public function findBy(array $criteria = []) {
+        return $this->ticketMapper->findBy($criteria);
+    }
+
     public function create(Ticket $ticket) {
         $this->ticketMapper->insert($ticket);
     }

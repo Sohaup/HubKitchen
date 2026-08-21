@@ -77,6 +77,80 @@ class ProductMapper
         }
     }
 
+    public function findBy(array $criteria = [])
+    {
+        $query = "
+            SELECT p.*, c.name AS category_name , c.image AS category_image , c.created_at AS category_created_at
+            FROM sales.products p
+            LEFT JOIN sales.categories c ON p.category_id = c.id
+        ";
+
+        $whereClauses = [];
+        $bindings = [];
+
+        if (isset($criteria['name'])) {
+            $whereClauses[] = "p.name LIKE ?";
+            $bindings[] = "%" . $criteria['name'] . "%";
+        }
+
+        if (isset($criteria['category_id'])) {
+            $whereClauses[] = "p.category_id = ?";
+            $bindings[] = $criteria['category_id'];
+        }
+
+        if (isset($criteria['price'])) {
+            $whereClauses[] = "price = ?";
+            $bindings[] = $criteria['price'];
+        } elseif (isset($criteria['greater_than_price'])) {
+            $whereClauses[] = "price > ?";
+            $bindings[] = $criteria['greater_than_price'];
+        } elseif (isset($criteria['less_than_price'])) {
+            $whereClauses[] = "price < ?";
+            $bindings[] = $criteria['less_than_price'];
+        } elseif (isset($criteria['greater_than_or_equal_price'])) {
+            $whereClauses[] = "price >= ?";
+            $bindings[] = $criteria['greater_than_or_equal_price'];
+        } elseif (isset($criteria['less_than_or_equal_price'])) {
+            $whereClauses[] = "price <= ?";
+            $bindings[] = $criteria['less_than_or_equal_price'];
+        }
+
+        if (isset($criteria['stripe_id'])) {
+            $whereClauses[] = "p.stripe_id = ?";
+            $bindings[] = $criteria['stripe_id'];
+        }
+
+        if (count($whereClauses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $productsRawData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($productsRawData as $productRawData) {
+                $product = new Product();
+                $product->setId($productRawData['id']);
+                $product->setName($productRawData['name']);
+                $product->setPrice($productRawData['price']);
+                $product->setStripeId($productRawData['stripe_id']);
+                $product->setImage($productRawData['image']);
+                $product->setProps($productRawData['props']);
+                $product->setCreatedAt($productRawData['created_at']);
+                $category = new Category();
+                $category->setId($productRawData['category_id']);
+                $category->setName($productRawData['category_name']);
+                $category->setImage($productRawData['category_image']);
+                $category->setCreatedAt($productRawData['category_created_at']);
+                $product->setCategory($category);
+                $this->identityMap[$productRawData['id']] = $product;
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function create(Product $product)
     {
         try {

@@ -24,7 +24,13 @@ class AddreseRepository {
         return $this->addresseMapper->findAll();
     }
 
-    public function create(Addresse $addresse)
+    
+    public function findBy(array $criteria = [])
+    {
+        return $this->addresseMapper->findBy($criteria);
+    }
+
+public function create(Addresse $addresse)
     {
         $this->addresseMapper->create($addresse);
     }

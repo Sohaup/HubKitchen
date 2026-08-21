@@ -24,8 +24,41 @@ class CartItemController implements ApiControllerContract
     #[Override]
     public function index(Request $request)
     {
-        $serin = GetCartItemCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $body = $request->body;
+            $cartItemRepository = new CartItemRepository();
+            $critiria = [];
+
+            if (isset($body['cart_id'])) {
+                $critiria['cart_id'] = $body['cart_id'];
+            }
+            if (isset($body['product_id'])) {
+                $critiria['product_id'] = $body['product_id'];
+            }
+           if (isset($body['quantity'])) {
+                $critiria['quantity'] = $body['quantity'];
+            } elseif (isset($body['greater_than_quantity'])) {
+                $critiria['greater_than_quantity'] = $body['greater_than_quantity'];
+            } elseif (isset($body['less_than_quantity'])) {;
+                $critiria['less_than_quantity'] = $body['less_than_quantity'];
+            } elseif (isset($body['greater_than_or_equal_quantity'])) {
+                $critiria['greater_than_or_equal_quantity'] = $body['greater_than_or_equal_quantity'];
+            } elseif (isset($body['less_than_or_equal_quantity'])) {
+                $critiria['less_than_or_equal_quantity'] = $body['less_than_or_equal_quantity'];
+            }
+
+            if (!empty($critiria)) {
+                $cartItems = $cartItemRepository->findBy($critiria);
+            } else {
+                $cartItems = $cartItemRepository->findAll();
+            }
+
+            $serin = GetCartItemCollectionAction::execute($cartItems);
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (Error $error) {
+            return ViewError::viewProplem(type: "display cart item error ", title: "incorrect paramter", status: true, detail: "internal server error", statusCode: 500);
+        }
     }
 
     #[Override]

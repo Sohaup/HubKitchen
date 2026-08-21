@@ -7,11 +7,10 @@ use PostApi\shared\helpers\fecade\SerializeToSerin;
 
 class GetAppraiselResultCollectionAction
 {
-    public static function execute()
+    public static function execute(array $items = null)
     {
         $repo = new AppraiselResultRepository();
-        $items = $repo->findAll();
-        $serin = SerializeToSerin::serializeCollection($items);
+        $serin = SerializeToSerin::serializeCollection($items ?? $repo->findAll());
         return $serin;
     }
 }

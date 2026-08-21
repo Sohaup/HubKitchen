@@ -27,6 +27,11 @@ class CartRepository
         return $this->cartMapper->findAll();
     }
 
+    public function findBy(array $critiria)
+    {
+        return $this->cartMapper->findBy($critiria);
+    }
+
     public function create(Cart $cart)
     {
         $this->cartMapper->create($cart);

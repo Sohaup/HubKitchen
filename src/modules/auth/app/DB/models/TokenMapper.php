@@ -6,7 +6,9 @@ use Error;
 use PDO;
 use PDOException;
 use PostApi\modules\auth\app\DB\repositories\UserRepository;
+use PostApi\modules\auth\domain\Entities\Role;
 use PostApi\modules\auth\domain\Entities\Token;
+use PostApi\modules\auth\domain\Entities\User;
 
 class TokenMapper
 {
@@ -19,11 +21,21 @@ class TokenMapper
             return $this->identityMap[$id];
         }
         try {
-            $getTokenStmt = $this->db->prepare("SELECT * FROM auth.tokens WHERE id = ?");
+            $getTokenStmt = $this->db->prepare("SELECT * FROM auth.tokens_view WHERE id = ?");
             $getTokenStmt->execute([$id]);
             $tokenRow = $getTokenStmt->fetch(PDO::FETCH_ASSOC);
-            $userRepository = new UserRepository();
-            $user = $userRepository->findOne($tokenRow['user_id']);
+            $user = new User();
+            $user->setId($tokenRow['user_id'] ?? "");
+            $user->setName($tokenRow['user_name'] ?? "");
+            $user->setEmail($tokenRow['user_email'] ?? "");
+            $user->setPassword($tokenRow['user_password'] ?? "");
+            $user->setPhone($tokenRow['user_phone'] ?? "");
+            $user->setGoogleId($tokenRow['user_google_id'] ?? "");
+            $userRole = new Role();
+            $userRole->setId($tokenRow['role_id'] ?? "");
+            $userRole->setName($tokenRow['role_name'] ?? "");
+            $user->setRole($userRole);
+            $user->setAvatar($tokenRow['user_avatar'] ?? "");
             $token = new Token(id: $tokenRow['id'], user: $user, token: $tokenRow['token'], created_at: $tokenRow['created_at'], expires_at: $tokenRow['expires_at'], is_revoked: $tokenRow['is_revoked']);
             $this->identityMap[$id] = $token;
             return $token;
@@ -37,14 +49,72 @@ class TokenMapper
     public function findAll()
     {
         try {
-            $getTokensStmt = $this->db->prepare("SELECT * FROM auth.tokens");
+            $getTokensStmt = $this->db->prepare("SELECT * FROM auth.tokens_view");
             $getTokensStmt->execute([]);
-            $userRepository = new UserRepository();
             $tokensRow = $getTokensStmt->fetchAll(PDO::FETCH_ASSOC);
             foreach ($tokensRow as $tokenRow) {
                 if (!isset($this->identityMap[$tokenRow['id']])) {
-                    $userToken = $userRepository->findOne($tokenRow['user_id']);
-                    $token = new Token(id: $tokenRow['id'], user: $userToken, token: $tokenRow['token'], created_at: $tokenRow['created_at'], expires_at: $tokenRow['expires_at'], is_revoked: $tokenRow['is_revoked']);
+                    $user = new User();
+                    $user->setId($tokenRow['user_id'] ?? "");
+                    $user->setName($tokenRow['user_name'] ?? "");
+                    $user->setEmail($tokenRow['user_email'] ?? "");
+                    $user->setPassword($tokenRow['user_password'] ?? "");
+                    $user->setPhone($tokenRow['user_phone'] ?? "");
+                    $user->setGoogleId($tokenRow['user_google_id'] ?? "");
+                    $userRole = new Role();
+                    $userRole->setId($tokenRow['role_id'] ?? "");
+                    $userRole->setName($tokenRow['role_name'] ?? "");
+                    $user->setRole($userRole);
+                    $user->setAvatar($tokenRow['user_avatar'] ?? "");
+                    $token = new Token(id: $tokenRow['id'], user: $user, token: $tokenRow['token'], created_at: $tokenRow['created_at'], expires_at: $tokenRow['expires_at'], is_revoked: $tokenRow['is_revoked']);
+                    $this->identityMap[$tokenRow['id']] = $token;
+                }
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+    public function findBy(array $critiria)
+    {
+        $filterTokensQuery  = "SELECT * FROM auth.tokens_view";
+        $whereClouses = [];
+        $bindings = [];
+        if (isset($critiria['id'])) {
+            $whereClouses[] = "id = ?";
+            $bindings[] = $critiria['id'];
+        }
+        if (isset($critiria['user_id'])) {
+            $whereClouses[] = "user_id = ?";
+            $bindings[] =  $critiria['user_id'];
+        }
+        if (isset($critiria['is_revoked'])) {
+            $whereClouses[] = "is_revoked = ?";
+            $bindings[] =  $critiria['is_revoked'];
+        }
+       
+        if (count($whereClouses) > 0) {
+            $filterTokensQuery .= " WHERE " . implode(" AND ", $whereClouses);
+        }
+        try {
+            $getTokensStmt = $this->db->prepare($filterTokensQuery);
+            $getTokensStmt->execute($bindings);
+            $tokensRow = $getTokensStmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($tokensRow as $tokenRow) {
+                if (!isset($this->identityMap[$tokenRow['id']])) {
+                    $user = new User();
+                    $user->setId($tokenRow['user_id'] ?? "");
+                    $user->setName($tokenRow['user_name'] ?? "");
+                    $user->setEmail($tokenRow['user_email'] ?? "");
+                    $user->setPassword($tokenRow['user_password'] ?? "");
+                    $user->setPhone($tokenRow['user_phone'] ?? "");
+                    $user->setGoogleId($tokenRow['user_google_id'] ?? "");
+                    $userRole = new Role();
+                    $userRole->setId($tokenRow['role_id'] ?? "");
+                    $userRole->setName($tokenRow['role_name'] ?? "");
+                    $user->setRole($userRole);
+                    $user->setAvatar($tokenRow['user_avatar'] ?? "");
+                    $token = new Token(id: $tokenRow['id'], user: $user, token: $tokenRow['token'], created_at: $tokenRow['created_at'], expires_at: $tokenRow['expires_at'], is_revoked: $tokenRow['is_revoked']);
                     $this->identityMap[$tokenRow['id']] = $token;
                 }
             }

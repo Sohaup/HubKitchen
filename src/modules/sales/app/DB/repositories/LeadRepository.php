@@ -27,6 +27,11 @@ class LeadRepository
         return $this->leadMapper->findAll();
     }
 
+    public function findBy(array $critiria)
+    {
+        return $this->leadMapper->findBy($critiria);
+    }
+
     public function create(Lead $lead)
     {
         $this->leadMapper->create($lead);

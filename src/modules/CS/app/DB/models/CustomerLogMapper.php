@@ -83,6 +83,63 @@ class CustomerLogMapper
         }
     }
 
+    public function findBy(array $criteria = []): array
+    {
+        $query = "SELECT cl.*, c.country AS customer_country, c.user_id AS customer_user_id FROM cs.customers_log AS cl LEFT JOIN cs.customers AS c ON c.id = cl.customer_id";
+        $whereClauses = [];
+        $bindings = [];
+
+        if (!empty($criteria['id'])) {
+            $whereClauses[] = "cl.id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (!empty($criteria['customer_id'])) {
+            $whereClauses[] = "cl.customer_id = ?";
+            $bindings[] = $criteria['customer_id'];
+        }
+
+        if (!empty($criteria['log_type'])) {
+            $whereClauses[] = "cl.log_type LIKE ?";
+            $bindings[] = "%" . $criteria['log_type'] . "%";
+        }
+
+        if (!empty($criteria['created_at'])) {
+            $whereClauses[] = "cl.created_at = ?";
+            $bindings[] = $criteria['created_at'];
+        }
+
+        if (count($whereClauses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($rows as $row) {
+                if (!isset($this->identityMap[$row['id']])) {
+                    $log = new CustomerLog();
+                    $log->setId($row['id']);
+                    $customer = new Customer();
+                    $customer->setId($row['customer_id']);
+                    $customer->setCountry($row['customer_country']);
+                    $customer->setUserId($row['customer_user_id']);
+                    $log->setCustomer($customer);
+                    $log->setLogType($row['log_type']);
+                    $log->setCreatedAt($row['created_at']);
+
+                    $this->identityMap[$row['id']] = $log;
+                }
+            }
+
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function insert(CustomerLog $log)
     {
         try {

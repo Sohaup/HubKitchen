@@ -23,7 +23,13 @@ class TurnCycleRepository
     {
         return $this->turnCycleMapper->findAll();
     }
-    public function create(TurnCycle $turnCycle)
+    
+    public function findBy(array $criteria = [])
+    {
+        return $this->turnCycleMapper->findBy($criteria);
+    }
+
+public function create(TurnCycle $turnCycle)
     {
         $this->turnCycleMapper->create($turnCycle);
     }

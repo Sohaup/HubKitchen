@@ -27,6 +27,11 @@ class EmployeeRepository
         return $this->employeeMapper->findAll();
     }
 
+    public function findBy(array $critiria)
+    {
+        return $this->employeeMapper->findBy($critiria);
+    }
+
     public function create(Employee $employee)
     {
         $this->employeeMapper->create($employee);

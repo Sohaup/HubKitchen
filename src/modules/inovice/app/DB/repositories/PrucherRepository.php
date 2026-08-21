@@ -23,6 +23,10 @@ class PrucherRepository
         return $this->prucherMapper->findAll();
     }
 
+    public function findBy(array $critirias) {
+        return $this->prucherMapper->findBy($critirias);
+    }
+
     public function create(Prucher $prucher) {
         $this->prucherMapper->insert($prucher);
     }

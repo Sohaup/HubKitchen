@@ -21,6 +21,9 @@ class EmployeeRepository
     public function findAll() {
         return $this->mapper->findAll();
     }
+    public function findBy(array $criteria = []) {
+        return $this->mapper->findBy($criteria);
+    }
     public function create(Employee $employee) {
         $this->mapper->insert($employee);
     }

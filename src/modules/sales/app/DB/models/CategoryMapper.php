@@ -58,6 +58,44 @@ class CategoryMapper
         }
     }
 
+    public function findBy(array $criteria = [])
+    {
+        $query = "SELECT * FROM sales.categories";
+        $whereClauses = [];
+        $bindings = [];
+
+        if (isset($criteria['name'])) {
+            $whereClauses[] = "name LIKE ?";
+            $bindings[] = "%" . $criteria['name'] . "%";
+        }
+
+        if (isset($criteria['image'])) {
+            $whereClauses[] = "image LIKE ?";
+            $bindings[] = "%" . $criteria['image'] . "%";
+        }
+
+        if (count($whereClauses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $categoriesRawData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($categoriesRawData as $categoryRawData) {
+                $category = new Category();
+                $category->setId($categoryRawData['id']);
+                $category->setName($categoryRawData['name']);
+                $category->setImage($categoryRawData['image']);
+                $category->setCreatedAt($categoryRawData['created_at']);
+                $this->identityMap[$categoryRawData['id']] = $category;
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function create(Category $category)
     {
         try {

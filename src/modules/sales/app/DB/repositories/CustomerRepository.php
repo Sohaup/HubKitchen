@@ -27,6 +27,11 @@ class CustomerRepository
         return $this->customerMapper->findAll();
     }
 
+    public function findBy(array $critiria)
+    {
+        return $this->customerMapper->findBy($critiria);
+    }
+
     public function create(Customer $customer)
     {
         $this->customerMapper->create($customer);

@@ -23,6 +23,10 @@ class CustomerRepository
         return $this->customerMapper->findAll();
     }
 
+    public function findBy(array $criteria = []) {
+        return $this->customerMapper->findBy($criteria);
+    }
+
     public function create(Customer $customer) {
         $this->customerMapper->insert($customer);
     }

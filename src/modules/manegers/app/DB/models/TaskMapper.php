@@ -85,6 +85,77 @@ class TaskMapper
         }
     }
 
+    public function findBy(array $criteria = []): array
+    {
+        $query = "SELECT * FROM manegers.task_view";
+        $whereClauses = [];
+        $bindings = [];
+
+        if (!empty($criteria['id'])) {
+            $whereClauses[] = "id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (!empty($criteria['name'])) {
+            $whereClauses[] = "name LIKE ?";
+            $bindings[] = "%" . $criteria['name'] . "%";
+        }
+
+        if (!empty($criteria['description'])) {
+            $whereClauses[] = "description LIKE ?";
+            $bindings[] = "%" . $criteria['description'] . "%";
+        }
+
+        if (!empty($criteria['maneger_id'])) {
+            $whereClauses[] = "manager_id = ?";
+            $bindings[] = $criteria['maneger_id'];
+        }
+
+        if (!empty($criteria['department_id'])) {
+            $whereClauses[] = "department_id = ?";
+            $bindings[] = $criteria['department_id'];
+        }
+
+        if (count($whereClauses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($rows as $row) {
+                if (!isset($this->identityMap[$row['id']])) {
+                    $maneger = new Maneger();
+                    $maneger->setId($row['manager_id']);
+                    $maneger->setRank($row['rank']);
+                    $maneger->setUserId($row['user_id']);
+                    $manegerDepartment = new Department();
+                    $manegerDepartment->setId($row['department_maneger_id']);
+                    $manegerDepartment->setName($row['department_maneger_name']);
+                    $maneger->setDepartment($manegerDepartment);
+                    $department = new Department();
+                    $department->setId((int)$row['department_id']);
+                    $department->setName($row['department_name']);
+
+                    $task = new Task();
+                    $task->setId((int)$row['id']);
+                    $task->setName($row['name']);
+                    $task->setDescription($row['description']);
+                    $task->setManeger($maneger);
+                    $task->setDepartment($department);
+
+                    $this->identityMap[$row['id']] = $task;
+                }
+            }
+
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function insert(Task $task)
     {
         try {

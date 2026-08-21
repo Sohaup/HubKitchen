@@ -24,8 +24,33 @@ class ReviewController implements ApiControllerContract
     #[Override]
     public function index(Request $request)
     {
-        $serin = GetReviewCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $body = $request->body;
+            $reviewRepository = new ReviewRepository();
+            $critiria = [];
+
+            if (isset($body['customer_id'])) {
+                $critiria['customer_id'] = $body['customer_id'];
+            }
+            if (isset($body['product_id'])) {
+                $critiria['product_id'] = $body['product_id'];
+            }
+            if (isset($body['review'])) {
+                $critiria['review'] = $body['review'];
+            }
+
+            if (!empty($critiria)) {
+                $reviews = $reviewRepository->findBy($critiria);
+            } else {
+                $reviews = $reviewRepository->findAll();
+            }
+
+            $serin = GetReviewCollectionAction::execute($reviews);
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (Error $error) {
+            return ViewError::viewProplem(type: "display review error ", title: "incorrect paramter", status: true, detail: "internal server error", statusCode: 500);
+        }
     }
 
     #[Override]

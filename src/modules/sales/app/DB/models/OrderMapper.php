@@ -114,6 +114,68 @@ class OrderMapper
         }
     }
 
+    public function findBy(array $criteria = [])
+    {
+        $query = "SELECT * FROM sales.order_view";
+        $whereClauses = [];
+        $bindings = [];
+
+        if (isset($criteria['customer_id'])) {
+            $whereClauses[] = "customer_id = ?";
+            $bindings[] = $criteria['customer_id'];
+        }
+
+        if (isset($criteria['cart_id'])) {
+            $whereClauses[] = "cart_id = ?";
+            $bindings[] = $criteria['cart_id'];
+        }
+
+        if (count($whereClauses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($rows as $row) {
+                $order = new Order();
+                $order->setId($row['id']);
+                $order->setCreatedAt($row['created_at']);
+                $customer = new Customer();
+                $customer->setId($row['customer_id']);
+                $customer->setUserId($row['user_id']);
+                $customer->setStripeId($row['customer_stripe_id']);
+                $order->setCustomer($customer);
+                $cart = new Cart();
+                $cart->setId($row['cart_id']);
+                $cart->setPrice($row['cart_price']);
+                $cart->setCreatedAt($row['cart_created_at']);
+                $cart->setUserId($row['cart_user_id']);
+                if ($row['product_id']) {
+                    $cartItem = new CartItem();
+                    $cartItem->setId($row['cart_item_id']);
+                    $cartItem->setQuantity($row['quantity']);
+                    $cartItem->setAddedAt($row['added_at']);
+                    $product = new Product();
+                    $product->setId($row['product_id']);
+                    $product->setName($row['name']);
+                    $product->setPrice($row['price']);
+                    $product->setStripeId($row['product_stripe_id']);
+                    $product->setImage($row['image']);
+                    $product->setCreatedAt($row['product_created_at']);
+                    $cartItem->setProduct($product);
+                    $cart->addCartItem($cartItem);
+                }
+                $order->setCart($cart);
+                $this->identityMap[$row['id']] = $order;
+            }
+            return array_values($this->identityMap);
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function create(Order $order): void
     {
         try {

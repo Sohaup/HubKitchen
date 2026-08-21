@@ -52,6 +52,40 @@ class PermissionMapper
             throw new Error($err->getMessage());
         }
     }
+    public function findBy(array $critiria)
+    {
+        $filterPermissionsQuery  = "SELECT * FROM auth.permissions";
+        $whereClouses = [];
+        $bindings = [];
+        if (isset($critiria['id'])) {
+            $whereClouses[] = "id = ?";
+            $bindings[] = $critiria['id'];
+        }
+        if (isset($critiria['name'])) {
+            $whereClouses[] = "name LIKE ?";
+            $bindings[] = "%" . $critiria['name'] . "%";
+        }
+        if (count($whereClouses) > 0) {
+            $filterPermissionsQuery .= " WHERE " . implode(" AND ", $whereClouses);
+        }
+
+        try {
+            $getPermiisionStmt = $this->db->prepare($filterPermissionsQuery);
+            $getPermiisionStmt->execute($bindings);
+            $permissions = $getPermiisionStmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($permissions as $permissionData) {
+                if (!isset($this->identityMap[$permissionData['id']])) {
+                    $permission = new Permission();
+                    $permission->setId($permissionData['id']);
+                    $permission->setName($permissionData['name']);
+                    $this->identityMap[$permission->getId()] = $permission;
+                }
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
     public function insert(Permission $permission)
     {
         try {

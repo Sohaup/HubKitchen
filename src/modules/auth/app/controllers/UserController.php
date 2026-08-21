@@ -2,8 +2,6 @@
 
 namespace PostApi\modules\auth\app\controllers;
 
-use Error;
-use Exception;
 use PostApi\modules\auth\app\DB\repositories\UserRepository;
 use PostApi\modules\auth\app\DB\transactionManagers\UserUnit;
 use PostApi\modules\auth\domain\Entities\User;
@@ -21,6 +19,7 @@ use PostApi\shared\helpers\fecade\Chache;
 use PostApi\shared\helpers\fecade\Files;
 use PostApi\shared\helpers\fecade\Retery;
 use PostApi\shared\helpers\fecade\ViewError;
+use Throwable;
 
 class UserController implements ApiControllerContract
 {
@@ -29,48 +28,54 @@ class UserController implements ApiControllerContract
         /**
          *  @return User[]
          */
-        
-        $body = $request->body;
-        $userRepository = new UserRepository();
-        $critiria = [];
-        $serin = "";
-        if (isset($body['name'])) {
-            $critiria['name'] = $body['name'];
-        }
-        if (isset($body['email'])) {
-            $critiria['email'] = $body['email'];
-        }
-        if (isset($body['phone'])) {
-            $critiria['phone'] = $body['phone'];
-        }
-        if (isset($body['role_id'])) {
-            $critiria['role_id'] = $body['role_id'];
-        }
+        try {
+            $body = $request->body;
+            $userRepository = new UserRepository();
+            $critiria = [];
+            $serin = "";
+            if (isset($body['name'])) {
+                $critiria['name'] = $body['name'];
+            }
+            if (isset($body['email'])) {
+                $critiria['email'] = $body['email'];
+            }
+            if (isset($body['phone'])) {
+                $critiria['phone'] = $body['phone'];
+            }
+            if (isset($body['role_id'])) {
+                $critiria['role_id'] = $body['role_id'];
+            }
 
-        if (!empty($critiria)) {
-            $users = $userRepository->findBy($critiria);
-            $serin = GetUsersCollectionAction::execute($users);
-        } else {
-            $users = $userRepository->findAll();
-            $serin = GetUsersCollectionAction::execute($users);
-        }
+            if (!empty($critiria)) {
+                $users = $userRepository->findBy($critiria);
+                $serin = GetUsersCollectionAction::execute($users);
+            } else {
+                $users = $userRepository->findAll();
+                $serin = GetUsersCollectionAction::execute($users);
+            }
 
-        http_response_code(200);
-        return Chache::checkCache($serin);
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (Throwable $err) {
+            return ViewError::viewProplem("display user error", "validation error", 1, "internal server error", 500);
+        }
     }
     public function get(string $id)
     {
-        $userRepository = new UserRepository();
-        $user = $userRepository->findOne($id);
-
-        $serin = GetUserItemAction::execute($user);
-        http_response_code(200);
-        return Json::toJson($serin);
+        try {
+            $userRepository = new UserRepository();
+            $user = $userRepository->findOne($id);
+            $serin = GetUserItemAction::execute($user);
+            http_response_code(200);
+            return Json::toJson($serin);
+        } catch (Throwable $err) {
+            return ViewError::viewProplem("display user error", "validation error", 1, "internal server error", 500);
+        }
     }
     public function create(Request $request)
     {
         header("Content-Type: application/json");
-        $userRepository = new UserRepository();       
+        $userRepository = new UserRepository();
         $params = $request->body;
         if (isset($params['name'], $params['email'], $params['password'], $params['phone'], $params['role_id'], $request->files['avatar'])) {
             try {
@@ -78,17 +83,17 @@ class UserController implements ApiControllerContract
                 http_response_code(201);
                 $serin = GetUserItemAction::execute($user);
                 return Json::toJson($serin);
-            } catch (Exception $error) {
+            } catch (Throwable $error) {
                 return ViewError::viewProplem("creating user error", "validation error", 1, $error->getMessage(), 400);
             }
         } else {
             return ViewError::viewProplem("creating user error", "missing paramters error", 1, "some required paramters are missing", 400);
         }
     }
-    public function update(Request $request , string $id)
+    public function update(Request $request, string $id)
     {
         header("Content-Type: application/json");
-        $userRepository = new UserRepository();       
+        $userRepository = new UserRepository();
         $params = $request->body;
         $avatarPath = "";
         if ($request->files['avatar']) {
@@ -97,7 +102,7 @@ class UserController implements ApiControllerContract
         $userData = ['name' => $params['name'], 'role_id' => $params['role_id'], 'email' => $params['email'], 'password' => $params['password'], 'phone' => $params['phone'], 'avatar' => $avatarPath];
         try {
             $user = $userRepository->findOne($id);
-            // $isAuthrizaid = CheckUserAuthorizaidAction::execute($id);
+
             if ($user) {
                 $user = ValidateUserAction::execute($params['name'], $params['email'], $params['password'], $params['phone']);
                 UpdateUserAction::execute($id, $userData);
@@ -106,8 +111,8 @@ class UserController implements ApiControllerContract
             } else {
                 return ViewError::viewProplem("updating user error", "not valid param error", 1, "no corresponding user for this id", 400);
             }
-        } catch (Exception $error) {
-            return ViewError::viewProplem("updaing user error", "validation error", 1, $error->getMessage(), 400);
+        } catch (Throwable $error) {
+            return ViewError::viewProplem("updaing user error", "validation error", 1, $error->getMessage(), 500);
         }
     }
     public function delete(string $id)
@@ -118,7 +123,7 @@ class UserController implements ApiControllerContract
         $queue = new TaskQueue();
         try {
             $user = $userRepository->findOne($id);
-            // $isAuthrizaid = CheckUserAuthorizaidAction::execute($id);
+
             if ($user) {
                 $queue->push(new ClousreCommand(function () use ($user) {
                     Retery::execute(function () use ($user) {
@@ -133,8 +138,8 @@ class UserController implements ApiControllerContract
                 http_response_code(200);
                 return Json::toJson(['message' => "user deleted successfuly"]);
             }
-        } catch (Error $error) {
-            return ViewError::viewProplem("deleting user error", "not valid param error", 1, "no corresponding user for this id", 400);
+        } catch (Throwable $error) {
+            return ViewError::viewProplem("deleting user error", "not valid param error", 1, "internal server error", 500);
         }
     }
 }

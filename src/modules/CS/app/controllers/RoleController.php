@@ -20,7 +20,22 @@ class RoleController implements ApiControllerContract
     public function index(Request $request)
     {
         try {
-            $serin = GetRoleCollectionAction::execute();
+            $body = $request->body;
+            $criteria = [];
+            if (isset($body['id'])) {
+                $criteria['id'] = $body['id'];
+            }
+            if (isset($body['name'])) {
+                $criteria['name'] = $body['name'];
+            }
+
+            if (!empty($criteria)) {
+                $repository = new \PostApi\modules\CS\app\DB\repositories\RoleRepository();
+                $items = $repository->findBy($criteria);
+                $serin = GetRoleCollectionAction::execute($items);
+            } else {
+                $serin = GetRoleCollectionAction::execute();
+            }
             return Chache::checkCache($serin);
         } catch (Exception $error) {
             return ViewError::viewProplem('fetch error', 'internal error', 1, $error->getMessage(), 500);

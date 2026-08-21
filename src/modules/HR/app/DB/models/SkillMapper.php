@@ -48,7 +48,44 @@ class SkillMapper
             throw new Error($err->getMessage());
         }
     }
-    public function create(Skill $skill)
+    
+    public function findBy(array $criteria = []): array
+    {
+        $query = "SELECT * FROM HR.skills";
+        $whereClouses = [];
+        $bindings = [];
+
+        if (isset($criteria['id'])) {
+            $whereClouses[] = "id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (isset($criteria['name'])) {
+            $whereClouses[] = "name LIKE ?";
+            $bindings[] = "%" . $criteria['name'] . "%";
+        }
+
+        if (count($whereClouses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClouses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $skillsRawData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($skillsRawData as $skillRawData) {
+                $skill = new Skill();
+                $skill->setId($skillRawData['id']);
+                $skill->setName($skillRawData['name']);
+                $this->identityMap[$skillRawData['id']] = $skill;
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
+public function create(Skill $skill)
     {
         try {
             $createSkillQuery = $this->db->prepare("INSERT INTO HR.skills(name) VALUES (?) RETURNING id ");

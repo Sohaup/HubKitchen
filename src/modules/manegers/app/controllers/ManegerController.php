@@ -21,7 +21,31 @@ class ManegerController implements ApiControllerContract
     public function index(Request $request)
     {
         try {
-            $serin = GetManegerCollectionAction::execute();
+            $body = $request->body;
+            $manegerRepository = new \PostApi\modules\manegers\app\DB\repositories\ManegerRepository();
+            $critiria = [];
+
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['user_id'])) {
+                $critiria['user_id'] = $body['user_id'];
+            }
+            if (isset($body['rank'])) {
+                $critiria['rank'] = $body['rank'];
+            }
+            if (isset($body['department_id'])) {
+                $critiria['department_id'] = $body['department_id'];
+            }
+
+            if (!empty($critiria)) {
+                $manegers = $manegerRepository->findBy($critiria);
+            } else {
+                $manegers = $manegerRepository->findAll();
+            }
+
+            $serin = GetManegerCollectionAction::execute($manegers);
+            http_response_code(200);
             return Chache::checkCache($serin);
         } catch (Exception $error) {
             return ViewError::viewProplem('fetch error', 'internal error', 1, $error->getMessage(), 500);

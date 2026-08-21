@@ -24,8 +24,30 @@ class OrderController implements ApiControllerContract
     #[Override]
     public function index(Request $request)
     {
-        $serin = GetOrderCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $body = $request->body;
+            $orderRepository = new OrderRepository();
+            $critiria = [];
+
+            if (isset($body['customer_id'])) {
+                $critiria['customer_id'] = $body['customer_id'];
+            }
+            if (isset($body['cart_id'])) {
+                $critiria['cart_id'] = $body['cart_id'];
+            }
+
+            if (!empty($critiria)) {
+                $orders = $orderRepository->findBy($critiria);
+            } else {
+                $orders = $orderRepository->findAll();
+            }
+
+            $serin = GetOrderCollectionAction::execute($orders);
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (Error $error) {
+            return ViewError::viewProplem(type: "display order error ", title: "incorrect paramter", status: true, detail: "internal server error", statusCode: 500);
+        }
     }
 
     #[Override]

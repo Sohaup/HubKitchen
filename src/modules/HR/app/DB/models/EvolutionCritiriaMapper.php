@@ -51,7 +51,48 @@ class EvolutionCritiriaMapper
         }
     }
 
-    public function create(EvolutionCritiria $evolutionCritiria)
+    
+    public function findBy(array $criteria = []): array
+    {
+        $query = "SELECT critiria_id , critiria , critiria_weight , template_id , template_title , template_description FROM HR.evoluation_view";
+        $whereClouses = [];
+        $bindings = [];
+
+        if (isset($criteria['critiria_id'])) {
+            $whereClouses[] = "critiria_id = ?";
+            $bindings[] = $criteria['critiria_id'];
+        }
+
+        if (isset($criteria['critiria'])) {
+            $whereClouses[] = "critiria LIKE ?";
+            $bindings[] = "%" . $criteria['critiria'] . "%";
+        }
+
+        if (isset($criteria['template_id'])) {
+            $whereClouses[] = "template_id = ?";
+            $bindings[] = $criteria['template_id'];
+        }
+
+        if (count($whereClouses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClouses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $evolutionsCritiriaRawData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($evolutionsCritiriaRawData as $evolutionCritiriaRawData) {
+                $template = new ApplicationTemplate(id: $evolutionCritiriaRawData['template_id'], title: $evolutionCritiriaRawData['template_title'], description: $evolutionCritiriaRawData['template_description']);
+                $evolutionCritiria = new EvolutionCritiria($evolutionCritiriaRawData['critiria_id'], $evolutionCritiriaRawData['critiria'], $evolutionCritiriaRawData['critiria_weight'], $template);
+                $this->identityMap[$evolutionCritiriaRawData['critiria_id']] = $evolutionCritiria;
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
+public function create(EvolutionCritiria $evolutionCritiria)
     {
         try {
             $createEvolutionCritiriaQuery = $this->db->prepare("INSERT INTO HR.evolution_critiria(template_id , critiria , weight) VALUES(? , ? , ?) RETURNING id ");

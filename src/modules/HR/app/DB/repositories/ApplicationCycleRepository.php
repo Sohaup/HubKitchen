@@ -24,7 +24,13 @@ class ApplicationCycleRepository {
         return $this->applicationCycleMapper->findAll();
     }
 
-    public function create(ApplicationCycle $applicationCycle)
+    
+    public function findBy(array $criteria = [])
+    {
+        return $this->applicationCycleMapper->findBy($criteria);
+    }
+
+public function create(ApplicationCycle $applicationCycle)
     {
         $this->applicationCycleMapper->create($applicationCycle);
     }

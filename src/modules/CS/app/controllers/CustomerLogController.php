@@ -20,7 +20,28 @@ class CustomerLogController implements ApiControllerContract
     public function index(Request $request)
     {
         try {
-            $serin = GetCustomerLogCollectionAction::execute();
+            $body = $request->body;
+            $criteria = [];
+            if (isset($body['id'])) {
+                $criteria['id'] = $body['id'];
+            }
+            if (isset($body['customer_id'])) {
+                $criteria['customer_id'] = $body['customer_id'];
+            }
+            if (isset($body['log_type'])) {
+                $criteria['log_type'] = $body['log_type'];
+            }
+            if (isset($body['created_at'])) {
+                $criteria['created_at'] = $body['created_at'];
+            }
+
+            if (!empty($criteria)) {
+                $repository = new \PostApi\modules\CS\app\DB\repositories\CustomerLogRepository();
+                $items = $repository->findBy($criteria);
+                $serin = GetCustomerLogCollectionAction::execute($items);
+            } else {
+                $serin = GetCustomerLogCollectionAction::execute();
+            }
             return Chache::checkCache($serin);
         } catch (Exception $error) {
             return ViewError::viewProplem('fetch error', 'internal error', 1, $error->getMessage(), 500);

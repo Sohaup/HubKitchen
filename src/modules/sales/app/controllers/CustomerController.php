@@ -22,8 +22,30 @@ class CustomerController implements ApiControllerContract
     #[Override]
     public function index(Request $request)
     {
-        $serin = GetCustomerCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $body = $request->body;
+            $customerRepository = new CustomerRepository();
+            $critiria = [];
+
+            if (isset($body['user_id'])) {
+                $critiria['user_id'] = $body['user_id'];
+            }
+            if (isset($body['stripe_id'])) {
+                $critiria['stripe_id'] = $body['stripe_id'];
+            }
+
+            if (!empty($critiria)) {
+                $customers = $customerRepository->findBy($critiria);
+            } else {
+                $customers = $customerRepository->findAll();
+            }
+
+            $serin = GetCustomerCollectionAction::execute($customers);
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (Error $error) {
+            return ViewError::viewProplem(type: "display customer error ", title: "incorrect paramter", status: true, detail: "internal server error", statusCode: 500);
+        }
     }
 
     #[Override]

@@ -63,6 +63,59 @@ class EmployeeMapper
         }
     }
 
+    public function findBy(array $criteria = []): array
+    {
+        $query = "SELECT e.*, r.name AS role_name FROM cs.employees AS e LEFT JOIN cs.roles AS r ON e.role_id = r.id";
+        $whereClauses = [];
+        $bindings = [];
+
+        if (!empty($criteria['id'])) {
+            $whereClauses[] = "e.id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (!empty($criteria['user_id'])) {
+            $whereClauses[] = "e.user_id = ?";
+            $bindings[] = $criteria['user_id'];
+        }
+
+        if (!empty($criteria['employee_id'])) {
+            $whereClauses[] = "e.employee_id = ?";
+            $bindings[] = $criteria['employee_id'];
+        }
+
+        if (!empty($criteria['role_id'])) {
+            $whereClauses[] = "e.role_id = ?";
+            $bindings[] = $criteria['role_id'];
+        }
+
+        if (count($whereClauses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($rows as $row) {
+                if (!isset($this->identityMap[$row['id']])) {
+                    $employee = new Employee();
+                    $employee->setId($row['id']);
+                    $employee->setUserId($row['user_id']);
+                    $employee->setEmployeeId($row['employee_id']);
+                    $role = new Role();
+                    $role->setId($row['role_id']);
+                    $role->setName($row['role_name']);
+                    $employee->setRole($role);
+                    $this->identityMap[$row['id']] = $employee;
+                }
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function insert(Employee $employee)
     {
         try {

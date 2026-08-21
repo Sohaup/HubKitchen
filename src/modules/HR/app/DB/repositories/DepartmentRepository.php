@@ -22,7 +22,13 @@ class DepartmentRepository {
         return $this->departmentMapper->findAll();
     }
 
-    public function create(Department $department) {
+    
+    public function findBy(array $criteria = [])
+    {
+        return $this->departmentMapper->findBy($criteria);
+    }
+
+public function create(Department $department) {
         $this->departmentMapper->create($department);
     }
 

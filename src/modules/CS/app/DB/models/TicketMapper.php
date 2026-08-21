@@ -51,6 +51,44 @@ class TicketMapper
         }
     }
 
+    public function findBy(array $criteria = []): array
+    {
+        $query = "SELECT * FROM cs.tickets";
+        $whereClauses = [];
+        $bindings = [];
+
+        if (!empty($criteria['id'])) {
+            $whereClauses[] = "id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (!empty($criteria['type'])) {
+            $whereClauses[] = "type LIKE ?";
+            $bindings[] = "%" . $criteria['type'] . "%";
+        }
+
+        if (count($whereClauses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($rows as $row) {
+                if (!isset($this->identityMap[$row['id']])) {
+                    $ticket = new Ticket();
+                    $ticket->setId($row['id']);
+                    $ticket->setType($row['type']);
+                    $this->identityMap[$row['id']] = $ticket;
+                }
+            }
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function insert(Ticket $ticket)
     {
         try {

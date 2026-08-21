@@ -25,7 +25,13 @@ class PayrollRepository
         return $this->payrollMapper->findAll();
     }
 
-    public function create(PayrollJournal $payroll)
+    
+    public function findBy(array $criteria = [])
+    {
+        return $this->payrollMapper->findBy($criteria);
+    }
+
+public function create(PayrollJournal $payroll)
     {
         $this->payrollMapper->create($payroll);
     }

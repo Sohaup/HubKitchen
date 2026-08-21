@@ -18,8 +18,31 @@ class ApplicationCycleController implements ApiControllerContract
 {
     public function index(Request $request)
     {
-        $serin = GetApplicationCycleCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $applicationCycleRepository = new \PostApi\modules\HR\app\DB\repositories\ApplicationCycleRepository();
+            $body = $request->body;
+            $critiria = [];
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['name'])) {
+                $critiria['name'] = $body['name'];
+            }
+            if (isset($body['status'])) {
+                $critiria['status'] = $body['status'];
+            }
+            if (!empty($critiria)) {
+                $applicationCycles = $applicationCycleRepository->findBy($critiria);
+                $serin = GetApplicationCycleCollectionAction::execute($applicationCycles);
+            } else {
+                $applicationCycles = $applicationCycleRepository->findAll();
+                $serin = GetApplicationCycleCollectionAction::execute($applicationCycles);
+            }
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (\Throwable $err) {
+            return ViewError::viewProplem("display application cycle error", "paramter error", 1, "internal server error", 500);
+        }
     }
 
     public function get(string $id)

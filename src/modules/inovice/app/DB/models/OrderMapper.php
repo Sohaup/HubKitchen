@@ -97,6 +97,69 @@ class OrderMapper
         }
     }
 
+    public function findBy(array $criteria = []): array
+    {
+        $query = "SELECT * FROM inovice.order_view";
+        $whereClauses = [];
+        $bindings = [];
+
+        if (!empty($criteria['id'])) {
+            $whereClauses[] = "id = ?";
+            $bindings[] = $criteria['id'];
+        }
+
+        if (!empty($criteria['prucher_id'])) {
+            $whereClauses[] = "prucher_id = ?";
+            $bindings[] = $criteria['prucher_id'];
+        }
+
+        if (!empty($criteria['created_at'])) {
+            $whereClauses[] = "created_at = ?";
+            $bindings[] = $criteria['created_at'];
+        }
+
+        if (count($whereClauses) > 0) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($bindings);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($rows as $row) {
+                if (!isset($this->identityMap[$row['id']])) {
+                    $prucher = new Prucher();
+                    $prucher->setId($row['prucher_id']);
+                    $prucher->setQuantity($row['prucher_quantity']);
+                    $prucher->setCreatedAt($row['prucher_created_at']);
+                    $supplier = new Supplier();
+                    $supplier->setId($row['supplier_id']);
+                    $supplier->setName($row['supplier_name']);
+                    $product = new Product();
+                    $product->setId($row['product_id']);
+                    $product->setName($row['product_name']);
+                    $product->setPrice($row['product_price']);
+                    $product->setQuantity($row['product_quantity']);
+                    $product->setSupplier($supplier);
+                    $product->setImage($row['product_image']);
+                    $product->setCreatedAt($row['product_created_at']);
+                    $prucher->setProduct($product);
+                    $prucher->setSupplier($supplier);
+                    $order = new Order();
+                    $order->setId($row['id']);
+                    $order->setPrucher($prucher);
+                    $order->setCreatedAt($row['created_at']);
+                    $this->identityMap[$row['id']] = $order;
+                }
+            }
+
+            return $this->identityMap;
+        } catch (PDOException $err) {
+            throw new Error($err->getMessage());
+        }
+    }
+
     public function insert(Order $order)
     {
         try {

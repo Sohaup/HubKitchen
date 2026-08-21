@@ -20,8 +20,31 @@ class ApplicationTemplateController implements ApiControllerContract
     #[Override]
     public function index(Request $request)
     {
-        $serin = GetApplicationTemplateCollectionAction::execute();
-        return Chache::checkCache($serin);
+        try {
+            $applicationTemplateRepository = new \PostApi\modules\HR\app\DB\repositories\ApplicationTemplateRepository();
+            $body = $request->body;
+            $critiria = [];
+            if (isset($body['id'])) {
+                $critiria['id'] = $body['id'];
+            }
+            if (isset($body['title'])) {
+                $critiria['title'] = $body['title'];
+            }
+            if (isset($body['description'])) {
+                $critiria['description'] = $body['description'];
+            }
+            if (!empty($critiria)) {
+                $applicationTemplates = $applicationTemplateRepository->findBy($critiria);
+                $serin = GetApplicationTemplateCollectionAction::execute($applicationTemplates);
+            } else {
+                $applicationTemplates = $applicationTemplateRepository->findAll();
+                $serin = GetApplicationTemplateCollectionAction::execute($applicationTemplates);
+            }
+            http_response_code(200);
+            return Chache::checkCache($serin);
+        } catch (\Throwable $err) {
+            return ViewError::viewProplem("display application template error", "paramter error", 1, "internal server error", 500);
+        }
     }
 
     #[Override]
